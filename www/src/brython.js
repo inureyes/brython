@@ -224,8 +224,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,0,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2025-12-01 21:00:34.620256"
-__BRYTHON__.timestamp=1764619234619
+__BRYTHON__.compiled_date="2026-01-25 08:24:08.349361"
+__BRYTHON__.timestamp=1769325848348
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -9206,7 +9206,8 @@ return $B.fast_tuple([$B.fast_float(divmod.floordiv),$B.fast_float(divmod.mod)])
 float.__eq__=function(self,other){check_self_is_float(self,'__eq__')
 if(isNaN(self.value)&&
 ($B.$isinstance(other,float)&& isNaN(other.value))){return false}
-if($B.$isinstance(other,_b_.int)){return self.value==other}
+if($B.$isinstance(other,_b_.int)){if(other.__class__===$B.long_int){return BigInt(self.value)==other.value}
+return self.value==other}
 if($B.$isinstance(other,float)){return self.value==other.value}
 if($B.$isinstance(other,_b_.complex)){if(! $B.rich_comp('__eq__',0,other.$imag)){return false}
 return float.__eq__(self,other.$real)}
