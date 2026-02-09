@@ -224,8 +224,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,0,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-01-25 08:24:08.349361"
-__BRYTHON__.timestamp=1769325848348
+__BRYTHON__.compiled_date="2026-02-09 08:10:19.784919"
+__BRYTHON__.timestamp=1770621019784
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -7459,7 +7459,7 @@ return jspos-nb}
 function to_string(args){if(typeof args=='string'){return args}
 if(Array.isArray(args)){for(var i=0,len=args.length;i < len;i++){args[i]=to_string(args[i])}
 return args}else{if(args.__class__ && !(args instanceof String)){return args.$brython_value}else{return args}}}
-var str={__class__:_b_.type,__dir__:_b_.object.__dir__,__qualname__:'str',$is_class:true,$is_sequence:true,$native:true}
+var str={__class__:_b_.type,__dir__:_b_.object.__dir__,__qualname__:'str',$is_class:true,$is_sequence:true,$native:true,$descriptors:{__doc__:true}}
 str.$to_string=to_string
 function normalize_start_end($){var len
 if(typeof $.self=="string"){len=$.self.length}else{len=str.__len__($.self)}
@@ -7490,6 +7490,15 @@ str.__contains__=function(_self,item){if(! $B.$isinstance(item,str)){$B.RAISE(_b
 return _self.includes(item)}
 str.__delitem__=function(){$B.RAISE(_b_.TypeError,"'str' object doesn't support item deletion")}
 str.__dir__=_b_.object.__dir__
+str.__doc__=(self)=> `str(object='') -> str
+str(bytes_or_buffer[, encoding[, errors]]) -> str
+Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.__str__() (if defined)
+or repr(object).
+encoding defaults to 'utf-8'.
+errors defaults to 'strict'.`
 str.__eq__=function(_self,other){if($B.$isinstance(other,str)){[_self,other]=to_string([_self,other])
 return _self+''==other+''}
 return _b_.NotImplemented}
