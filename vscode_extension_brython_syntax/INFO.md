@@ -21,7 +21,25 @@ inside html file by codeBabel for vscode.
 
 ### installation
 ## 💻 Installation / Instalação
+## 🚨 Requirements (Antes de instalar/Before installing/Avant d'installer)
+~~~~
+{EN}
+An additional extension is required for it to function correctly: [https://marketplace.visualstudio.com/items?itemName=wholroyd.jinja](https://marketplace.visualstudio.com/items?itemName=wholroyd.jinja).
 
+I forgot to mention it in the README, I apologize. ❤️
+
+{FR}
+Une extension supplémentaire est nécessaire pour son bon fonctionnement :
+[https://marketplace.visualstudio.com/items?itemName=wholroyd.jinja](https://marketplace.visualstudio.com/items?itemName=wholroyd.jinja)
+
+J'ai oublié de le mentionner dans le fichier README, je m'en excuse. @PierreQuentel. ❤️ 
+
+{PT_BR}
+É necessária uma extensão adicional para que funcione corretamente:
+[https://marketplace.visualstudio.com/items?itemName=wholroyd.jinja](https://marketplace.visualstudio.com/items?itemName=wholroyd.jinja)
+
+Eu esqueci de comentar no README, me perdoe. ❤️
+~~~~
 ~~~~
 {BR}
 🐍 Na guia de extenções, procure por "cbbl" ou "codebabel-brython-syntax",
