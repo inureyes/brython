@@ -100,7 +100,7 @@ $B.builtin_object_getattro = function(self, klass, attr){
 
 $B.object_getattribute = function(obj, klass, attr){
     var t0 = globalThis.performance.now()
-    var test = false // attr == 'nodeType' // && klass.tp_name === 'AttributeError'
+    var test = false // attr == 'zd' // && klass.tp_name === 'AttributeError'
     if(test){
         console.log('klass', klass, 'attr', attr)
     }
@@ -335,7 +335,7 @@ _b_.object.tp_hash = function(self){
 }
 
 _b_.object.tp_str = function(self){
-    if(self === undefined || self.$kw){
+    if(self === undefined){
         $B.RAISE(_b_.TypeError, "descriptor '__str__' of 'object' " +
             "object needs an argument")
     }

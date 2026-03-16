@@ -1187,6 +1187,13 @@
 
     var HTTPRequest = $B.make_builtin_class("HTTPRequest")
 
+    HTTPRequest.tp_getattro = function(self, attr){
+        if(self[attr] !== undefined){
+            return $B.jsobj2pyobj(self[attr])
+        }
+        return _b_.object.tp_getattro(self, attr)
+    }
+
     var HTTPRequest_funcs = HTTPRequest.tp_funcs = {}
 
     HTTPRequest_funcs.data_get = function(self){

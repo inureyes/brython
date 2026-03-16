@@ -17,24 +17,13 @@ function convertDomValue(v){
 }
 
 // Conversion of immutable types between Javascript and Python
-var py_immutable_to_js = $B.py_immutable_to_js = function (pyobj){
+var py_immutable_to_js = $B.py_immutable_to_js = function(pyobj){
     if($B.$isinstance(pyobj, _b_.float)){
         return pyobj.value
     }else if($B.$isinstance(pyobj, _b_.int) && typeof pyobj !== "boolean"){
         return Number($B.int_value(pyobj))
     }
-    return pyobj
-}
-
-function js_immutable_to_py(jsobj){
-    if(typeof jsobj == "number"){
-        if(Number.isSafeInteger(jsobj)){
-            return jsobj
-        }else{
-            return $B.fast_float(jsobj)
-        }
-    }
-    return jsobj
+    return $B.pyobj2jsobj(pyobj)
 }
 
 // cross-browser utility functions
@@ -558,9 +547,6 @@ DOMNode.tp_getattro = function(self, attr){
               return res
           }
           break
-        case "location":
-            attr = "location"
-            break
     }
 
     // Special case for attribute "select" of INPUT or TEXTAREA tags :
@@ -605,8 +591,12 @@ DOMNode.tp_getattro = function(self, attr){
     }
 
     var klass = $B.get_class(self)
+    var test = false // attr == 'foo'
 
     var property = self[attr]
+    if(test){
+        console.log('attr', attr, 'of', self, 'property', property)
+    }
 
     if(property !== undefined && self.ob_type &&
             klass.__module__ != "browser.html" &&
@@ -670,6 +660,9 @@ DOMNode.tp_getattro = function(self, attr){
             return res
         }
         if(typeof res === "function"){
+            if(Object.hasOwn(res, $B.PYOBJ)){
+                return res[$B.PYOBJ]
+            }
             if(self.ob_type && self.ob_type.$webcomponent){
                 var method = $B.$getattr($B.get_class(self), attr, null)
                 if(method !== null){
@@ -736,7 +729,10 @@ DOMNode.tp_getattro = function(self, attr){
         if(Array.isArray(res)){ // issue #619
             return res
         }
-        return js_immutable_to_py(res)
+        if(test){
+            console.log('fallback to jsobj2ypobj', res)
+        }
+        return $B.jsobj2pyobj(res)
     }
     return object.tp_getattro(self, attr)
 }
@@ -784,14 +780,6 @@ DOMNode.mp_subscript = function(self, key){
         }
     }
 }
-
-/*
-DOMNode.__hash__ = function(self){
-    return self.__hashvalue__ === undefined ?
-        (self.__hashvalue__ = $B.$py_next_hash--) :
-        self.__hashvalue__
-}
-*/
 
 DOMNode.tp_iter = function(self){
     // iteration on a Node

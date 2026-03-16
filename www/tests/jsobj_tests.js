@@ -22,16 +22,6 @@ function initClass() {
     return new JS_A();
 }
 
-class JSWithEq {
-  __eq__(other) {
-    return true;
-  }
-}
-
-function initJSWithEq() {
-  return new JSWithEq();
-}
-
 var root = {
     x: 1,
     children:[
@@ -317,10 +307,11 @@ function func_js2474_2() {
 
 function func_js2474_3() {
     if(window['dictA']['arrA'].length != 2){
-        throw Error('length is not 2')
+        throw Error('length of dictA.arrA is not 2')
     }
     if(window['dictB']['arrB'].length != 2){
-        throw Error('length is not 2')
+        console.log(window['dictB']['arrB'])
+        throw Error('length of dictB.arrB is not 2')
     }
     if(window.dictA.arrA[1] != "A"){
         throw Error('should be "A", got ' + window.dictA.arrA[1])

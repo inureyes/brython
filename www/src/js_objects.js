@@ -152,6 +152,8 @@ var jsobj2pyobj = $B.jsobj2pyobj = function(jsobj, _this){
     // with built-in value `this` set to _this
     if(jsobj === null){
         return null
+    }else if(jsobj === undefined){
+        return $B.Undefined
     }
 
     // Immutable types
@@ -165,6 +167,9 @@ var jsobj2pyobj = $B.jsobj2pyobj = function(jsobj, _this){
         case 'number':
              // convert JS numbers with no decimal to a Python int
              if(jsobj % 1 === 0){
+                 if(! Number.isSafeInteger(jsobj)){
+                     return BigInt(jsobj.toString())
+                 }
                  return jsobj
              }
              // other numbers to Python floats
@@ -179,11 +184,13 @@ var jsobj2pyobj = $B.jsobj2pyobj = function(jsobj, _this){
 
     if(Array.isArray(jsobj)){
         // set it as non-enumerable, prevents issues when looping on it in JS.
+        /*
         try{
             Object.defineProperty(jsobj, "$is_js_array", {value: true});
         }catch(err){
             // ignore; cf. issue #2379
         }
+        */
         return jsobj
     }
 
@@ -271,10 +278,12 @@ var jsobj2pyobj = $B.jsobj2pyobj = function(jsobj, _this){
         return res
     }
 
+    /*
     if(jsobj.$kw){
         return jsobj
     }
-
+    */
+    
     if(jsobj.constructor === Generator.constructor){
         return JSGenerator.$factory(jsobj)
     }
@@ -321,8 +330,8 @@ var pyobj2jsobj = $B.pyobj2jsobj = function(pyobj){
     if(has_type(klass, _b_.list) || has_type(klass, _b_.tuple)){
         // Python list : transform its elements
         var jsobj = pyobj.map(pyobj2jsobj)
-        jsobj[PYOBJ] = pyobj
-        //jsobj.__class__ = js_array
+        //jsobj[PYOBJ] = pyobj
+        delete jsobj.ob_type // becomes a js_array
         return jsobj
     }
 
@@ -345,8 +354,10 @@ var pyobj2jsobj = $B.pyobj2jsobj = function(pyobj){
             jsobj[key] = pyobj2jsobj(entry.value)
         }
         pyobj[JSOBJ] = jsobj
+        jsobj[PYOBJ] = pyobj
         return jsobj
     }
+
     if(has_type(klass, _b_.str)){
         // Python strings are converted to the underlying value
         return pyobj.valueOf()
@@ -546,7 +557,43 @@ js_iterator.tp_iternext = function*(self){
 
 $B.set_func_names(js_iterator, 'builtins')
 
+function dict_to_js(d){
+    var res = {}
+    for(var entry of _b_.dict.$iter_items(d)){
+        if(typeof entry.key !== 'string'){
+            return $B.NULL
+        }
+        res[entry.key] = pyobj2jsobj(entry.value)
+    }
+    return res
+}
+
 function JSObj_eq(self, other){
+    if(typeof self !== 'object'){
+        return false
+    }
+    // a JS object can compare to another JS object or a Python dictionary
+    if($B.$isinstance(self, _b_.dict)){
+        self = dict_to_js(self)
+        if(self === $B.NULL){
+            return false
+        }
+    }
+    if($B.$isinstance(other, _b_.dict)){
+        other = dict_to_js(other)
+        if(other === $B.NULL){
+            return false
+        }
+    }
+    if(Object.keys(self).length !== Object.keys(other).length){
+        return false
+    }
+    for(var key in self){
+        if(! Object.hasOwn(other, key) || other[key] !== self[key]){
+            return false
+        }
+    }
+    return true
     switch(typeof self){
         case "string":
             return self == other
@@ -626,7 +673,7 @@ $B.JSObj.tp_iter = function(self){
 }
 
 $B.JSObj.tp_getattro = function(_self, attr){
-    var test = false //attr == "performance"
+    var test = false // attr == "dictB"
     if(test){
         console.log("__ga__", _self, attr)
     }

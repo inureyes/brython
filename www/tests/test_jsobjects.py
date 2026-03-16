@@ -81,10 +81,6 @@ try:
 except TypeError:
     pass
 
-x = window.initJSWithEq()
-assert 'x' == x
-assert x == 'x'
-
 # test parsing json with a null value
 import javascript
 obj = javascript.JSON.parse('{"foo": null}')

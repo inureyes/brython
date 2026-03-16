@@ -1181,20 +1181,15 @@ $B.getitem_slice = function(obj, slice, inum){
 
 $B.$setitem = function(obj, item, value, inum){
     var klass = $B.get_class(obj)
-    if(Array.isArray(obj) && klass === $B.js_array &&
-            ! obj.$is_js_array &&
-            typeof item == "number" &&
-            ! $B.$isinstance(obj, _b_.tuple)){
-        if(item < 0){
-            item += obj.length
-        }
-        if(obj[item] === undefined){
+    if(Object.hasOwn(klass, 'mp_ass_subscript')){
+        try{
+            return klass.mp_ass_subscript(obj, item, value)
+        }catch(err){
             $B.set_inum(inum)
-            $B.RAISE(_b_.IndexError, "list assignment index out of range")
+            throw err
         }
-        obj[item] = value
-        return
-    }else if(klass === _b_.dict){
+    }
+    if(klass === _b_.dict){
         _b_.dict.$setitem(obj, item, value)
         return
     }else if(klass === _b_.list){

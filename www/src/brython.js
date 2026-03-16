@@ -670,8 +670,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-03-14 08:38:05.163171"
-__BRYTHON__.timestamp=1773473885162
+__BRYTHON__.compiled_date="2026-03-16 09:20:03.409272"
+__BRYTHON__.timestamp=1773649203408
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -1779,14 +1779,9 @@ if(Array.isArray(obj)&& klass===_b_.list){res=_b_.list.mp_subscript(obj,slice)}e
 return res}catch(err){$B.set_inum(inum)
 throw err}}
 $B.$setitem=function(obj,item,value,inum){var klass=$B.get_class(obj)
-if(Array.isArray(obj)&& klass===$B.js_array &&
-! obj.$is_js_array &&
-typeof item=="number" &&
-! $B.$isinstance(obj,_b_.tuple)){if(item < 0){item+=obj.length}
-if(obj[item]===undefined){$B.set_inum(inum)
-$B.RAISE(_b_.IndexError,"list assignment index out of range")}
-obj[item]=value
-return}else if(klass===_b_.dict){_b_.dict.$setitem(obj,item,value)
+if(Object.hasOwn(klass,'mp_ass_subscript')){try{return klass.mp_ass_subscript(obj,item,value)}catch(err){$B.set_inum(inum)
+throw err}}
+if(klass===_b_.dict){_b_.dict.$setitem(obj,item,value)
 return}else if(klass===_b_.list){try{return _b_.list.$setitem(obj,item,value)}catch(err){if($B.is_exc(err,[_b_.IndexError])){$B.set_inum(inum)}
 throw err}}
 var setitem=$B.$getattr($B.get_class(obj),"__setitem__",$B.NULL)
@@ -2280,7 +2275,7 @@ module !=="builtins"){return `<${module}.${$B.class_name(self)} object>`}else{re
 _b_.object.tp_hash=function(self){var hash=self.__hashvalue__
 if(hash !==undefined){return hash}
 return self.__hashvalue__=$B.$py_next_hash--}
-_b_.object.tp_str=function(self){if(self===undefined ||self.$kw){$B.RAISE(_b_.TypeError,"descriptor '__str__' of 'object' "+
+_b_.object.tp_str=function(self){if(self===undefined){$B.RAISE(_b_.TypeError,"descriptor '__str__' of 'object' "+
 "object needs an argument")}
 var klass=$B.get_class(self)
 if($B.is_builtin_type(klass)){var tp_repr=$B.builtin_slot(klass,'tp_repr')
@@ -8793,7 +8788,7 @@ var value
 if(fmt.name.charAt(0).search(/\d/)>-1){
 let pos=parseInt(fmt.name)
 value=$B.$getitem($.$args,pos)}else{
-value=getitem(fmt.name)}
+value=$B.$call(getitem,fmt.name)}
 for(var j=0;j < fmt.name_ext.length;j++){var ext=fmt.name_ext[j]
 if(ext.charAt(0)=="."){
 value=$B.$getattr(value,ext.substr(1))}else{
@@ -8806,7 +8801,7 @@ res+=$B.$call(format_func,value,fmt.spec)}else{res+=$B.$call($B.$getattr(value,"
 return res}
 str_funcs.format_map=function(self,mapping){$B.check_nb_args_no_kw('str.format_map',2,arguments)
 var _self=to_string(self)
-return str.format(_self,{$nat:'mapping',mapping})}
+return str.tp_funcs.format(_self,{$nat:'mapping',mapping})}
 str_funcs.index=function(){
 var res=str.tp_funcs.find.apply(null,arguments)
 if(res===-1){$B.RAISE(_b_.ValueError,"substring not found")}
@@ -11458,20 +11453,20 @@ ob_type:JSGenerator,dict:$B.empty_dict,js_gen}}
 JSGenerator.tp_iter=function(self){return self}
 JSGenerator.tp_iternext=function*(self){for(var item of self.js_gen){yield jsobj2pyobj(item)}}
 var jsobj2pyobj=$B.jsobj2pyobj=function(jsobj,_this){
-if(jsobj===null){return null}
+if(jsobj===null){return null}else if(jsobj===undefined){return $B.Undefined}
 switch(typeof jsobj){case 'boolean':
 return jsobj
 case 'undefined':
 return $B.Undefined
 case 'number':
-if(jsobj % 1===0){return jsobj}
+if(jsobj % 1===0){if(! Number.isSafeInteger(jsobj)){return BigInt(jsobj.toString())}
+return jsobj}
 return _b_.float.$factory(jsobj)
 case 'bigint':
 return jsobj
 case 'string':
 return $B.String(jsobj)}
 if(Array.isArray(jsobj)){
-try{Object.defineProperty(jsobj,"$is_js_array",{value:true});}catch(err){}
 return jsobj}
 let pyobj=jsobj[PYOBJ]
 if(pyobj !==undefined){return pyobj}
@@ -11499,7 +11494,6 @@ value[$B.func_attrs.qualname]=jsobj.name
 Object.defineProperty(res,'$function_infos',{value,writable:true}
 )
 return res}
-if(jsobj.$kw){return jsobj}
 if(jsobj.constructor===Generator.constructor){return JSGenerator.$factory(jsobj)}
 if($B.$isNode(jsobj)){const res=$B.DOMNode.$factory(jsobj)
 jsobj[PYOBJ]=res
@@ -11521,7 +11515,7 @@ function has_type(cls,base){return cls===base ||$B.get_mro(cls).includes(base)}
 if(has_type(klass,$B.DOMNode)){return pyobj}
 if(has_type(klass,_b_.list)||has_type(klass,_b_.tuple)){
 var jsobj=pyobj.map(pyobj2jsobj)
-jsobj[PYOBJ]=pyobj
+delete jsobj.ob_type 
 return jsobj}
 if(has_type(klass,_b_.dict)){
 let jsobj={}
@@ -11531,6 +11525,7 @@ if(typeof entry.value==='function'){
 entry.value.bind(jsobj)}
 jsobj[key]=pyobj2jsobj(entry.value)}
 pyobj[JSOBJ]=jsobj
+jsobj[PYOBJ]=pyobj
 return jsobj}
 if(has_type(klass,_b_.str)){
 return pyobj.valueOf()}
@@ -11605,7 +11600,19 @@ return cls}
 var js_iterator=$B.make_builtin_class('js_iterator')
 js_iterator.tp_iternext=function*(self){for(var key of self.it){yield key}}
 $B.set_func_names(js_iterator,'builtins')
-function JSObj_eq(self,other){switch(typeof self){case "string":
+function dict_to_js(d){var res={}
+for(var entry of _b_.dict.$iter_items(d)){if(typeof entry.key !=='string'){return $B.NULL}
+res[entry.key]=pyobj2jsobj(entry.value)}
+return res}
+function JSObj_eq(self,other){if(typeof self !=='object'){return false}
+if($B.$isinstance(self,_b_.dict)){self=dict_to_js(self)
+if(self===$B.NULL){return false}}
+if($B.$isinstance(other,_b_.dict)){other=dict_to_js(other)
+if(other===$B.NULL){return false}}
+if(Object.keys(self).length !==Object.keys(other).length){return false}
+for(var key in self){if(! Object.hasOwn(other,key)||other[key]!==self[key]){return false}}
+return true
+switch(typeof self){case "string":
 return self==other
 case "object":
 if(self.__eq__ !==undefined){return self.__eq__(other)}
@@ -12062,9 +12069,7 @@ $B.set_func_names($B.async_generator,"builtins")})(__BRYTHON__);
 function convertDomValue(v){if(v===null ||v===undefined){return _b_.None}
 return $B.jsobj2pyobj(v)}
 var py_immutable_to_js=$B.py_immutable_to_js=function(pyobj){if($B.$isinstance(pyobj,_b_.float)){return pyobj.value}else if($B.$isinstance(pyobj,_b_.int)&& typeof pyobj !=="boolean"){return Number($B.int_value(pyobj))}
-return pyobj}
-function js_immutable_to_py(jsobj){if(typeof jsobj=="number"){if(Number.isSafeInteger(jsobj)){return jsobj}else{return $B.fast_float(jsobj)}}
-return jsobj}
+return $B.pyobj2jsobj(pyobj)}
 function $getPosition(e){var left=0,top=0,width=e.width ||e.offsetWidth,height=e.height ||e.offsetHeight
 while(e.offsetParent){left+=e.offsetLeft
 top+=e.offsetTop
@@ -12271,9 +12276,6 @@ for(let header of headers){if(header.strip().length==0){continue}
 let pos=header.search(":")
 res.__setitem__(header.substr(0,pos),header.substr(pos+1).lstrip())}
 return res}
-break
-case "location":
-attr="location"
 break}
 if(attr=="select" && self.nodeType==1 &&
 ["INPUT","TEXTAREA"].indexOf(self.tagName.toUpperCase())>-1){return function(selector){if(selector===undefined){self.select()
@@ -12287,7 +12289,9 @@ if(res._keys.indexOf(key)>-1){res._values[key].push(value)}else{res._keys.push(k
 res._values[key]=[value]}}}
 return res}
 var klass=$B.get_class(self)
+var test=false 
 var property=self[attr]
+if(test){console.log('attr',attr,'of',self,'property',property)}
 if(property !==undefined && self.ob_type &&
 klass.__module__ !="browser.html" &&
 klass.__module__ !="browser.svg" &&
@@ -12315,7 +12319,8 @@ if(res !==$B.NULL){return res}}}
 return _b_.object.tp_getattro(self,attr)}
 var res=property
 if(res !==undefined){if(res===null){return res}
-if(typeof res==="function"){if(self.ob_type && self.ob_type.$webcomponent){var method=$B.$getattr($B.get_class(self),attr,null)
+if(typeof res==="function"){if(Object.hasOwn(res,$B.PYOBJ)){return res[$B.PYOBJ]}
+if(self.ob_type && self.ob_type.$webcomponent){var method=$B.$getattr($B.get_class(self),attr,null)
 if(method !==null){
 return res.bind(self)}}
 if(res.$function_infos){
@@ -12336,7 +12341,8 @@ return func}
 if(attr=='style'){return $B.jsobj2pyobj(self[attr])}
 if(Array.isArray(res)){
 return res}
-return js_immutable_to_py(res)}
+if(test){console.log('fallback to jsobj2ypobj',res)}
+return $B.jsobj2pyobj(res)}
 return object.tp_getattro(self,attr)}
 DOMNode.mp_subscript=function(self,key){if(self.nodeType==Node.DOCUMENT_NODE){
 if(typeof key.valueOf()=="string"){let res=self.getElementById(key)
@@ -13858,6 +13864,8 @@ if(method=="post"){
 if(! result.headers.hasOwnProperty("content-type")){result.headers["Content-Type"]="application/x-www-form-urlencoded"}}
 return result}
 var HTTPRequest=$B.make_builtin_class("HTTPRequest")
+HTTPRequest.tp_getattro=function(self,attr){if(self[attr]!==undefined){return $B.jsobj2pyobj(self[attr])}
+return _b_.object.tp_getattro(self,attr)}
 var HTTPRequest_funcs=HTTPRequest.tp_funcs={}
 HTTPRequest_funcs.data_get=function(self){if(self.format=="binary"){var view=new Uint8Array(self.response)
 return _b_.bytes.$factory(Array.from(view))}else if(self.format=="text"){return self.responseText}else if(self.format=="dataURL"){var base64String=btoa(String.fromCharCode.apply(null,new Uint8Array(self.response)))
