@@ -2221,7 +2221,7 @@ str_funcs.format = function(){
             value = $B.$getitem($.$args, pos)
         }else{
             // Use keyword arguments
-            value = getitem(fmt.name)
+            value = $B.$call(getitem, fmt.name)
         }
         // If name has extensions (attributes or subscriptions)
         for(var j = 0; j < fmt.name_ext.length; j++){
@@ -2264,7 +2264,7 @@ str_funcs.format = function(){
 str_funcs.format_map = function(self, mapping){
     $B.check_nb_args_no_kw('str.format_map', 2, arguments)
     var _self = to_string(self)
-    return str.format(_self, {$nat: 'mapping', mapping})
+    return str.tp_funcs.format(_self, {$nat: 'mapping', mapping})
 }
 
 str_funcs.index = function(){
