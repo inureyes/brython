@@ -1519,7 +1519,7 @@ $B.dict_keys.nb_or = function(self, other){
 
 $B.dict_keys.tp_repr = function(self){
     var keys = Array.from(dict.$iter_items(self.dict_obj)).map(x => x.key)
-    return `dict_keys({${keys}])`
+    return `dict_keys([${keys}])`
 }
 
 $B.dict_keys.tp_hash = _b_.None

@@ -671,8 +671,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-03-17 09:31:36.227121"
-__BRYTHON__.timestamp=1773736296226
+__BRYTHON__.compiled_date="2026-03-18 20:36:02.656915"
+__BRYTHON__.timestamp=1773862562656
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -10899,7 +10899,7 @@ $B.dict_keys.nb_and=function(self,other){return _PyDictView_Intersect(self,other
 $B.dict_keys.nb_xor=function(self,other){return dictviews_xor(self,other)}
 $B.dict_keys.nb_or=function(self,other){return dictviews_or(self,other)}
 $B.dict_keys.tp_repr=function(self){var keys=Array.from(dict.$iter_items(self.dict_obj)).map(x=> x.key)
-return `dict_keys({${keys}])`}
+return `dict_keys([${keys}])`}
 $B.dict_keys.tp_hash=_b_.None
 $B.dict_keys.tp_iter=function(self){return{
 ob_type:$B.dict_keyiterator,it:dict.$iter_items(self.dict_obj),dict_obj:self.dict_obj}}
