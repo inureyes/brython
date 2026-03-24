@@ -2930,21 +2930,24 @@ str_funcs.split = function(){
                 $B.class_name(sep))
         }
         sep = to_string(sep)
-        let res = [],
+        let res,
             s = "",
             seplen = sep.length
         if(maxsplit == 0){
-            return $B.$list([$.self])
+            res = $B.$list([$.self])
+            $B.time_string_split += globalThis.performance.now() - t0
+            return res
         }else if(maxsplit == -1){
             res = _self.split(sep)
             if(_self.surrogates){
                 res = res.map($B.String)
             }
+            $B.time_string_split += globalThis.performance.now() - t0
             return $B.$list(res)
         }
         // can't use Javascript split(sep, maxsplit) because the part after
         // maxplit is lost
-
+        res = []
         while(pos < _self.length){
             var ix = _self.indexOf(sep, pos)
             if(ix == -1){
@@ -3298,9 +3301,10 @@ $B.ZTR.prototype.split = function(sep){
         ["sep", "maxsplit"], arguments,
         {sep: _b_.None, maxsplit: -1}, null, null),
         maxsplit = $.maxsplit,
-        sep = $.sep,
-        pos = 0,
-        _self = to_string(this.s)
+        sep = $.sep
+    var pos = 0,
+        _self = to_string(this)
+
     if($B.is_big_int(maxsplit)){
         maxsplit = Number($B.int_value(maxsplit))
     }
@@ -3356,17 +3360,21 @@ $B.ZTR.prototype.split = function(sep){
         if(maxsplit == 0){
             return $B.$list([$.self])
         }
+        if(maxsplit == -1){
+            return $B.$list(_self.split(sep))
+        }
+        res = []
         while(pos < _self.length){
-            if(_self.substr(pos, seplen) == sep){
-                res.push(s)
-                pos += seplen
-                if(maxsplit > -1 && res.length >= maxsplit){
-                    res.push(_self.substr(pos))
-                }
-                s = ""
-            }else{
-                s += _self.charAt(pos)
-                pos++
+            var ix = _self.indexOf(sep, pos)
+            if(ix == -1){
+                res.push(_self.substr(pos))
+                break
+            }
+            res.push(_self.substring(pos, ix))
+            pos = ix + seplen
+            if(maxsplit > -1 && res.length >= maxsplit){
+                res.push(_self.substr(pos))
+                break
             }
         }
         if(_self.surrogates){
@@ -3382,6 +3390,9 @@ _b_.ztr.tp_new = function(cls, args, kw){
     return new $B.ZTR(args[0])
 }
 
+_b_.ztr.tp_getattro = function(self, attr){
+    return $B.ZTR.prototype[attr].bind(self)
+}
 
 })(__BRYTHON__);
 

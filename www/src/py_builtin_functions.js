@@ -786,6 +786,7 @@ $B.$getattr_pep657 = function(obj, attr, inum){
 
 $B.time_getattr = 0
 $B.time_obj_getattr = 0
+$B.time_builtin_getattr = 0
 
 $B.$getattr = function(obj, attr, _default){
     // Used internally to avoid having to parse the arguments
@@ -818,6 +819,11 @@ $B.$getattr = function(obj, attr, _default){
     }
 
     var klass = $B.get_class(obj)
+    if(klass === _b_.str){
+        if(Object.hasOwn($B.ZTR.prototype, attr)){
+            return $B.ZTR.prototype[attr].bind(obj)
+        }
+    }
     var is_class = klass.tp_mro.includes(_b_.type)
 
     if(test){
@@ -827,16 +833,17 @@ $B.$getattr = function(obj, attr, _default){
 
     if(! is_class){
         if(klass.tp_funcs && Object.hasOwn(klass.tp_funcs, attr)){
+            var t0 = globalThis.performance.now()
             var func = klass.tp_funcs[attr]
             var res = $B.NULL
             switch(func.ob_type){
                 case $B.builtin_method:
-                    res = klass.tp_funcs[attr].bind(obj, obj)
-                    break
-            }
-            if(res !== $B.NULL){
-                res.ob_type = func.ob_type
-                return res
+                    res = function(){
+                        return klass.tp_funcs[attr](obj, ...arguments)
+                    }
+                    res.ob_type = func.ob_type
+                    $B.time_builtin_getattr += globalThis.performance.now() - t0
+                    return res
             }
         }
         var res =  $B.object_getattribute(obj, klass, attr)
