@@ -366,6 +366,7 @@ for(var ns of [$B.builtin_types, $B.created_types]){
 for(var builtin_func of $B.builtin_funcs){
     if(_b_[builtin_func]){
         _b_[builtin_func].ob_type = $B.builtin_function_or_method
+        _b_[builtin_func].m_module = 'builtins'
         _b_[builtin_func].$function_infos = ['builtins', builtin_func, builtin_func]
     }else{
         console.log('missing builtin function', builtin_func)

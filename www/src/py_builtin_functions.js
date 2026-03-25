@@ -791,7 +791,7 @@ $B.time_builtin_getattr = 0
 $B.$getattr = function(obj, attr, _default){
     // Used internally to avoid having to parse the arguments
     var t0 = globalThis.performance.now()
-    var test = false // attr == 'KW_ONLY'
+    var test = false // attr == '__module__'
     if(test){
         console.log('$getattr', obj, attr)
     }
@@ -832,18 +832,25 @@ $B.$getattr = function(obj, attr, _default){
     }
 
     if(! is_class){
-        if(klass.tp_funcs && Object.hasOwn(klass.tp_funcs, attr)){
-            var t0 = globalThis.performance.now()
-            var func = klass.tp_funcs[attr]
-            var res = $B.NULL
-            switch(func.ob_type){
-                case $B.builtin_method:
-                    res = function(){
-                        return klass.tp_funcs[attr](obj, ...arguments)
-                    }
-                    res.ob_type = func.ob_type
-                    $B.time_builtin_getattr += globalThis.performance.now() - t0
-                    return res
+        if(klass.tp_funcs){
+            var func = $B.str_dict_get(klass.dict, attr, $B.NULL)
+            if(func !== $B.NULL){
+                var res = $B.NULL
+                if(test){
+                    console.log('built-in type', func.ob_type)
+                }
+                switch(func.ob_type){
+                    case $B.builtin_method:
+                        res = function(){
+                            return func(obj, ...arguments)
+                        }
+                        res.ob_type = func.ob_type
+                        return res
+                    case $B.getset_descriptor:
+                        return func.getter(obj)
+                    case $B.member_descriptor:
+                        return obj[func.d_member.attr]
+                }
             }
         }
         var res =  $B.object_getattribute(obj, klass, attr)

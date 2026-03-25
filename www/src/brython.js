@@ -671,8 +671,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-03-24 08:33:48.958159"
-__BRYTHON__.timestamp=1774337628957
+__BRYTHON__.compiled_date="2026-03-25 07:50:01.082755"
+__BRYTHON__.timestamp=1774421401082
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -3463,7 +3463,8 @@ builtin_function_or_method_funcs.__text_signature___set=function(self){}
 $B.builtin_function_or_method.tp_methods=["__reduce__"]
 $B.builtin_function_or_method.tp_members=[["__module__",$B.TYPES.OBJECT,"m_module",0]
 ]
-$B.builtin_function_or_method.tp_getset=["__name__","__qualname__","__self__","__text_signature__"]
+$B.builtin_function_or_method.tp_getset=["__name__","__qualname__","__self__","__text_signature__"
+]
 $B.set_func_names($B.builtin_function_or_method,"builtins")
 function doc_set(f,value){$B.check_infos(f)
 f.$infos.__doc__=value}
@@ -4765,14 +4766,17 @@ var klass=$B.get_class(obj)
 if(klass===_b_.str){if(Object.hasOwn($B.ZTR.prototype,attr)){return $B.ZTR.prototype[attr].bind(obj)}}
 var is_class=klass.tp_mro.includes(_b_.type)
 if(test){console.log("attr",attr,"of",obj,"class",klass ?? $B.get_class(obj),"isclass",is_class)}
-if(! is_class){if(klass.tp_funcs && Object.hasOwn(klass.tp_funcs,attr)){var t0=globalThis.performance.now()
-var func=klass.tp_funcs[attr]
-var res=$B.NULL
+if(! is_class){if(klass.tp_funcs){var func=$B.str_dict_get(klass.dict,attr,$B.NULL)
+if(func !==$B.NULL){var res=$B.NULL
+if(test){console.log('built-in type',func.ob_type)}
 switch(func.ob_type){case $B.builtin_method:
-res=function(){return klass.tp_funcs[attr](obj,...arguments)}
+res=function(){return func(obj,...arguments)}
 res.ob_type=func.ob_type
-$B.time_builtin_getattr+=globalThis.performance.now()-t0
-return res}}
+return res
+case $B.getset_descriptor:
+return func.getter(obj)
+case $B.member_descriptor:
+return obj[func.d_member.attr]}}}
 var res=$B.object_getattribute(obj,klass,attr)}else{var res=$B.type_getattribute(obj,attr)}
 if(res===$B.NULL){if(_default !==undefined){return _default}
 throw $B.attr_error(attr,obj)}
@@ -14206,6 +14210,7 @@ $B.make_getattr(cls)}
 for(var ns of[$B.builtin_types,$B.created_types]){for(var name in ns){var cls=ns[name]
 $B.finalize_type(cls)}}
 for(var builtin_func of $B.builtin_funcs){if(_b_[builtin_func]){_b_[builtin_func].ob_type=$B.builtin_function_or_method
+_b_[builtin_func].m_module='builtins'
 _b_[builtin_func].$function_infos=['builtins',builtin_func,builtin_func]}else{console.log('missing builtin function',builtin_func)}}})(__BRYTHON__)
 ;
 

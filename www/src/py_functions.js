@@ -81,7 +81,9 @@ $B.builtin_function_or_method.tp_members = [
     ["__module__", $B.TYPES.OBJECT, "m_module", 0]
 ]
 
-$B.builtin_function_or_method.tp_getset = ["__name__", "__qualname__", "__self__", "__text_signature__"]
+$B.builtin_function_or_method.tp_getset = [
+    "__name__", "__qualname__", "__self__", "__text_signature__"
+]
 
 /* builtin_function_or_method end */
 
