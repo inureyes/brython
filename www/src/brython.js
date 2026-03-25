@@ -671,8 +671,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-03-25 07:50:01.082755"
-__BRYTHON__.timestamp=1774421401082
+__BRYTHON__.compiled_date="2026-03-25 10:59:04.594985"
+__BRYTHON__.timestamp=1774432744594
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -2253,7 +2253,7 @@ $B.RAISE(_b_.TypeError,"can't set attributes of built-in/extension type 'object'
 if(object[attr]===undefined){throw $B.attr_error(attr,self)}else{$B.RAISE_ATTRIBUTE_ERROR(
 "'object' object attribute '"+attr+"' is read-only",self,attr)}}
 if(in_mro !==$B.NULL){if(test){console.log(attr,'in class mro',in_mro,$B.get_class(in_mro))}
-var setter=$B.search_slot($B.get_class(in_mro),'tp_descr_set',$B.NULL)
+var setter=$B.get_class(in_mro).tp_descr_set
 if(test){console.log('setter',setter)}
 if(setter !==$B.NULL){if(test){console.log('setter',setter)}
 return setter(in_mro,self,value)}}
@@ -2296,7 +2296,7 @@ $B.get_class(in_mro)===$B.function &&
 ((! self.dict)||$B.str_dict_get(self.dict,attr,$B.NULL)===$B.NULL)){return $B.method.tp_new($B.method,[in_mro,self])}
 var getter=$B.NULL
 if(in_mro !==$B.NULL){var in_mro_class=$B.get_class(in_mro)
-var getter=$B.search_slot(in_mro_class,'tp_descr_get',$B.NULL)
+var getter=in_mro_class.tp_descr_get
 if(test){console.log('getter',getter)}
 if(getter !==$B.NULL){var is_data_descr=$B.search_slot(in_mro_class,'tp_descr_set',$B.NULL)!==$B.NULL
 if(is_data_descr){if(test){console.log('data descriptor')
@@ -2756,6 +2756,16 @@ return res}}}else{cls.$getattribute=$B.NULL}}
 function reset_getattribute(cls){
 $B.make_getattr(cls)
 for(var kls of cls.tp_subclasses){reset_getattribute(kls)}}
+$B.make_descr_get=function(cls){cls.tp_descr_get=$B.NULL
+var get=$B.str_dict_get(cls.dict,'__get__',$B.NULL)
+if(get !==$B.NULL){cls.tp_descr_get=get}else if(cls.tp_base){cls.tp_descr_get=cls.tp_base.tp_descr_get}else{console.log('no tp_base',cls)}}
+function reset_descr_get(cls){$B.make_descr_get(cls)
+for(var kls of cls.tp_subclasses){reset_descr_get(kls)}}
+$B.make_descr_set=function(cls){cls.tp_descr_set=$B.NULL
+var _set=$B.str_dict_get(cls.dict,'__set__',$B.NULL)
+if(_set !==$B.NULL){cls.tp_descr_set=_set}else if(cls.tp_base){cls.tp_descr_set=cls.tp_base.tp_descr_set}else{console.log('no tp_base',cls)}}
+function reset_descr_set(cls){$B.make_descr_set(cls)
+for(var kls of cls.tp_subclasses){reset_descr_set(kls)}}
 $B.make_fast_iter=function(cls){if(cls.tp_base &&
 cls.tp_base[$B.FAST_ITER]&&
 $B.str_dict_get(cls.dict,'__iter__',$B.NULL)===$B.NULL){cls[$B.FAST_ITER]=cls.tp_base[$B.FAST_ITER]}}
@@ -2780,7 +2790,16 @@ setter(in_mro,kls,value)}}
 if(! done){if(value===$B.NULL){var current=$B.str_dict_get(kls.dict,attr,$B.NULL)
 if(current===$B.NULL){throw $B.attr_error(attr,kls)}
 delete kls.dict.$strings[attr]}else{$B.str_dict_set(kls.dict,attr,value)}}
-if(attr==='__getattribute__' ||attr=='__getattr__'){reset_getattribute(kls)}
+switch(attr){case '__getattribute__':
+case '__getattr__':
+reset_getattribute(kls)
+break
+case '__get__':
+reset_descr_get(kls)
+break
+case '__set__':
+reset_descr_set(kls)
+break}
 return _b_.None}
 _b_.type.nb_or=function(){var $=$B.args('__or__',2,{cls:null,other:null},['cls','other'],arguments,{},null,null),cls=$.cls,other=$.other
 if(other !==_b_.None && ! $B.$isinstance(other,[type,$B.GenericAlias,$B.UnionType])){return _b_.NotImplemented}
@@ -2905,6 +2924,8 @@ console.log('extra_kwargs',extra_kwargs)}
 try{$B.$call(init_subclass,$B.dict2kwarg(extra_kwargs))}catch(err){throw err}
 class_obj.tp_flags |=$B.TPFLAGS.READY}
 if(test){console.log('$getattribute is set for',class_obj)}
+$B.make_descr_get(class_obj)
+$B.make_descr_set(class_obj)
 return class_obj}
 var type_funcs=_b_.type.tp_funcs={}
 type_funcs.__abstractmethods___get=function(cls){if(cls !==type){var res=$B.str_dict_get(cls.dict,'__abstractmethods__',$B.NULL)
@@ -14205,7 +14226,7 @@ $B.str_dict_set(cls.dict,name,{ob_type:$B.member_descriptor,d_member:{name,type,
 )}}
 if(cls.classmethods){for(var descr of cls.classmethods){$B.str_dict_set(cls.dict,descr,{ob_type:$B.classmethod_descriptor,d_name:descr,d_type:cls,d_method:cls.tp_funcs[descr]})}}
 if(cls.staticmethods){for(var descr of cls.staticmethods){$B.str_dict_set(cls.dict,descr,_b_.staticmethod.$factory(cls.tp_funcs[descr]))}}
-for(var slot in $B.wrapper_methods){if(cls[slot]){$B.wrapper_methods[slot](cls,slot)}}
+for(var slot in $B.wrapper_methods){if(cls[slot]){$B.wrapper_methods[slot](cls,slot)}else if(['tp_descr_get','tp_descr_set'].includes(slot)){cls[slot]=$B.NULL}}
 $B.make_getattr(cls)}
 for(var ns of[$B.builtin_types,$B.created_types]){for(var name in ns){var cls=ns[name]
 $B.finalize_type(cls)}}

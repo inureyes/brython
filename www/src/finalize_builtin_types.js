@@ -347,6 +347,8 @@ $B.finalize_type = function(cls){
     for(var slot in $B.wrapper_methods){
         if(cls[slot]){
             $B.wrapper_methods[slot](cls, slot)
+        }else if(['tp_descr_get', 'tp_descr_set'].includes(slot)){
+            cls[slot] = $B.NULL
         }
     }
 

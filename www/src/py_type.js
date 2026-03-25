@@ -1022,6 +1022,44 @@ function reset_getattribute(cls){
     }
 }
 
+$B.make_descr_get = function(cls){
+    cls.tp_descr_get = $B.NULL
+    var get = $B.str_dict_get(cls.dict, '__get__', $B.NULL)
+    if(get !== $B.NULL){
+        cls.tp_descr_get = get
+    }else if(cls.tp_base){
+        cls.tp_descr_get = cls.tp_base.tp_descr_get
+    }else{
+        console.log('no tp_base', cls)
+    }
+}
+
+function reset_descr_get(cls){
+    $B.make_descr_get(cls)
+    for(var kls of cls.tp_subclasses){
+        reset_descr_get(kls)
+    }
+}
+
+$B.make_descr_set = function(cls){
+    cls.tp_descr_set = $B.NULL
+    var _set = $B.str_dict_get(cls.dict, '__set__', $B.NULL)
+    if(_set !== $B.NULL){
+        cls.tp_descr_set = _set
+    }else if(cls.tp_base){
+        cls.tp_descr_set = cls.tp_base.tp_descr_set
+    }else{
+        console.log('no tp_base', cls)
+    }
+}
+
+function reset_descr_set(cls){
+    $B.make_descr_set(cls)
+    for(var kls of cls.tp_subclasses){
+        reset_descr_set(kls)
+    }
+}
+
 $B.make_fast_iter = function(cls){
     if(cls.tp_base &&
             cls.tp_base[$B.FAST_ITER] &&
@@ -1091,8 +1129,17 @@ _b_.type.tp_setattro = function(kls, attr, value){
             $B.str_dict_set(kls.dict, attr, value)
         }
     }
-    if(attr === '__getattribute__' || attr == '__getattr__'){
-        reset_getattribute(kls)
+    switch(attr){
+        case '__getattribute__':
+        case '__getattr__':
+            reset_getattribute(kls)
+            break
+        case '__get__':
+            reset_descr_get(kls)
+            break
+        case '__set__':
+            reset_descr_set(kls)
+            break
     }
 
     return _b_.None
@@ -1302,7 +1349,7 @@ _b_.type.tp_new = function(cls, args, kw){
     var extra_kwargs = kwds
     var [name, bases, cl_dict] = args
 
-    var test = false // name == 'FlagBoundary'
+    var test = false // name == 'EnumCheck'
     if(test){
         console.log('type.tp_new', name, 'metatype', metatype,
             'extrakw', kwds)
@@ -1444,6 +1491,9 @@ _b_.type.tp_new = function(cls, args, kw){
     if(test){
         console.log('$getattribute is set for', class_obj)
     }
+
+    $B.make_descr_get(class_obj)
+    $B.make_descr_set(class_obj)
     return class_obj
 }
 

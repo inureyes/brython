@@ -283,7 +283,7 @@ _b_.object.tp_setattro = function(self, attr, value){
         if(test){
             console.log(attr, 'in class mro', in_mro, $B.get_class(in_mro))
         }
-        var setter = $B.search_slot($B.get_class(in_mro), 'tp_descr_set', $B.NULL)
+        var setter = $B.get_class(in_mro).tp_descr_set
         if(test){
             console.log('setter', setter)
         }
@@ -382,7 +382,7 @@ _b_.object.tp_getattro = function(self, attr){
     var getter = $B.NULL
     if(in_mro !== $B.NULL){
         var in_mro_class = $B.get_class(in_mro)
-        var getter = $B.search_slot(in_mro_class, 'tp_descr_get', $B.NULL)
+        var getter = in_mro_class.tp_descr_get
         if(test){
             console.log('getter', getter)
         }
