@@ -671,8 +671,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-03-25 10:59:04.594985"
-__BRYTHON__.timestamp=1774432744594
+__BRYTHON__.compiled_date="2026-03-25 11:02:22.736456"
+__BRYTHON__.timestamp=1774432942736
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -2841,9 +2841,9 @@ console.log('in mro',in_mro)}
 var getter=$B.NULL
 if(in_mro !==$B.NULL){var in_mro_class=$B.get_class(in_mro)
 if(test){console.log('in_mro class',in_mro_class)}
-var getter=$B.search_slot(in_mro_class,'tp_descr_get',$B.NULL)
+var getter=in_mro_class.tp_descr_get
 if(test){console.log('getter',getter)}
-if(getter !==$B.NULL){if($B.search_slot(in_mro_class,'tp_descr_set',$B.NULL)!==$B.NULL){if(test){console.log('data descriptor',name)
+if(getter !==$B.NULL){if(in_mro_class.tp_descr_set !==$B.NULL){if(test){console.log('data descriptor',name)
 console.log('__set__',$B.search_slot(in_mro_class,'tp_descr_set',$B.NULL))}
 try{var res=getter(in_mro,obj,klass)
 if(test){console.log('result of getter',res)}

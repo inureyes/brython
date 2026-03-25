@@ -1251,12 +1251,12 @@ _b_.type.tp_getattro = function(obj, name){
         if(test){
             console.log('in_mro class', in_mro_class)
         }
-        var getter = $B.search_slot(in_mro_class, 'tp_descr_get', $B.NULL)
+        var getter = in_mro_class.tp_descr_get
         if(test){
             console.log('getter', getter)
         }
         if(getter !== $B.NULL){
-            if($B.search_slot(in_mro_class, 'tp_descr_set', $B.NULL) !== $B.NULL){
+            if(in_mro_class.tp_descr_set !== $B.NULL){
                 if(test){
                     console.log('data descriptor', name)
                     console.log('__set__', $B.search_slot(in_mro_class, 'tp_descr_set', $B.NULL))
