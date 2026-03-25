@@ -671,8 +671,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-03-25 11:42:43.708319"
-__BRYTHON__.timestamp=1774435363708
+__BRYTHON__.compiled_date="2026-03-25 11:49:51.203226"
+__BRYTHON__.timestamp=1774435791203
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -2627,56 +2627,6 @@ var kwargs={$kw:[kwarg]}
 if(cl_dict===missing){if(bases !==missing){$B.RAISE(_b_.TypeError,'type() takes 1 or 3 arguments')}
 return $B.get_class(kls)}else{var module=$B.frame_obj.frame[2],resolved_bases=$B.resolve_mro_entries(bases),metaclass=$B.get_metaclass(kls,module,resolved_bases)
 return type.__call__(metaclass,kls,resolved_bases,cl_dict,kwargs)}}
-var classmethod=_b_.classmethod
-classmethod.$factory=function(func){$B.check_nb_args_no_kw('classmethod',1,arguments)
-return{
-ob_type:classmethod,dict:$B.empty_dict(),cm_callable:func}}
-_b_.classmethod.tp_repr=function(self){return `<classmethod(${_b_.repr(self.cm_callable)})>`}
-_b_.classmethod.tp_descr_get=function(self,obj,type){if(! self.hasOwnProperty("cm_callable")){$B.RAISE(_b_.RuntimeError,"uninitialized classmethod object")}
-if(type===undefined){type=$B.get_class(obj)}
-return $B.$call($B.method,self.cm_callable,type)}
-_b_.classmethod.tp_init=function(self,func){self.cm_callable=func}
-_b_.classmethod.tp_new=function(cls,args,kw){return{
-ob_type:cls,dict:$B.empty_dict()}}
-var classmethod_funcs=_b_.classmethod.tp_funcs={}
-classmethod_funcs.__annotate___get=function(self){}
-classmethod_funcs.__annotate___set=function(self){}
-classmethod_funcs.__annotations___get=function(self){}
-classmethod_funcs.__annotations___set=function(self){}
-classmethod_funcs.__class_getitem__=$B.$class_getitem
-classmethod_funcs.__isabstractmethod___get=function(self){var res=$B.str_dict_get(self.cm_callable.dict,'__isabstractmethod__',$B.NULL)
-if(res===$B.NULL){return false}
-return res}
-classmethod_funcs.__isabstractmethod___set=_b_.None
-_b_.classmethod.classmethods=["__class_getitem__"]
-_b_.classmethod.tp_members=[["__func__",$B.TYPES.OBJECT,"cm_callable",1],["__wrapped__",$B.TYPES.OBJECT,"cm_callable",1]
-]
-_b_.classmethod.tp_getset=["__isabstractmethod__","__annotations__","__annotate__"]
-$B.set_func_names(classmethod,"builtins")
-var staticmethod=_b_.staticmethod
-staticmethod.$factory=function(func){return{
-ob_type:staticmethod,sm_callable:func}}
-_b_.staticmethod.tp_repr=function(self){return `<staticmethod(${_b_.repr(self.sm_callable)})>`}
-_b_.staticmethod.tp_call=function(self,...args){return self.sm_callable(...args)}
-_b_.staticmethod.tp_descr_get=function(self){return self.sm_callable}
-_b_.staticmethod.tp_init=function(self,func){self.sm_callable=func}
-_b_.staticmethod.tp_new=function(cls,args,kw){return{
-ob_type:cls,sm_callable:_b_.None}}
-var staticmethod_funcs=_b_.staticmethod.tp_funcs={}
-staticmethod_funcs.__annotate___get=function(self){}
-staticmethod_funcs.__annotate___set=function(self){}
-staticmethod_funcs.__annotations___get=function(self){}
-staticmethod_funcs.__annotations___set=function(self){}
-staticmethod_funcs.__class_getitem__=function(self){}
-staticmethod_funcs.__dict___get=function(self){}
-staticmethod_funcs.__dict___set=function(self){}
-staticmethod_funcs.__isabstractmethod___get=function(self){}
-staticmethod_funcs.__isabstractmethod___set=function(self){}
-_b_.staticmethod.classmethods=["__class_getitem__"]
-_b_.staticmethod.tp_members=[["__func__",$B.TYPES.OBJECT,"sm_callable",1],["__wrapped__",$B.TYPES.OBJECT,"sm_callable",1]
-]
-_b_.staticmethod.tp_getset=["__isabstractmethod__","__dict__","__annotations__","__annotate__"]
-$B.set_func_names(staticmethod,"builtins")
 type.$call=function(klass,new_func,init_func){
 return function(){
 var instance=new_func.bind(null,klass).apply(null,arguments)
@@ -3458,6 +3408,56 @@ $B.wrapper_descriptor.tp_getset=["__qualname__","__text_signature__"]
 $B.set_func_names(wrapper_descriptor,"builtins")})(__BRYTHON__)
 ;
 (function($B){var _b_=$B.builtins
+var classmethod=_b_.classmethod
+classmethod.$factory=function(func){$B.check_nb_args_no_kw('classmethod',1,arguments)
+return{
+ob_type:classmethod,dict:$B.empty_dict(),cm_callable:func}}
+_b_.classmethod.tp_repr=function(self){return `<classmethod(${_b_.repr(self.cm_callable)})>`}
+_b_.classmethod.tp_descr_get=function(self,obj,type){if(! self.hasOwnProperty("cm_callable")){$B.RAISE(_b_.RuntimeError,"uninitialized classmethod object")}
+if(type===undefined){type=$B.get_class(obj)}
+return $B.$call($B.method,self.cm_callable,type)}
+_b_.classmethod.tp_init=function(self,func){self.cm_callable=func}
+_b_.classmethod.tp_new=function(cls,args,kw){return{
+ob_type:cls,dict:$B.empty_dict()}}
+var classmethod_funcs=_b_.classmethod.tp_funcs={}
+classmethod_funcs.__annotate___get=function(self){}
+classmethod_funcs.__annotate___set=function(self){}
+classmethod_funcs.__annotations___get=function(self){}
+classmethod_funcs.__annotations___set=function(self){}
+classmethod_funcs.__class_getitem__=$B.$class_getitem
+classmethod_funcs.__isabstractmethod___get=function(self){var res=$B.str_dict_get(self.cm_callable.dict,'__isabstractmethod__',$B.NULL)
+if(res===$B.NULL){return false}
+return res}
+classmethod_funcs.__isabstractmethod___set=_b_.None
+_b_.classmethod.classmethods=["__class_getitem__"]
+_b_.classmethod.tp_members=[["__func__",$B.TYPES.OBJECT,"cm_callable",1],["__wrapped__",$B.TYPES.OBJECT,"cm_callable",1]
+]
+_b_.classmethod.tp_getset=["__isabstractmethod__","__annotations__","__annotate__"]
+$B.set_func_names(classmethod,"builtins")
+var staticmethod=_b_.staticmethod
+staticmethod.$factory=function(func){return{
+ob_type:staticmethod,sm_callable:func}}
+_b_.staticmethod.tp_repr=function(self){return `<staticmethod(${_b_.repr(self.sm_callable)})>`}
+_b_.staticmethod.tp_call=function(self,...args){return self.sm_callable(...args)}
+_b_.staticmethod.tp_descr_get=function(self){return self.sm_callable}
+_b_.staticmethod.tp_init=function(self,func){self.sm_callable=func}
+_b_.staticmethod.tp_new=function(cls,args,kw){return{
+ob_type:cls,sm_callable:_b_.None}}
+var staticmethod_funcs=_b_.staticmethod.tp_funcs={}
+staticmethod_funcs.__annotate___get=function(self){}
+staticmethod_funcs.__annotate___set=function(self){}
+staticmethod_funcs.__annotations___get=function(self){}
+staticmethod_funcs.__annotations___set=function(self){}
+staticmethod_funcs.__class_getitem__=function(self){}
+staticmethod_funcs.__dict___get=function(self){}
+staticmethod_funcs.__dict___set=function(self){}
+staticmethod_funcs.__isabstractmethod___get=function(self){}
+staticmethod_funcs.__isabstractmethod___set=function(self){}
+_b_.staticmethod.classmethods=["__class_getitem__"]
+_b_.staticmethod.tp_members=[["__func__",$B.TYPES.OBJECT,"sm_callable",1],["__wrapped__",$B.TYPES.OBJECT,"sm_callable",1]
+]
+_b_.staticmethod.tp_getset=["__isabstractmethod__","__dict__","__annotations__","__annotate__"]
+$B.set_func_names(staticmethod,"builtins")
 $B.builtin_function_or_method.tp_richcompare=function(self,other,op){if((op !='__eq__' && op !='__ne__')||
 ! $B.$isinstance(self,$B.builtin_function_or_method)||
 ! $B.$isinstance(other,$B.builtin_function_or_method)){return _b_.NotImplemented}
