@@ -671,8 +671,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-03-25 11:49:51.203226"
-__BRYTHON__.timestamp=1774435791203
+__BRYTHON__.compiled_date="2026-03-25 15:22:35.546614"
+__BRYTHON__.timestamp=1774448555546
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -2474,7 +2474,6 @@ if(test){console.log('metaclass',metaclass,'meta_new',meta_new)}
 var kls
 try{if(meta_new.$is_slot){try{kls=meta_new(metaclass,[class_name,resolved_bases,dict],$B.obj_dict(extra_kwargs))}catch(err){throw err}}else{kls=$B.$call(meta_new,metaclass,class_name,resolved_bases,dict,{$kw:[extra_kwargs]})}}catch(err){if(test){console.log('error in meta_new',meta_new,extra_kwargs)}
 throw err}
-kls.tp_subclasses=[]
 if(kls.$getattribute===undefined){$B.make_getattr(kls)}
 if($B.get_class(kls)===metaclass){
 var meta_init=_b_.type.tp_getattro(metaclass,"__init__")
@@ -2716,6 +2715,12 @@ var _set=$B.str_dict_get(cls.dict,'__set__',$B.NULL)
 if(_set !==$B.NULL){cls.tp_descr_set=_set}else if(cls.tp_base){cls.tp_descr_set=cls.tp_base.tp_descr_set}else{console.log('no tp_base',cls)}}
 function reset_descr_set(cls){$B.make_descr_set(cls)
 for(var kls of cls.tp_subclasses){reset_descr_set(kls)}}
+$B.make_iter=function(cls){cls.tp_iter=$B.NULL
+var iter=$B.str_dict_get(cls.dict,'__iter__',$B.NULL)
+if(iter !==$B.NULL){cls.tp_iter=iter}else if(cls.tp_base){cls.tp_iter=cls.tp_base.tp_iter}else{console.log('no tp_base',cls)}}
+function reset_iter(cls){$B.make_iter(cls)
+if(cls.tp_subclasses===undefined){console.log('no subclasses',cls)}
+for(var kls of cls.tp_subclasses){reset_iter(kls)}}
 $B.make_fast_iter=function(cls){if(cls.tp_base &&
 cls.tp_base[$B.FAST_ITER]&&
 $B.str_dict_get(cls.dict,'__iter__',$B.NULL)===$B.NULL){cls[$B.FAST_ITER]=cls.tp_base[$B.FAST_ITER]}}
@@ -2749,6 +2754,9 @@ reset_descr_get(kls)
 break
 case '__set__':
 reset_descr_set(kls)
+break
+case '__iter__':
+reset_iter(kls)
 break}
 return _b_.None}
 _b_.type.nb_or=function(){var $=$B.args('__or__',2,{cls:null,other:null},['cls','other'],arguments,{},null,null),cls=$.cls,other=$.other
@@ -2833,6 +2841,7 @@ var ctx={metatype,args,kwds,cl_dict,name,bases}
 var class_obj={ob_type:metatype,dict:cl_dict,tp_bases:bases,tp_name:name,tp_flags:$B.TPFLAGS.DEFAULT |$B.TPFLAGS.HEAPTYPE |
 $B.TPFLAGS.BASETYPE |$B.TPFLAGS.HAVE_GC}
 class_obj.tp_mro=$B.make_mro(class_obj)
+class_obj.tp_subclasses=[]
 $B.make_getattr(class_obj)
 set_type_new(cl_dict)
 var res=type_new_get_bases(ctx,class_obj)
@@ -2876,6 +2885,7 @@ class_obj.tp_flags |=$B.TPFLAGS.READY}
 if(test){console.log('$getattribute is set for',class_obj)}
 $B.make_descr_get(class_obj)
 $B.make_descr_set(class_obj)
+$B.make_iter(class_obj)
 return class_obj}
 var type_funcs=_b_.type.tp_funcs={}
 type_funcs.__abstractmethods___get=function(cls){if(cls !==type){var res=$B.str_dict_get(cls.dict,'__abstractmethods__',$B.NULL)
@@ -4909,9 +4919,9 @@ $B.$iter=function(obj,sentinel){
 var test=false 
 if(test){console.log('iter',obj)}
 if(sentinel===undefined){var klass=$B.get_class(obj)
-var iter_func=$B.search_slot(klass,'tp_iter',$B.NULL)
+var iter_func=klass.tp_iter
 if(test){console.log('iter func',iter_func)}
-if(iter_func !==$B.NULL){var getter=$B.search_in_mro($B.get_class(iter_func),'__get__',$B.NULL)
+if(iter_func !==$B.NULL){var getter=$B.get_class(iter_func).tp_descr_get
 if(getter===$B.NULL){var in_dict=$B.search_in_dict(obj,'__iter__',$B.NULL)
 if(in_dict===iter_func){var res=$B.$call(in_dict)}}else{var res=$B.$call(iter_func,obj)}
 if($B.search_slot($B.get_class(res),'tp_iternext',$B.NULL)===$B.NULL){console.log('iter, obj',obj,'result of iter func',res)
@@ -4924,8 +4934,8 @@ if(test){console.log('getitem_func',getitem_func)
 console.log('len_func',len_func)}
 if(getitem_func !==$B.NULL && len_func !==$B.NULL){return{
 ob_type:$B.iterator,it_seq:obj,it_index:0}}
-$B.RAISE(_b_.TypeError,"'"+$B.class_name(obj)+
-"' object is not iterable")}else{return callable_iterator.$factory(obj,sentinel)}}
+$B.RAISE(_b_.TypeError,`'${$B.class_name(obj)}' object is not iterable`
+)}else{return callable_iterator.$factory(obj,sentinel)}}
 var iter=_b_.iter=function(){
 var $=$B.args('iter',1,{obj:null},['obj'],arguments,{},'args','kw'),sentinel
 if($.args.length > 0){sentinel=$.args[0]}
@@ -4937,7 +4947,8 @@ if(method===null){$B.RAISE(_b_.TypeError,"object of type '"+
 $B.class_name(obj)+"' has no len()")}
 let res=$B.$call(method,obj)
 if(res===undefined){console.log('call',method,'with obj',obj,'returns undef')}
-if(!$B.$isinstance(res,_b_.int)){$B.RAISE(_b_.TypeError,`'${$B.class_name(res)}' object cannot be interpreted as an integer`)}
+if(!$B.$isinstance(res,_b_.int)){$B.RAISE(_b_.TypeError,`'${$B.class_name(res)}' object cannot be interpreted as an integer`
+)}
 if(!$B.rich_comp('__ge__',res,0)){$B.RAISE(_b_.ValueError,'ValueError: __len__() should return >= 0')}
 return res}
 _b_.locals=function(){
@@ -14226,7 +14237,9 @@ $B.str_dict_set(cls.dict,name,{ob_type:$B.member_descriptor,d_member:{name,type,
 )}}
 if(cls.classmethods){for(var descr of cls.classmethods){$B.str_dict_set(cls.dict,descr,{ob_type:$B.classmethod_descriptor,d_name:descr,d_type:cls,d_method:cls.tp_funcs[descr]})}}
 if(cls.staticmethods){for(var descr of cls.staticmethods){$B.str_dict_set(cls.dict,descr,_b_.staticmethod.$factory(cls.tp_funcs[descr]))}}
-for(var slot in $B.wrapper_methods){if(cls[slot]){$B.wrapper_methods[slot](cls,slot)}else if(['tp_descr_get','tp_descr_set'].includes(slot)){cls[slot]=$B.NULL}}
+for(var slot in $B.wrapper_methods){if(cls[slot]){$B.wrapper_methods[slot](cls,slot)}else if(['tp_descr_get','tp_descr_set','tp_iter'].includes(slot)){cls[slot]=$B.NULL
+if(cls.tp_mro){for(var kls of cls.tp_mro.slice(1)){if(Object.hasOwn(cls,slot)){cls[slot]=kls[slot]
+break}}}}}
 $B.make_getattr(cls)}
 for(var ns of[$B.builtin_types,$B.created_types]){for(var name in ns){var cls=ns[name]
 $B.finalize_type(cls)}}

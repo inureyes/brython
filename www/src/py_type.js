@@ -98,7 +98,6 @@ $B.$class_constructor = function(class_name, dict, metaclass, resolved_bases,
         }
         throw err
     }
-    kls.tp_subclasses = []
 
     if(kls.$getattribute === undefined){
         $B.make_getattr(kls)
@@ -864,6 +863,28 @@ function reset_descr_set(cls){
     }
 }
 
+$B.make_iter = function(cls){
+    cls.tp_iter = $B.NULL
+    var iter = $B.str_dict_get(cls.dict, '__iter__', $B.NULL)
+    if(iter !== $B.NULL){
+        cls.tp_iter = iter
+    }else if(cls.tp_base){
+        cls.tp_iter = cls.tp_base.tp_iter
+    }else{
+        console.log('no tp_base', cls)
+    }
+}
+
+function reset_iter(cls){
+    $B.make_iter(cls)
+    if(cls.tp_subclasses === undefined){
+        console.log('no subclasses', cls)
+    }
+    for(var kls of cls.tp_subclasses){
+        reset_iter(kls)
+    }
+}
+
 $B.make_fast_iter = function(cls){
     if(cls.tp_base &&
             cls.tp_base[$B.FAST_ITER] &&
@@ -943,6 +964,9 @@ _b_.type.tp_setattro = function(kls, attr, value){
             break
         case '__set__':
             reset_descr_set(kls)
+            break
+        case '__iter__':
+            reset_iter(kls)
             break
     }
 
@@ -1185,6 +1209,8 @@ _b_.type.tp_new = function(cls, args, kw){
                    $B.TPFLAGS.BASETYPE | $B.TPFLAGS.HAVE_GC
     }
     class_obj.tp_mro = $B.make_mro(class_obj)
+    class_obj.tp_subclasses = []
+    
     $B.make_getattr(class_obj)
 
     set_type_new(cl_dict)
@@ -1298,6 +1324,7 @@ _b_.type.tp_new = function(cls, args, kw){
 
     $B.make_descr_get(class_obj)
     $B.make_descr_set(class_obj)
+    $B.make_iter(class_obj)
     return class_obj
 }
 

@@ -1175,12 +1175,12 @@ $B.$iter = function(obj, sentinel){
     }
     if(sentinel === undefined){
         var klass = $B.get_class(obj)
-        var iter_func = $B.search_slot(klass, 'tp_iter', $B.NULL)
+        var iter_func = klass.tp_iter
         if(test){
             console.log('iter func', iter_func)
         }
         if(iter_func !== $B.NULL){
-            var getter = $B.search_in_mro($B.get_class(iter_func), '__get__', $B.NULL)
+            var getter = $B.get_class(iter_func).tp_descr_get
             if(getter === $B.NULL){
                 var in_dict = $B.search_in_dict(obj, '__iter__', $B.NULL)
                 if(in_dict === iter_func){
@@ -1210,9 +1210,9 @@ $B.$iter = function(obj, sentinel){
                 it_index: 0
             }
         }
-
-        $B.RAISE(_b_.TypeError, "'" + $B.class_name(obj) +
-            "' object is not iterable")
+        $B.RAISE(_b_.TypeError,
+            `'${$B.class_name(obj)}' object is not iterable`
+        )
     }else{
         return callable_iterator.$factory(obj, sentinel)
     }
@@ -1246,7 +1246,9 @@ var len = _b_.len = function(obj){
     }
 
     if (!$B.$isinstance(res, _b_.int)){
-        $B.RAISE(_b_.TypeError, `'${$B.class_name(res)}' object cannot be interpreted as an integer`)
+        $B.RAISE(_b_.TypeError,
+            `'${$B.class_name(res)}' object cannot be interpreted as an integer`
+        )
     }
 
     if(!$B.rich_comp('__ge__', res, 0)) {
@@ -1272,7 +1274,6 @@ _b_.locals = function(){
         }
     )
     res.$is_namespace = true
-    // delete res.$jsobj.__annotations__
     return res
 }
 

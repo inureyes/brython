@@ -347,8 +347,16 @@ $B.finalize_type = function(cls){
     for(var slot in $B.wrapper_methods){
         if(cls[slot]){
             $B.wrapper_methods[slot](cls, slot)
-        }else if(['tp_descr_get', 'tp_descr_set'].includes(slot)){
+        }else if(['tp_descr_get', 'tp_descr_set', 'tp_iter'].includes(slot)){
             cls[slot] = $B.NULL
+            if(cls.tp_mro){
+                for(var kls of cls.tp_mro.slice(1)){
+                    if(Object.hasOwn(cls, slot)){
+                        cls[slot] = kls[slot]
+                        break
+                    }
+                }
+            }
         }
     }
 
