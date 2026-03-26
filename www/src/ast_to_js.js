@@ -870,7 +870,7 @@ function make_comp(scopes){
     var id = make_id(),
         type = this.constructor.$name,
         symtable_block = scopes.symtable.table.blocks.get(fast_id(this)),
-        varnames = Object.keys(symtable_block.symbols.$strings).map(x => `"${x}"`),
+        varnames = Object.keys($B.dict_as_jsobj(symtable_block.symbols)).map(x => `"${x}"`),
         comp_iter,
         comp_scope = $B.last(scopes),
         upper_comp_scope = comp_scope
@@ -942,9 +942,11 @@ function make_comp(scopes){
     var save_target_flags
     if(first.target instanceof $B.ast.Name){
         var target_name = first.target.id
-        if(comp_scope_symbols.$strings.hasOwnProperty(target_name)){
-            save_target_flags = comp_scope_symbols.$strings[target_name]
-            comp_scope_symbols.$strings[target_name] = SF.LOCAL << SF.SCOPE_OFF
+        if($B.str_dict_get(comp_scope_symbols, target_name) !== $B.NULL){
+            save_target_flags = $B.str_dict_get(comp_scope_symbols, 
+                target_name)
+            $B.str_dict_set(comp_scope_symbols, target_name,
+                SF.LOCAL << SF.SCOPE_OFF)
         }
     }
     // assign result of iteration to target
@@ -980,7 +982,7 @@ function make_comp(scopes){
     }
 
     if(save_target_flags){
-        comp_scope_symbols.$strings[target_name] = save_target_flags
+        $B.str_dict_set(comp_scope_symbols, target_name, save_target_flags)
     }
     // count if nb_await was incremented
     var final_nb_await_in_scope = upper_comp_scope.nb_await === undefined ? 0 :

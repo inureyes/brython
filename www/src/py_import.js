@@ -11,7 +11,7 @@ $B.namespace = function(module_name){
     // If $B.imported[module_name] exists, setting attributes to the
     // namespace must update the module's `dict`
     if($B.imported.hasOwnProperty(module_name)){
-        return $B.imported[module_name].dict.$strings
+        return $B.dict_as_jsobj($B.imported[module_name].dict)
     }
     // When the generated Javascript is copied / pasted from the console for
     // debugging, $B.imported[module_name] is not set; return an empty JS

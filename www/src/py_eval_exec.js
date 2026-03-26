@@ -103,23 +103,7 @@ var $$eval = _b_.eval = function(){
                 "a dict, not " + $B.class_name(_globals))
         }
         // _globals is used for both globals and locals
-        exec_globals = {}
-        if(_globals.$strings){ // eg globals()
-            exec_globals = _globals.$strings
-        }else{
-            // The globals object must be the same across calls to exec()
-            // with the same dictionary (cf. issue 690)
-            exec_globals = _globals.$strings = {}
-            for(var entry of _b_.dict.$iter_items(_globals)){
-                var key = entry.key
-                _globals.$strings[key] = $B.str_dict_get(_globals, key)
-                if(key == '__name__'){
-                    __name__ = _globals.$strings[key]
-                }
-            }
-            _globals.$all_str = false
-        }
-
+        exec_globals = $B.dict_as_jsobj(_globals)
         if(exec_globals.__builtins__ === undefined){
             exec_globals.__builtins__ = _b_.__builtins__
         }
@@ -131,7 +115,7 @@ var $$eval = _b_.eval = function(){
                 global_name += '_globals'
                 exec_locals = exec_globals
             }else if($B.exact_type(_locals, _b_.dict)){
-                exec_locals = _locals.$strings
+                exec_locals = $B.dict_as_jsobj(_locals)
             }else{
                 var klass = $B.get_class(_locals),
                     getitem = $B.$getattr(klass, '__getitem__'),
@@ -286,13 +270,6 @@ var $$eval = _b_.eval = function(){
         $B.set_exc(err, frame)
         $B.frame_obj = save_frame_obj
         throw err
-    }
-    if(_globals !== _b_.None && ! _globals.$strings){
-        for(var _key in exec_globals){
-            if(! _key.startsWith('$')){
-                _b_.dict.$setitem(_globals, _key, exec_globals[_key])
-            }
-        }
     }
     $B.frame_obj = save_frame_obj
     return res

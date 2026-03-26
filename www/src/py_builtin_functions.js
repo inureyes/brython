@@ -735,9 +735,6 @@ $B.search_in_mro = function(klass, attr, _default){
             //return mro[i][attr]
         }
         if(mro[i].dict){
-            if(mro[i].dict.$strings === undefined){
-                console.log('no $strings in dict', mro[i])
-            }
             var v = $B.str_dict_get(mro[i].dict, attr, $B.NULL)
             if(v !== $B.NULL){
                 if(test){
@@ -873,7 +870,7 @@ _b_.globals = function(){
     // [locals_name, locals_obj, globals_name, globals_obj]
     check_nb_args_no_kw('globals', 0, arguments)
     var res = $B.obj_dict($B.frame_obj.frame[3])
-    res.$strings.__BRYTHON__ = $B.jsobj2pyobj($B) // issue 1181
+    $B.str_dict_set(res, __BRYTHON__, $B.jsobj2pyobj($B)) // issue 1181
     res.$is_namespace = true
     return res
 }
@@ -1797,7 +1794,7 @@ _b_.sorted = function(){
     var $ = $B.args('sorted', 1, {iterable: null}, ['iterable'],
         arguments, {}, null, 'kw')
     var _list = _b_.list.$factory($.iterable)
-    _b_.list.tp_funcs.sort(_list, {$kw:[$.kw.$strings]})
+    _b_.list.tp_funcs.sort(_list, $B.dict2kwarg($.kw))
     return _list
 }
 

@@ -1223,7 +1223,8 @@ $B.$delitem = function(obj, item, inum){
         if(obj.$is_namespace){
             // Deleting a name from a namespace should trigger a NameError in
             // the next references to the name. Cf issue #2423.
-            Object.defineProperty(obj.$strings, item,
+            var as_jsobj = $B.dict_as_jsobj(obj)
+            Object.defineProperty(as_jsobj, item,
                 {
                     get(){
                         throw $B.name_error(item)
@@ -1231,7 +1232,7 @@ $B.$delitem = function(obj, item, inum){
                     set(value){
                         // resetting a value in the namespace: redefine the
                         // property
-                        Object.defineProperty(obj.$strings, item, {value})
+                        Object.defineProperty(as_jsobj, item, {value})
                         return _b_.None
                     }
                 }

@@ -1178,7 +1178,7 @@ function missing_names(missing){
 }
 
 function add_to_kwargs(kw_dict, key, value){
-    kw_dict.$strings[key] = value
+    $B.str_dict_set(kw_dict, key, value)
 }
 
 $B.args_parser = function(f, args){

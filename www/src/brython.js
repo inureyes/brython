@@ -671,8 +671,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-03-25 15:22:35.546614"
-__BRYTHON__.timestamp=1774448555546
+__BRYTHON__.compiled_date="2026-03-26 08:27:26.420085"
+__BRYTHON__.timestamp=1774510046419
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -1796,8 +1796,9 @@ if(obj[item]===undefined){$B.set_inum(inum)
 $B.RAISE(_b_.IndexError,"list deletion index out of range")}
 obj.splice(item,1)
 return}else if(klass===_b_.dict){if(obj.$is_namespace){
-Object.defineProperty(obj.$strings,item,{get(){throw $B.name_error(item)},set(value){
-Object.defineProperty(obj.$strings,item,{value})
+var as_jsobj=$B.dict_as_jsobj(obj)
+Object.defineProperty(as_jsobj,item,{get(){throw $B.name_error(item)},set(value){
+Object.defineProperty(as_jsobj,item,{value})
 return _b_.None}}
 )}else{try{$B.dict_delitem(obj,item)}catch(err){if($B.is_exc(err,[_b_.KeyError])){$B.set_inum(inum)}
 throw err}}
@@ -2569,7 +2570,7 @@ var class_dict=$B.$call(prepare,class_name,bases)
 if(! $B.$isinstance(class_dict,_b_.dict)){$B.RAISE(_b_.TypeError,`${$B.get_name(metaclass)}.__prepare__() must return a mapping, `+
 `not ${$B.class_name(class_dict)}`)}
 if(orig_bases !==bases){$B.str_dict_set(class_dict,'__orig_bases__',orig_bases)}
-if(! class_dict.$all_str){$B.warn(_b_.RuntimeWarning,`non-string key in the __dict__ of class ${class_name}`)}
+if(! $B.hasOnlyStringKeys(class_dict)){$B.warn(_b_.RuntimeWarning,`non-string key in the __dict__ of class ${class_name}`)}
 return class_dict}
 $B.resolve_mro_entries=function(bases){
 var new_bases=[],has_mro_entries=false
@@ -2645,7 +2646,7 @@ if(classdict !==null){$B.$call($B.type_getattribute(_b_.dict,'update'),dict,clas
 bases=klass.tp_bases
 if(bases===undefined){return}
 for(var base of bases){$B.merge_class_dict(dict,base)}}
-$B.set_class_attr=function(cls_dict,attr,value){cls_dict.$strings[attr]=value}
+$B.set_class_attr=function(cls_dict,attr,value){$B.str_dict_set(cls_dict,attr,value)}
 var NULL={NULL:true}
 var counter=0
 $B.slot2dunder={tp_call:'__call__',tp_descr_get:'__get__',tp_descr_set:'__set__',tp_getattro:'__getattribute__',tp_getbuffer:'__buffer__',tp_hash:'__hash__',tp_init:'__init__',tp_iter:'__iter__',tp_iternext:'__next__',tp_new:'__new__',tp_repr:'__repr__',tp_setattro:'__setattr__',tp_str:'__str__'}
@@ -2730,7 +2731,7 @@ var md={ob_type:$B.member_descriptor,d_type:class_obj,d_name:key,d_member:member
 $B.str_dict_set(cl_dict,key,md)}}}
 _b_.type.tp_setattro=function(kls,attr,value){var $test=false 
 if($test){console.log('set attr',attr,'of class',kls,'to',value)
-console.log('kls.dict',Object.entries(kls.dict.$strings))}
+console.log('kls.dict',kls.dict)}
 if(kls.tp_flags & TPFLAGS.IMMUTABLETYPE){$B.RAISE(_b_.TypeError,`cannot set '${attr}' attribute `+
 `of immutable type '${$B.get_name(kls)}'`
 )}
@@ -2744,7 +2745,7 @@ done=true
 setter(in_mro,kls,value)}}
 if(! done){if(value===$B.NULL){var current=$B.str_dict_get(kls.dict,attr,$B.NULL)
 if(current===$B.NULL){throw $B.attr_error(attr,kls)}
-delete kls.dict.$strings[attr]}else{$B.str_dict_set(kls.dict,attr,value)}}
+_b_.dict.$delitem(kls.dict,attr)}else{$B.str_dict_set(kls.dict,attr,value)}}
 switch(attr){case '__getattribute__':
 case '__getattr__':
 reset_getattribute(kls)
@@ -3956,7 +3957,7 @@ report=`${missing.slice(0, len - 1).join(', ')}, and `+
 `${missing[len - 1]}`
 break}
 return report}
-function add_to_kwargs(kw_dict,key,value){kw_dict.$strings[key]=value}
+function add_to_kwargs(kw_dict,key,value){$B.str_dict_set(kw_dict,key,value)}
 $B.args_parser=function(f,args){if(! f.$arguments_parser){f.$arguments_parser=make_arguments_parser(f)}
 return f.$arguments_parser(f,args)}
 $B.has_kw=function(args){var last_arg=args[args.length-1]
@@ -4763,8 +4764,7 @@ if(! mro[i].dict ||
 $B.str_dict_get(mro[i].dict,dunder,$B.NULL)===$B.NULL){console.log('attr',attr,'found in mro[i]',mro[i],'but absent in dict')
 console.log($B.frame_obj.frame.$lineno)
 console.log(Error('trace').stack)}}
-if(mro[i].dict){if(mro[i].dict.$strings===undefined){console.log('no $strings in dict',mro[i])}
-var v=$B.str_dict_get(mro[i].dict,attr,$B.NULL)
+if(mro[i].dict){var v=$B.str_dict_get(mro[i].dict,attr,$B.NULL)
 if(v !==$B.NULL){if(test){console.log('found in dict of mro',i,v)}
 return v}}else if(mro[i].__dict__){console.log('old school __dict__')
 var v=_b_.dict.$get_string(mro[i].__dict__,attr,false)
@@ -4816,7 +4816,7 @@ return res}
 _b_.globals=function(){
 check_nb_args_no_kw('globals',0,arguments)
 var res=$B.obj_dict($B.frame_obj.frame[3])
-res.$strings.__BRYTHON__=$B.jsobj2pyobj($B)
+$B.str_dict_set(res,__BRYTHON__,$B.jsobj2pyobj($B))
 res.$is_namespace=true
 return res}
 _b_.hasattr=function(obj,attr){check_nb_args_no_kw('hasattr',2,arguments)
@@ -5138,7 +5138,7 @@ setattr(obj,attr,value)
 return _b_.None}
 _b_.sorted=function(){var $=$B.args('sorted',1,{iterable:null},['iterable'],arguments,{},null,'kw')
 var _list=_b_.list.$factory($.iterable)
-_b_.list.tp_funcs.sort(_list,{$kw:[$.kw.$strings]})
+_b_.list.tp_funcs.sort(_list,$B.dict2kwarg($.kw))
 return _list}
 _b_.sum=function(){var $=$B.args('sum',2,{iterable:null,start:null},['iterable','start'],arguments,{start:0},null,null),iterable=$.iterable,start=$.start
 if($B.$isinstance(start,[_b_.str,_b_.bytes])){$B.RAISE(_b_.TypeError,"sum() can't sum bytes"+
@@ -5353,18 +5353,11 @@ exec_globals=exec_locals}else{
 exec_locals=frame[1]
 exec_globals=frame[3]}}}else{if($B.get_class(_globals)!==_b_.dict){$B.RAISE(_b_.TypeError,`${mode}() globals must be `+
 "a dict, not "+$B.class_name(_globals))}
-exec_globals={}
-if(_globals.$strings){
-exec_globals=_globals.$strings}else{
-exec_globals=_globals.$strings={}
-for(var entry of _b_.dict.$iter_items(_globals)){var key=entry.key
-_globals.$strings[key]=$B.str_dict_get(_globals,key)
-if(key=='__name__'){__name__=_globals.$strings[key]}}
-_globals.$all_str=false}
+exec_globals=$B.dict_as_jsobj(_globals)
 if(exec_globals.__builtins__===undefined){exec_globals.__builtins__=_b_.__builtins__}
 if(_locals===_b_.None){exec_locals=exec_globals}else{if(_locals===_globals){
 global_name+='_globals'
-exec_locals=exec_globals}else if($B.exact_type(_locals,_b_.dict)){exec_locals=_locals.$strings}else{var klass=$B.get_class(_locals),getitem=$B.$getattr(klass,'__getitem__'),setitem=$B.$getattr(klass,'__setitem__')
+exec_locals=exec_globals}else if($B.exact_type(_locals,_b_.dict)){exec_locals=$B.dict_as_jsobj(_locals)}else{var klass=$B.get_class(_locals),getitem=$B.$getattr(klass,'__getitem__'),setitem=$B.$getattr(klass,'__setitem__')
 exec_locals=new Proxy(_locals,{get(target,prop){if(prop=='$target'){return target}else if(prop==$B.LOCALS_PROXY){return true}
 try{return $B.$call(getitem,target,prop)}catch(err){return undefined}},set(target,prop,value){return $B.$call(setitem,target,prop,value)}})}}}
 var save_frame_obj=$B.frame_obj
@@ -5414,7 +5407,6 @@ if($B.get_option('debug')> 2){console.log(
 $B.set_exc(err,frame)
 $B.frame_obj=save_frame_obj
 throw err}
-if(_globals !==_b_.None && ! _globals.$strings){for(var _key in exec_globals){if(! _key.startsWith('$')){_b_.dict.$setitem(_globals,_key,exec_globals[_key])}}}
 $B.frame_obj=save_frame_obj
 return res}
 $$eval.$is_func=true
@@ -10556,6 +10548,7 @@ return{$kw:[kw]}}
 $B.dict_from_jsobj=function(obj){var d=$B.empty_dict()
 for(var key in obj){$B.str_dict_set(d,key,obj[key])}
 return d}
+$B.dict_as_jsobj=function(d){return d.$strings}
 dict.$to_obj=function(d){
 var res={}
 for(var entry of dict.$iter_items(d)){res[entry.key]=entry.value}
@@ -12954,7 +12947,7 @@ $B.RAISE(_b_.TypeError,`object ${$B.class_name(obj)} `+
 
 (function($B){var _b_=$B.builtins,_window=globalThis
 $B.namespace=function(module_name){
-if($B.imported.hasOwnProperty(module_name)){return $B.imported[module_name].dict.$strings}
+if($B.imported.hasOwnProperty(module_name)){return $B.dict_as_jsobj($B.imported[module_name].dict)}
 return{}}
 var Module=$B.module
 Module.$factory=function(name,doc,$package){var self=Module.tp_new(Module)
@@ -14849,7 +14842,7 @@ for(var gen of this.generators){comp_bindings(gen,bindings)}
 var save_locals=new Set()
 var plen=prefix.length
 var comp_prefix=prefix
-var id=make_id(),type=this.constructor.$name,symtable_block=scopes.symtable.table.blocks.get(fast_id(this)),varnames=Object.keys(symtable_block.symbols.$strings).map(x=> `"${x}"`),comp_iter,comp_scope=$B.last(scopes),upper_comp_scope=comp_scope
+var id=make_id(),type=this.constructor.$name,symtable_block=scopes.symtable.table.blocks.get(fast_id(this)),varnames=Object.keys($B.dict_as_jsobj(symtable_block.symbols)).map(x=> `"${x}"`),comp_iter,comp_scope=$B.last(scopes),upper_comp_scope=comp_scope
 for(var name of comp_scope.locals){if(bindings.has(name)){save_locals.add(name)}}
 while(upper_comp_scope.parent){upper_comp_scope=upper_comp_scope.parent
 for(var name of upper_comp_scope.locals){if(bindings.has(name)){save_locals.add(name)}}}
@@ -14875,8 +14868,8 @@ js+=prefix+`for(var next_${id} of next_func_${id}){\n`
 indent()
 var save_target_flags
 if(first.target instanceof $B.ast.Name){var target_name=first.target.id
-if(comp_scope_symbols.$strings.hasOwnProperty(target_name)){save_target_flags=comp_scope_symbols.$strings[target_name]
-comp_scope_symbols.$strings[target_name]=SF.LOCAL << SF.SCOPE_OFF}}
+if($B.str_dict_get(comp_scope_symbols,target_name)!==$B.NULL){save_target_flags=$B.str_dict_get(comp_scope_symbols,target_name)
+$B.str_dict_set(comp_scope_symbols,target_name,SF.LOCAL << SF.SCOPE_OFF)}}
 var name=new $B.ast.Name(`next_${id}`,new $B.ast.Load())
 copy_position(name,first_for.iter)
 name.to_js=function(){return `next_${id}`}
@@ -14890,7 +14883,7 @@ for(var comprehension of this.generators.slice(1)){js+=comprehension.to_js(scope
 nb_paren++
 for(let _if of comprehension.ifs){nb_paren++}}
 if(this instanceof $B.ast.DictComp){var key=$B.js_from_ast(this.key,scopes),value=$B.js_from_ast(this.value,scopes)}else{var elt=$B.js_from_ast(this.elt,scopes)}
-if(save_target_flags){comp_scope_symbols.$strings[target_name]=save_target_flags}
+if(save_target_flags){$B.str_dict_set(comp_scope_symbols,target_name,save_target_flags)}
 var final_nb_await_in_scope=upper_comp_scope.nb_await===undefined ? 0 :
 upper_comp_scope.nb_await
 var has_await=final_nb_await_in_scope > initial_nb_await_in_scope

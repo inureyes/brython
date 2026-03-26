@@ -334,6 +334,10 @@ $B.dict_from_jsobj = function(obj){
     return d
 }
 
+$B.dict_as_jsobj = function(d){
+    return d.$strings
+}
+
 dict.$to_obj = function(d){
     // Function applied to dictionary that only has string keys,
     // return a Javascript objects with the keys mapped to the value,

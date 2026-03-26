@@ -390,7 +390,7 @@ $B.make_class_namespace = function(metaclass, class_name, qualname,
     if(orig_bases !== bases){
         $B.str_dict_set(class_dict, '__orig_bases__', orig_bases)
     }
-    if(! class_dict.$all_str){
+    if(! $B.hasOnlyStringKeys(class_dict)){
         $B.warn(_b_.RuntimeWarning,
             `non-string key in the __dict__ of class ${class_name}`)
     }
@@ -626,7 +626,7 @@ $B.merge_class_dict = function(dict, klass){
 }
 
 $B.set_class_attr = function(cls_dict, attr, value){
-    cls_dict.$strings[attr] = value
+    $B.str_dict_set(cls_dict, attr, value)
 }
 
 var NULL = {NULL:true}
@@ -919,7 +919,7 @@ _b_.type.tp_setattro = function(kls, attr, value){
     var $test = false // attr == '__getattribute__' // kls.tp_name == 'A'
     if($test){
         console.log('set attr', attr, 'of class', kls, 'to', value)
-        console.log('kls.dict', Object.entries(kls.dict.$strings))
+        console.log('kls.dict', kls.dict)
     }
     if(kls.tp_flags & TPFLAGS.IMMUTABLETYPE){
         $B.RAISE(_b_.TypeError,
@@ -949,7 +949,7 @@ _b_.type.tp_setattro = function(kls, attr, value){
             if(current === $B.NULL){
                 throw $B.attr_error(attr, kls)
             }
-            delete kls.dict.$strings[attr]
+            _b_.dict.$delitem(kls.dict, attr)
         }else{
             $B.str_dict_set(kls.dict, attr, value)
         }
@@ -1047,7 +1047,7 @@ _b_.type.tp_call = function(){
             // exception if there are parameters).
             try{
                 if(kw_len > 0){
-                    var kwarg = $B.dict2kwarg(kw) //{$kw: [kw.$strings]} // {$kw:[{x: 1}, locals.kw]}
+                    var kwarg = $B.dict2kwarg(kw)
                     init_func.call(null, instance, ...$.args, kwarg)
                 }else{
                     init_func.call(null, instance, ...$.args)
