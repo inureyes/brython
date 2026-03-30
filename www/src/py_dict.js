@@ -61,7 +61,7 @@ $B.dict_proxy = function(dict){
 $B.assign_dict = function(pyobj, jsobj){
     // assign the keys / values in jsobj to the pyobj dict
     if(! Object.hasOwn(pyobj, 'dict')){
-        pyobj.dict = $B.empty_dict()
+        $B.init_dict(pyobj)
     }
     Object.assign(pyobj.dict.$strings, jsobj)
 }
@@ -1143,7 +1143,7 @@ _b_.dict.tp_new = function(cls, args, kw){
     var instance = $B.empty_dict()
     instance[$B.OB_TYPE] = cls
     if(cls !== dict){
-        instance.dict = $B.empty_dict()
+        $B.init_dict(instance)
     }
     return instance
 }

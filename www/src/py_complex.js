@@ -428,7 +428,7 @@ _b_.complex.tp_new = function(cls, args, kw){
             }
             var res = make_complex(first, second)
             res.ob_type = cls
-            res.dict = $B.empty_dict()
+            $B.init_dict(res)
             return res
         }
     }
@@ -475,7 +475,7 @@ _b_.complex.tp_new = function(cls, args, kw){
 
     res = make_complex(r, i)
     res.ob_type = cls
-    res.dict = $B.empty_dict()
+    $B.init_dict(res)
     return res
 }
 

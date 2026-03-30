@@ -161,7 +161,7 @@ $B.make_async = func => {
     f.$is_async = true
     f.$args_parser = func.$args_parser
     f.ob_type = $B.function
-    f.dict = $B.empty_dict()
+    $B.init_dict(f)
     return f
 }
 

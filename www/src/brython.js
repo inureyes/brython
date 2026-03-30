@@ -673,8 +673,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-03-30 09:04:06.740384"
-__BRYTHON__.timestamp=1774854246726
+__BRYTHON__.compiled_date="2026-03-30 09:50:22.179055"
+__BRYTHON__.timestamp=1774857022178
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -1202,7 +1202,7 @@ _fields=raw_fields.map(x=>
 (x.endsWith('*')||x.endsWith('?'))?
 x.substr(0,x.length-1):x)}}
 var cls=$B.make_builtin_class(kl),$defaults={},slots={},nb_args=0
-cls.dict=$B.empty_dict()
+$B.init_dict(cls)
 if(raw_fields){for(let i=0,len=_fields.length;i < len;i++){let f=_fields[i],rf=raw_fields[i]
 nb_args++
 slots[f]=null
@@ -2189,12 +2189,12 @@ object.$new=function(cls){return function(){var $=$B.args('__new__',0,[],[],argu
 if($.args.length > 0 ||_b_.dict.mp_length($.kwargs)> 0){$B.RAISE(_b_.TypeError,"object() takes no parameters")}
 var res=Object.create(null)
 res.ob_type=cls
-if(cls !==object){res.dict=$B.obj_dict({})}
+if(cls !==object){$B.set_dict(res,$B.obj_dict({}))}
 return res}}
 object.$no_new_init=function(cls){
 var res=Object.create(null)
 res.ob_type=cls
-if(cls !==object){res.dict=$B.obj_dict({})}
+if(cls !==object){$B.set_dict(res,$B.obj_dict({}))}
 return res}
 function getNewArguments(self,klass){var newargs_ex=$B.$getattr(self,'__getnewargs_ex__',null)
 if(newargs_ex !==null){let newargs=newargs_ex()
@@ -2262,7 +2262,7 @@ if(setter !==$B.NULL){if(test){console.log('setter',setter)}
 return setter(in_mro,self,value)}}
 var slots=$B.get_from_dict(klass,'__slots__',$B.NULL)
 if(slots !==$B.NULL){if(_b_.tuple.sq_contains(slots,attr)){self.slot_values[attr]=value}}
-var dict=self.dict
+var dict=$B.get_dict(self)
 if(dict){_b_.dict.$setitem(dict,attr,value)}else{var exc=$B.attr_error(attr,self)
 exc.args[0]=`'${$B.get_name(klass)}' object has no attribute `+
 `'${attr}' and no __dict__ for setting new attributes`
@@ -2352,7 +2352,7 @@ $B.RAISE(_b_.TypeError,`Can't instantiate abstract class ${$B.get_name(cls)} `+
 )}
 var res={ob_type:cls}
 if(cls !==object &&
-$B.get_from_dict(cls,'__slots__',$B.NULL)===$B.NULL){res.dict=$B.empty_dict()}
+$B.get_from_dict(cls,'__slots__',$B.NULL)===$B.NULL){$B.init_dict(res)}
 return res}
 var object_funcs=_b_.object.tp_funcs={}
 object_funcs.__class___get=function(self){return $B.get_class(self)}
@@ -2369,7 +2369,7 @@ cls.ob_type=new_cls}
 object_funcs.__dir__=function(self){var result
 var dict
 var itsclass
-dict=self.dict
+dict=$B.get_dict(self)
 var temp
 if(dict==undefined){temp=$B.empty_dict()}else if(! $B.$isinstance(dict,_b_.dict)){temp=$B.empty_dict()}else{
 var temp=_b_.dict.tp_funcs.copy(dict)}
@@ -2585,7 +2585,7 @@ $B.make_annotate_func=function(dict,annotations,class_frame){if(annotations===un
 return}
 var __annotate_func__=annotations
 __annotate_func__.ob_type=$B.function
-__annotate_func__.dict=$B.empty_dict()
+$B.init_dict(__annotate_func__)
 $B.str_dict_set(dict,'__annotate_func__',__annotate_func__)
 $B.set_function_infos(__annotate_func__,{__defaults__:_b_.None,__doc__:_b_.None,__globals__:$B.frame_obj.frame,__kwdefaults__:_b_.None,__name__:'__annotate__',__module__:class_frame[2],__qualname__:class_frame[0]+'.__annotate__',__file__:class_frame.__file__}
 )}
@@ -2618,9 +2618,9 @@ $B.RAISE(_b_.NotImplementedError,)}}
 $B.add_function_infos(locals,'__annotate_func__')
 $B.set_function_attr(locals.__annotate_func__,'__name__','__annotate__')
 $B.set_function_attr(locals.__annotate_func__,'__qualname__','__annotate__')}
-function object_get_dict(obj){if($B.is_type(obj)){return $B.mappingproxy.tp_new($B.mappingproxy,[obj.dict])}
-return obj.dict}
-function object_set_dict(obj,value){obj.dict=value}
+function object_get_dict(obj){if($B.is_type(obj)){return $B.mappingproxy.tp_new($B.mappingproxy,[$B.get_dict(obj)])}
+return $B.get_dict(obj)}
+function object_set_dict(obj,value){$B.set_dict(obj,value)}
 var type=_b_.type 
 type.$factory=function(){var missing={},$=$B.args('type',3,{kls:null,bases:null,cl_dict:null},['kls','bases','cl_dict'],arguments,{bases:missing,cl_dict:missing},null,'kw'),kls=$.kls,bases=$.bases,cl_dict=$.cl_dict,kw=$.kw
 var kwarg={}
@@ -2648,6 +2648,9 @@ if(classdict !==null){$B.$call($B.type_getattribute(_b_.dict,'update'),dict,clas
 bases=klass.tp_bases
 if(bases===undefined){return}
 for(var base of bases){$B.merge_class_dict(dict,base)}}
+$B.get_dict=function(cls){return cls.dict}
+$B.init_dict=function(cls){cls.dict=$B.empty_dict()}
+$B.set_dict=function(cls,value){cls.dict=value}
 $B.get_from_dict=function(cls,attr,_default){return $B.str_dict_get(cls.dict,attr,_default)}
 $B.set_to_dict=function(cls,attr,value){$B.str_dict_set(cls.dict,attr,value)}
 var NULL={NULL:true}
@@ -2861,7 +2864,7 @@ if(res instanceof Object){if(test){console.log('type.tp_new returns',res.type)}
 class_obj=res.type}else{if(test){console.log('res in not Object')}
 set_slots(cl_dict,class_obj)
 $B.set_to_dict(class_obj,'__dict__',$B.getset_descriptor.$factory(
-class_obj,'__dict__',[object_get_dict,object_set_dict]
+class_obj,'__dict__',[object_get_dict,$B.set_dict]
 )
 )
 if(test){console.log('scan cl_dict')}
@@ -2896,7 +2899,7 @@ type_funcs.__abstractmethods___get=function(cls){if(cls !==type){var res=$B.get_
 if(res !==$B.NULL){return res}}
 throw $B.attr_error('__abstractmethods__',cls)}
 type_funcs.__abstractmethods___set=function(cls,value){var abstract,res;
-var dict=cls.dict
+var dict=$B.get_dict(cls)
 if(value !=$B.NULL){abstract=$B.$bool(value)
 res=$B.str_dict_set(dict,'__abstractmethods__',value)}else{abstract=0;
 res=$B.str_dict_pop(dict,'__abstractmethods__')
@@ -3586,7 +3589,7 @@ function_funcs.__dict___set=function(self,value){if(value===$B.NULL){$B.RAISE(_b
 if(! $B.$isinstance(value,_b_.dict)){$B.RAISE(_b_.TypeError,`__dict__ must be set to a dictionary, not a `+
 `'${$B.class_name(value)}'`
 )}
-self.dict=value}
+$B.set_dict(self,value)}
 function_funcs.__doc___get=function(self){return self.$function_infos[$B.func_attrs.__doc__]}
 function_funcs.__doc___set=function(self,value){self.$function_infos[$B.func_attrs.__doc__]=value}
 function_funcs.__globals___get=function(self){var frame=self.$function_infos[$B.func_attrs.__globals__]
@@ -3638,7 +3641,7 @@ f.__annotations__=_b_.dict.$literal(annotations)}
 f.$infos.__code__={co_argcount,co_filename,co_firstlineno,co_flags,co_freevars,co_kwonlyargcount,co_name,co_nlocals:co_varnames.length,co_posonlyargcount,co_qualname,co_varnames}
 f.$infos.__code__.co_positions=()=> $B.$list([])
 f.$infos.__code__.co_positions.ob_type=$B.function
-f.$infos.dict=$B.empty_dict()}
+$B.init_dict(f.$infos)}
 $B.make_args_parser_and_parse=function make_args_parser_and_parse(fct,args){return $B.make_args_parser(fct)(fct,args);}
 $B.make_args_parser=function(f){if((! f.$infos)&& f.$function_infos){$B.make_function_infos(f,...f.$function_infos)}
 if(f.$infos===undefined ||f.$infos.__code__===undefined){console.log('f',f)
@@ -4563,7 +4566,7 @@ return $B.make_String(s,[0])}else{return String.fromCodePoint(i)}}
 _b_.compile=function(){var $=$B.args('compile',7,{source:null,filename:null,mode:null,flags:null,dont_inherit:null,optimize:null,_feature_version:null},['source','filename','mode','flags','dont_inherit','optimize','_feature_version'],arguments,{flags:0,dont_inherit:false,optimize:-1,_feature_version:0},null,null)
 var module_name='$exec_'+$B.UUID()
 $.ob_type=$B.code
-$.dict=$B.empty_dict()
+$B.init_dict($)
 var infos={co_flags:$.flags,co_name:"<module>",co_filename:$.filename}
 for(var key in infos){$[key]=infos[key]}
 var filename=$.filename
@@ -5230,7 +5233,7 @@ _b_.super.tp_members=[["__thisclass__",$B.TYPES.OBJECT,"type",1],["__self__",$B.
 ]
 $B.set_func_names($$super,"builtins")
 _b_.vars=function(){var def={},$=$B.args('vars',1,{obj:null},['obj'],arguments,{obj:def},null,null),obj=$.obj
-if(obj===def){return _b_.locals()}else{if(obj.dict){return obj.dict}else{$B.RAISE(_b_.TypeError,"vars() argument must have __dict__ attribute")}}}
+if(obj===def){return _b_.locals()}else{if($B.get_dict(obj)){return $B.get_dict(obj)}else{$B.RAISE(_b_.TypeError,"vars() argument must have __dict__ attribute")}}}
 var zip=_b_.zip
 zip.$factory=function(){var res={ob_type:zip,items:[]}
 if(arguments.length==0){return res}
@@ -5919,8 +5922,9 @@ BaseException_funcs.__context___get=function(self){return self.__context__ ?? _b
 BaseException_funcs.__context___set=function(self,value){if(value===$B.NULL){$B.RAISE(_b_.TypeError,"__context__ may not be deleted")}else if(value===_b_.None){delete self.__context__}else if(! $B.$isinstance(value,_b_.BaseException)){$B.RAISE(_b_.TypeError,"exception context must be None or derive from BaseException"
 )}else{self.__context__=value}}
 BaseException_funcs.__dict___get=function(self){return self.dict}
-BaseException_funcs.__dict___set=function(self,value){self.dict=value}
-BaseException_funcs.__reduce__=function(self){if(self.args && self.dict && ! $B.str_dict_empty(self.dict)){return $B.fast_tuple([$B.get_class(self),$B.fast_tuple(self.args),self.dict])}else{return $B.fast_tuple([$B.get_class(self),$B.fast_tuple(self.args)])}}
+BaseException_funcs.__dict___set=function(self,value){$B.set_dict(self,value)}
+BaseException_funcs.__reduce__=function(self){var dict=$B.get_dict(self)
+if(self.args && dict && ! $B.str_dict_empty(dict)){return $B.fast_tuple([$B.get_class(self),$B.fast_tuple(self.args),dict])}else{return $B.fast_tuple([$B.get_class(self),$B.fast_tuple(self.args)])}}
 BaseException_funcs.__setstate__=function(self,state){if(state !=_b_.None){if(! $B.$isinstance(state,_b_.dict)){$B.RAISE(_b_.TypeError,"state is not a dictionary")}
 for(var entry of _b_.dict.$iter_items(state)){_b_.object.tp_setattro(self,entry.key,entry.value)}}
 return _b_.None}
@@ -10029,7 +10033,7 @@ return float.$hash_func(self)}
 _b_.float.tp_new=function(cls,args,kw){var[value]=$B.unpack_args('float',args,['value'],{value:0})
 if(cls===undefined){$B.RAISE(_b_.TypeError,"float.__new__(): not enough arguments")}else if(! $B.$isinstance(cls,_b_.type)){$B.RAISE(_b_.TypeError,"float.__new__(X): X is not a type object")}
 var res={ob_type:cls,value:float.$factory(value).value}
-if(cls !==_b_.float){res.dict=$B.empty_dict()}
+if(cls !==_b_.float){$B.init_dict(res)}
 return res}
 _b_.float.nb_negative=function(self){return fast_float(-self.value)}
 _b_.float.nb_positive=function(self){return fast_float(+self.value)}
@@ -10355,7 +10359,7 @@ first=to_num(parts[_real])
 second=0}
 var res=make_complex(first,second)
 res.ob_type=cls
-res.dict=$B.empty_dict()
+$B.init_dict(res)
 return res}}
 if($B.exact_type(first,complex)&& cls===complex && second===$B.NULL){return first}
 var arg1=_convert(first),r,i
@@ -10372,7 +10376,7 @@ i=arg2.result.real}else{r=arg1.result
 i=arg2.result}}
 res=make_complex(r,i)
 res.ob_type=cls
-res.dict=$B.empty_dict()
+$B.init_dict(res)
 return res}
 _b_.complex.tp_repr=function(self){$B.builtins_repr_check(complex,arguments)
 var real=Number.isInteger(self.real.value)?
@@ -10458,7 +10462,7 @@ var setitem=$B.type_getattribute($B.get_class(dict),'__setitem__')
 return new Proxy(dict,{get(target,prop){return $B.$call(getitem,target,prop)},set(target,prop,value){return $B.$call(setitem,target,prop,value)}}
 )}
 $B.assign_dict=function(pyobj,jsobj){
-if(! Object.hasOwn(pyobj,'dict')){pyobj.dict=$B.empty_dict()}
+if(! Object.hasOwn(pyobj,'dict')){$B.init_dict(pyobj)}
 Object.assign(pyobj.dict.$strings,jsobj)}
 function PyDictViewSet_Check(op){return $B.$isinstance(op,[$B.dict_keys,$B.dict_items])}
 function _PyDictView_Intersect(self,other){var dict_contains
@@ -10826,7 +10830,7 @@ return _b_.dict.$contains(self,key)}
 _b_.dict.tp_new=function(cls,args,kw){if(cls===undefined){$B.RAISE(_b_.TypeError,"int.__new__(): not enough arguments")}
 var instance=$B.empty_dict()
 instance[$B.OB_TYPE]=cls
-if(cls !==dict){instance.dict=$B.empty_dict()}
+if(cls !==dict){$B.init_dict(instance)}
 return instance}
 var dict_funcs=_b_.dict.tp_funcs={}
 dict_funcs.__class_getitem__=$B.$class_getitem
@@ -11339,7 +11343,7 @@ _b_.list.tp_new=function(cls,args,kw){
 if(cls===undefined){$B.RAISE(_b_.TypeError,"list.__new__(): not enough arguments")}
 var res=[]
 res.ob_type=cls
-if(cls !==list){res.dict=$B.empty_dict()}
+if(cls !==list){$B.init_dict(res)}
 return res}
 _b_.list.nb_inplace_add=function(){var $=$B.args("__iadd__",2,{self:null,x:null},["self","x"],arguments,{},null,null)
 var x=list.$factory($.x)
@@ -11462,7 +11466,7 @@ ob_type:$B.tuple_iterator,obj:self,it:self[Symbol.iterator]()}}
 _b_.tuple.tp_new=function(cls,args,kw){if(cls===_b_.tuple){$B.check_no_kw('tuple',kw)}
 var self=[]
 self.ob_type=cls
-if(cls !==tuple){self.dict=$B.empty_dict()}
+if(cls !==tuple){$B.init_dict(self)}
 args=args ??[]
 if(args.length > 0){if(args.length==1){for(var item of $B.make_js_iterator(args[0])){self.push(item)}}else{$B.RAISE(_b_.TypeError,'tuple expected at most 1 '+
 `argument, got ${args.length}`)}}
@@ -12930,7 +12934,7 @@ f.$is_func=true
 f.$is_async=true
 f.$args_parser=func.$args_parser
 f.ob_type=$B.function
-f.dict=$B.empty_dict()
+$B.init_dict(f)
 return f}
 $B.promise=function(obj){if($B.exact_type(obj,coroutine)){
 obj.$frame_obj=$B.frame_obj
@@ -13041,7 +13045,7 @@ if(modobj===undefined){$B.RAISE(_b_.ImportError,'imported not set by module')}
 for(var attr in modobj){if(typeof modobj[attr]=="function" && ! modobj[attr].$infos){modobj[attr].$infos={__module__:name,__name__:attr,__qualname__:attr,__code__:{co_filename:modobj.__file__,co_code:modobj[attr]+'',co_flags:$B.COMPILER_FLAGS.OPTIMIZED |$B.COMPILER_FLAGS.NEWLOCALS}}
 modobj[attr].$in_js_module=true
 modobj[attr].ob_type=$B.function
-modobj[attr].dict=$B.empty_dict()
+$B.init_dict(modobj[attr])
 $B.add_function_infos(modobj,attr,name)}else if($B.$isinstance(modobj[attr],_b_.type)){if(modobj[attr].dict){if($B.get_from_dict(modobj[attr],'__module__',$B.NULL)===
 $B.NULL){$B.set_to_dict(modobj[attr],'__module__',name)}}}
 $B.module_setattr(module,attr,modobj[attr])}}
@@ -13705,7 +13709,7 @@ super_class.$factory=function(){
 var res=_b_.super.$factory()
 var js_constr=res.__thisclass__.tp_bases[0]
 return function(){var obj=new js_constr.$js_func(...arguments)
-for(var attr in obj){res.__self_class__.dict[attr]=$B.jsobj2pyobj(obj[attr])}
+for(var attr in obj){$B.get_dict(res.__self_class__)[attr]=$B.jsobj2pyobj(obj[attr])}
 return obj}}
 super_class.tp_getattro=function(self,attr){if(attr=="__init__" ||attr=="__call__"){return self.__init__}
 return $B.$getattr(self.__self_class__,attr,$B.NULL)}
@@ -14026,7 +14030,7 @@ $B.$import('_aio')
 return $B.$getattr($B.imported._aio,attr)}}
 function load(name,module_obj){
 module_obj.ob_type=$B.module
-module_obj.dict=$B.empty_dict()
+$B.init_dict(module_obj)
 $B.imported[name]=module_obj
 for(var attr in module_obj){if(typeof module_obj[attr]=='function'){module_obj[attr].$infos={__module__:name,__name__:attr,__qualname__:name+'.'+attr}
 $B.set_function_infos(module_obj[attr],{__module__:name,__name__:attr,__qualname__:name+'.'+attr}
@@ -14098,7 +14102,7 @@ var builtins_doc="Built-in functions, types, exceptions, and other "+
 "but in\nwhich the built-in of that name is also needed."
 $B.imported.builtins=$B.module.tp_new($B.module)
 $B.module.tp_init($B.imported.builtins,'builtins',builtins_doc)
-$B.imported.builtins.dict=$B.obj_dict(_b_)
+$B.set_dict($B.imported.builtins,$B.obj_dict(_b_))
 $B.module_setattr($B.imported.builtins,'__doc__',builtins_doc)
 $B.module_setattr($B.imported.builtins,'__package__',_b_.None)
 $B.module_setattr($B.imported.builtins,'__loader__',_b_.None)
@@ -14214,7 +14218,7 @@ cls,op,func
 )
 )}}
 $B.finalize_type=function(cls){cls.tp_mro=$B.make_mro(cls)
-cls.dict=cls.dict ?? $B.empty_dict()
+$B.set_dict(cls,$B.get_dict(cls)?? $B.empty_dict())
 cls.tp_subclasses=[]
 for(var base of cls.tp_bases){base.tp_subclasses.push(cls)}
 var parts=cls.tp_name.split('.')
@@ -15686,7 +15690,7 @@ prefix+tab+`${positional.length}, `+
 `${has_type_params ? 'type_params' : '[]'}, frame]\n`;
 js+=prefix+`${name2}.ob_type = $B.function\n`+
 prefix+`${name2}.$args_parser = $B.make_args_parser_and_parse\n`+
-prefix+`${name2}.dict = $B.empty_dict()\n`
+prefix+`$B.init_dict(${name2})\n`
 if(anns && ! postponed){
 var inum=add_to_positions(scopes,this)
 js+=prefix+`${name2}.__annotate__ = function(format){\n`

@@ -1,7 +1,7 @@
 (function($B){
 
 var _b_ = $B.builtins,
-    dict = $B.builtins.dict
+    dict = $B.get_dict($B.builtins)
 
 var mod = {
     dis:function(src){

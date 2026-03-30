@@ -130,7 +130,7 @@ object.$new = function(cls){
         var res = Object.create(null)
         res.ob_type = cls
         if(cls !== object){
-            res.dict = $B.obj_dict({})
+            $B.set_dict(res, $B.obj_dict({}))
         }
         return res
     }
@@ -142,7 +142,7 @@ object.$no_new_init = function(cls){
     var res = Object.create(null)
     res.ob_type = cls
     if(cls !== object){
-        res.dict = $B.obj_dict({})
+        $B.set_dict(res, $B.obj_dict({}))
     }
     return res
 }
@@ -300,7 +300,7 @@ _b_.object.tp_setattro = function(self, attr, value){
             self.slot_values[attr] = value
         }
     }
-    var dict = self.dict
+    var dict = $B.get_dict(self)
     if(dict){
         _b_.dict.$setitem(dict, attr, value)
     }else{
@@ -497,7 +497,7 @@ _b_.object.tp_new = function(cls, args, kw){
     }
     if(cls !== object &&
             $B.get_from_dict(cls, '__slots__', $B.NULL) === $B.NULL){
-        res.dict = $B.empty_dict()
+        $B.init_dict(res)
     }
     return res
 }
@@ -536,7 +536,7 @@ object_funcs.__dir__ = function(self){
     var itsclass
 
     /* Get __dict__ (which may or may not be a real dict...) */
-    dict = self.dict
+    dict = $B.get_dict(self)
     var temp
     if(dict == undefined){
         temp = $B.empty_dict()

@@ -488,7 +488,7 @@ function_funcs.__dict___set = function(self, value){
             `'${$B.class_name(value)}'`
         )
     }
-    self.dict = value
+    $B.set_dict(self, value)
 }
 
 function_funcs.__doc___get = function(self){
@@ -624,7 +624,7 @@ $B.make_function_infos = function(f, __module__, co_name, co_qualname,
         }
     f.$infos.__code__.co_positions = () => $B.$list([])
     f.$infos.__code__.co_positions.ob_type = $B.function
-    f.$infos.dict = $B.empty_dict()
+    $B.init_dict(f.$infos)
 }
 
 $B.make_args_parser_and_parse = function make_args_parser_and_parse(fct, args){

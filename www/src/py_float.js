@@ -970,7 +970,7 @@ _b_.float.tp_new = function(cls, args, kw){
         value: float.$factory(value).value
     }
     if(cls !== _b_.float){
-        res.dict = $B.empty_dict()
+        $B.init_dict(res)
     }
     return res
 }

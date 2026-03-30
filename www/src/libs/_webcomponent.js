@@ -83,7 +83,7 @@ function define(tag_name, cls, options){
                     attrs_before_init.push(_self.attributes.item(i))
                 }
                 _self.ob_type = cls
-                _self.dict = $B.empty_dict()
+                $B.init_dict(_self)
                 $B.$call(init, _self)
                 if(WebComponent.initialized){
                     // Check that init() did not introduce new attributes,

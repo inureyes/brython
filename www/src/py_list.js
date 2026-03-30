@@ -729,7 +729,7 @@ _b_.list.tp_new = function(cls, args, kw){
     var res = []
     res.ob_type = cls
     if(cls !== list){
-        res.dict = $B.empty_dict()
+        $B.init_dict(res)
     }
     return res
 }
@@ -1091,7 +1091,7 @@ _b_.tuple.tp_new = function(cls, args, kw){
     var self = []
     self.ob_type = cls
     if(cls !== tuple){
-        self.dict = $B.empty_dict()
+        $B.init_dict(self)
     }
     args = args ?? []
     if(args.length > 0){

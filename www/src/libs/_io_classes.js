@@ -109,7 +109,9 @@ StringIO_funcs.__getstate__ = function(_self){
 
     var initvalue = StringIO.getvalue(_self)
 
-    var dict = _self.dict ? _b_.dict.copy(_self.dict) : _b_.None
+    var dict = $B.get_dict(_self)
+        ? _b_.dict.copy($B.get_dict(_self)) 
+        : _b_.None
 
     var state = $B.fast_tuple([initvalue,
                           _self.$newline,
@@ -122,7 +124,7 @@ StringIO_funcs.__setstate__ = function(_self, state){
     _self.$text = initvalue
     _self.newlines = readnl
     if(dict !== _b_.None){
-        _self.dict = dict
+        $B.set_dict(_self, dict)
     }
     _self.$text_pos = pos
     _self.$text_iterator = _self.$text[Symbol.iterator]()
@@ -453,7 +455,7 @@ BytesIO_funcs.__getstate__ = function(_self){
     }
 
     var initvalue = BytesIO.getvalue(_self)
-    var dict = _self.dict ?? $B.empty_dict()
+    var dict = $B.get_dict(_self) ?? $B.empty_dict()
 
     return $B.fast_tuple([initvalue, _self._pos, dict])
 }
@@ -489,7 +491,7 @@ BytesIO_funcs.__setstate__ = function(_self, state){
             $B.RAISE(_b_.TypeError, "third item of state should be a dict, " +
                 `got a ${$B.class_name(dict)}`)
         }
-        _self.dict = dict
+        $B.set_dict(_self, dict)
     }
 
     return _b_.None

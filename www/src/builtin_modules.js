@@ -433,7 +433,7 @@
         return function(){
             var obj = new js_constr.$js_func(...arguments)
             for(var attr in obj){
-                res.__self_class__.dict[attr] = $B.jsobj2pyobj(obj[attr])
+                $B.get_dict(res.__self_class__)[attr] = $B.jsobj2pyobj(obj[attr])
             }
             return obj
         }
@@ -1411,7 +1411,7 @@
     function load(name, module_obj){
         // add class and __str__
         module_obj.ob_type = $B.module
-        module_obj.dict = $B.empty_dict()
+        $B.init_dict(module_obj)
         $B.imported[name] = module_obj
         // set attribute "name" of functions
         for(var attr in module_obj){
@@ -1625,7 +1625,7 @@ var builtins_doc = "Built-in functions, types, exceptions, and other " +
 $B.imported.builtins = $B.module.tp_new($B.module)
 $B.module.tp_init($B.imported.builtins, 'builtins', builtins_doc)
 
-$B.imported.builtins.dict = $B.obj_dict(_b_)
+$B.set_dict($B.imported.builtins, $B.obj_dict(_b_))
 
 $B.module_setattr($B.imported.builtins, '__doc__', builtins_doc)
 //$B.module_setattr($B.imported.builtins, '__name__', 'builtins')

@@ -234,7 +234,7 @@ _b_.compile = function() {
 
     var module_name = '$exec_' + $B.UUID()
     $.ob_type = $B.code
-    $.dict = $B.empty_dict()
+    $B.init_dict($)
     var infos = {
         co_flags: $.flags,
         co_name: "<module>",
@@ -2066,8 +2066,8 @@ _b_.vars = function(){
     if(obj === def){
         return _b_.locals()
     }else{
-        if(obj.dict){
-            return obj.dict
+        if($B.get_dict(obj)){
+            return $B.get_dict(obj)
         }else{
             $B.RAISE(_b_.TypeError, "vars() argument must have __dict__ attribute")
         }

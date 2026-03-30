@@ -140,7 +140,7 @@ $B.create_python_ast_classes = function(){
                 $defaults = {},
                 slots = {},
                 nb_args = 0
-            cls.dict = $B.empty_dict()
+            $B.init_dict(cls)
             if(raw_fields){
                 for(let i = 0, len = _fields.length; i < len; i++){
                     let f = _fields[i],

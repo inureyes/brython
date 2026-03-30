@@ -620,13 +620,14 @@ BaseException_funcs.__dict___get = function(self){
 }
 
 BaseException_funcs.__dict___set = function(self, value){
-    self.dict = value
+    $B.set_dict(self, value)
 }
 
 BaseException_funcs.__reduce__ = function(self){
-    if(self.args && self.dict && ! $B.str_dict_empty(self.dict)){
+    var dict = $B.get_dict(self)
+    if(self.args && dict && ! $B.str_dict_empty(dict)){
         return $B.fast_tuple([$B.get_class(self), $B.fast_tuple(self.args),
-            self.dict])
+            dict])
     }else{
         return $B.fast_tuple([$B.get_class(self), $B.fast_tuple(self.args)])
     }

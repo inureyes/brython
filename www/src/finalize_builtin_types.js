@@ -275,7 +275,7 @@ function make_richcompare(cls){
 
 $B.finalize_type = function(cls){
     cls.tp_mro = $B.make_mro(cls)
-    cls.dict = cls.dict ?? $B.empty_dict()
+    $B.set_dict(cls, $B.get_dict(cls) ?? $B.empty_dict())
     cls.tp_subclasses = []
     for(var base of cls.tp_bases){
         base.tp_subclasses.push(cls)

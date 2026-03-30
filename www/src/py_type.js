@@ -427,7 +427,7 @@ $B.make_annotate_func = function(dict, annotations, class_frame){
     }
     var __annotate_func__ = annotations
     __annotate_func__.ob_type = $B.function
-    __annotate_func__.dict = $B.empty_dict()
+    $B.init_dict(__annotate_func__)
     $B.str_dict_set(dict, '__annotate_func__', __annotate_func__)
     $B.set_function_infos(__annotate_func__,
         {
@@ -531,13 +531,13 @@ $B.make_module_annotate = function(locals){
 
 function object_get_dict(obj){
     if($B.is_type(obj)){
-        return $B.mappingproxy.tp_new($B.mappingproxy, [obj.dict])
+        return $B.mappingproxy.tp_new($B.mappingproxy, [$B.get_dict(obj)])
     }
-    return obj.dict
+    return $B.get_dict(obj)
 }
 
 function object_set_dict(obj, value){
-    obj.dict = value
+    $B.set_dict(obj, value)
 }
 
 var type = _b_.type // defined in py_object.js
@@ -623,6 +623,18 @@ $B.merge_class_dict = function(dict, klass){
     for(var base of bases){
         $B.merge_class_dict(dict, base)
     }
+}
+
+$B.get_dict = function(cls){
+    return cls.dict
+}
+
+$B.init_dict = function(cls){
+    cls.dict = $B.empty_dict()
+}
+
+$B.set_dict= function(cls, value){
+    cls.dict = value
 }
 
 $B.get_from_dict = function(cls, attr, _default){
@@ -1255,7 +1267,7 @@ _b_.type.tp_new = function(cls, args, kw){
                 $B.getset_descriptor.$factory(
                 class_obj,
                 '__dict__',
-                [object_get_dict, object_set_dict]
+                [object_get_dict, $B.set_dict]
             )
         )
         // set class attributes
@@ -1346,7 +1358,7 @@ type_funcs.__abstractmethods___get = function(cls){
 
 type_funcs.__abstractmethods___set = function(cls, value){
     var abstract, res;
-    var dict = cls.dict
+    var dict = $B.get_dict(cls)
     if(value != $B.NULL) {
         abstract = $B.$bool(value)
         res = $B.str_dict_set(dict, '__abstractmethods__', value)
