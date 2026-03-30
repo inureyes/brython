@@ -71,7 +71,7 @@ function makeTagDict(tagName){
             document.createElementNS($svgNS, tagName))
         res.ob_type = dict
         // apply __init__
-        dict.__init__(res, ...arguments)
+        dict.tp_init(res, ...arguments)
         return res
     }
 

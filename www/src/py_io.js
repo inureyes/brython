@@ -434,7 +434,7 @@ _BufferedIOBase_funcs.write = function(){
 }
 
 $B._BufferedIOBase.tp_methods = [
-    "__enter__", "__exit__", "readinto", "readinto1", "close", "detach", 
+    "__enter__", "__exit__", "readinto", "readinto1", "close", "detach",
     "read", "read1", "write"
 ]
 
@@ -574,7 +574,7 @@ const O_RDONLY = 0,
       O_APPEND = 8
 
 $B._FileIO.tp_new = function(cls, args, kw){
-    return {
+    var res = {
         ob_type: cls,
         fd: -1,
         created: 0,
@@ -582,9 +582,10 @@ $B._FileIO.tp_new = function(cls, args, kw){
         writable: 0,
         appending: 0,
         seekable: -1,
-        closefd: 1,
-        dict: $B.obj_dict({})
+        closefd: 1
     }
+    $B.init_dict(res)
+    return res
 }
 
 $B._FileIO.tp_init = function(){
@@ -852,9 +853,9 @@ $B._TextIOWrapper.$factory = function(){
         $bytes: bytes,
         $encoding: $.encoding,
         $errors: $.errors,
-        $newline: $.newline,
-        dict: $B.empty_dict()
+        $newline: $.newline
     }
+    $B.init_dict(res)
     return res
 }
 

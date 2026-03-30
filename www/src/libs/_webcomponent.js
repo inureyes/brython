@@ -118,7 +118,7 @@ function define(tag_name, cls, options){
                     "Setting observedAttributes as a method " +
                     "is deprecated. Set it as a class attribute.")
                 // module _warning is in builtin_modules.js
-                $B.imported._warnings.warn(warning)
+                $B.module_getattr($B.imported._warnings, 'warn')(warning)
                 return $B.$call(obs_attr, this)
             }else if(Array.isArray(obs_attr)){
                 return obs_attr
@@ -141,7 +141,7 @@ function define(tag_name, cls, options){
     var mro = cls.tp_mro
     for(var i = mro.length - 1; i >= 0; i--){
         var pcls = mro[i]
-        for(var entry of _b_.dict.$iter_items(pcls.dict)){
+        for(var entry of _b_.dict.$iter_items($B.get_dict(pcls))){
             var key = entry.key,
                 value = entry.value
             if((! webcomp.hasOwnProperty(key)) &&

@@ -34,9 +34,9 @@ stat_result.$factory = function(filename){
                     infos["st_" + item] = infos.st_atime
                 });
         var res = {
-            ob_type: stat_result,
-            dict: $B.empty_dict()
+            ob_type: stat_result
         }
+        $B.init_dict(res)
         $B.assign_dict(res, infos)
         return res
     }else if($B.files && $B.files.hasOwnProperty(filename)){
@@ -55,9 +55,9 @@ stat_result.$factory = function(filename){
             infos["st_" + item] = infos.st_atime
         }
         var res = {
-            ob_type: stat_result,
-            dict: $B.empty_dict()
+            ob_type: stat_result
         }
+        $B.init_dict(res)
         $B.assign_dict(res, infos)
         return res
 

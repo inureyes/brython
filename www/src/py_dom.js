@@ -407,11 +407,12 @@ $B.set_func_names(DOMEvent, "browser")
 var Clipboard = $B.make_builtin_class('Clipboard')
 
 Clipboard.$factory = function(data){
-    return {
+    var res = {
         ob_type : Clipboard,
-        dict: $B.empty_dict(),
         data : data
     }
+    $B.init_dict(res)
+    return res
 }
 
 Clipboard.mp_subscript = function(self, name){
@@ -1155,12 +1156,15 @@ DOMNode_funcs.closest_get = function(){
         $B.RAISE_ATTRIBUTE_ERROR(_b_.str.$factory(self) +
             " has no attribute 'closest'", self, 'closest')
     }
-    if(self.selector === $B.NULL){
+    if(selector === $B.NULL){
+        console.log('closest arguments', arguments)
         $B.RAISE(_b_.TypeError,
             `${$B.class_name(self)}.closest() missing 1 required ` +
             `positional argument: 'selector'`
         )
     }
+    console.log('closest, self', self, 'selector', selector,
+        'is NULL', selector === $B.NULL)
     var res = self.closest(selector)
     if(res === null){
         $B.RAISE(_b_.KeyError, "no parent with selector " + selector)

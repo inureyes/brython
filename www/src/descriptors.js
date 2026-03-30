@@ -131,12 +131,13 @@ $B.set_func_names($B.member_descriptor, "builtins")
 
 var method = $B.method
 method.$factory = function(func, obj){
-    return {
+    var res = {
         ob_type: $B.method,
         im_func: func,
-        im_self: obj,
-        dict: $B.empty_dict()
+        im_self: obj
     }
+    $B.init_dict(res)
+    return res
 }
 
 method.tp_setattro = function(self, key){
@@ -205,12 +206,13 @@ $B.method.tp_descr_get = function(self){
 
 $B.method.tp_new = function(cls, args, kw){
     var [func, obj] = args
-    return {
+    var res = {
         ob_type: cls,
         im_func: func,
-        im_self: obj,
-        dict: $B.empty_dict()
+        im_self: obj
     }
+    $B.init_dict(res)
+    return res
 }
 
 var method_funcs = $B.method.tp_funcs = {}

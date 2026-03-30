@@ -124,7 +124,8 @@ $B.created_types[tp_name]=cls
 return cls}
 $B.make_type=function(tp_name,tp_bases){if(tp_name===undefined){console.log('no tp name')
 console.log(Error().stack)}
-var cls={ob_type:_b_.type,tp_name,tp_bases:tp_bases ??[_b_.object],tp_base:tp_bases ? tp_bases[0]:_b_.object,dict:$B.empty_dict()}
+var cls={ob_type:_b_.type,tp_name,tp_bases:tp_bases ??[_b_.object],tp_base:tp_bases ? tp_bases[0]:_b_.object}
+$B.init_dict(cls)
 if(tp_bases){cls.tp_mro=[cls,...tp_bases,_b_.object]}else{cls.tp_mro=[cls,_b_.object]}
 return cls}
 $B.obj_dict=function(obj,exclude){var res=$B.empty_dict()
@@ -673,8 +674,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-03-30 09:50:22.179055"
-__BRYTHON__.timestamp=1774857022178
+__BRYTHON__.compiled_date="2026-03-30 18:18:35.883689"
+__BRYTHON__.timestamp=1774887515883
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -1178,7 +1179,8 @@ ast[kl]=Function(...arg_list,body)
 ast[kl]._fields=args.split(',')}else{ast[kl]=args.map(x=> ast[x])}
 ast[kl].$name=kl}
 $B.ast_js_to_py=function(obj){$B.create_python_ast_classes()
-if(obj===undefined){return _b_.None}else if(Array.isArray(obj)){return $B.$list(obj.map($B.ast_js_to_py))}else{var class_name=obj.constructor.$name,py_class=$B.python_ast_classes[class_name],py_ast_obj={ob_type:py_class,dict:$B.empty_dict()}
+if(obj===undefined){return _b_.None}else if(Array.isArray(obj)){return $B.$list(obj.map($B.ast_js_to_py))}else{var class_name=obj.constructor.$name,py_class=$B.python_ast_classes[class_name],py_ast_obj={ob_type:py_class}
+$B.init_dict(py_ast_obj)
 if(py_class===undefined){return obj}
 for(var field of $B.get_from_dict(py_class,'_fields',[])){$B.set_to_dict(py_ast_obj,field,$B.ast_js_to_py(obj[field]))}
 var _attributes=$B.fast_tuple([])
@@ -1210,7 +1212,8 @@ if(rf.endsWith('*')){$defaults[f]=[]}else if(rf.endsWith('?')){$defaults[f]=_b_.
 $B.set_to_dict(cls,'__match_args__',$B.fast_tuple(Object.keys(slots)))
 $B.set_to_dict(cls,'__module__','ast')
 cls.$factory=function(){var $=$B.args(klass,nb_args,$B.clone(slots),Object.keys(slots),arguments,$B.clone($defaults),null,'kw')
-var res={ob_type:cls,dict:$B.empty_dict()}
+var res={ob_type:cls}
+$B.init_dict(res)
 var _attributes=$B.fast_tuple()
 for(let key in $){if(key=='kw'){for(let item of _b_.dict.$iter_items($.kw)){$B.set_to_dict(res,item.key,item.value)}}else{$B.set_to_dict(res,key,$[key])}}
 if(klass=="Constant"){$B.set_to_dict(res,'value',$B.AST.$convert($.value))}
@@ -1635,8 +1638,8 @@ args[i]=defaults[vars[i]]}}
 return args}
 $B.check_kw_empty=function(name,kw){if(kw && _b_.dict.mp_length(kw)> 0){$B.RAISE(_b_.TypeError,`${name}() takes no keyword arguments`)}}
 $B.get_class=function(obj){
-if(obj===null){return $B.imported.javascript.NullType }
-if(obj===undefined){return $B.imported.javascript.UndefinedType }
+if(obj===null){return $B.module_getattr($B.imported.javascript,'NullType')}
+if(obj===undefined){return $B.module_getattr($B.imported.javascript,'UndefinedType')}
 if(obj.ob_type){return obj.ob_type}
 if(obj[$B.OB_TYPE]){return obj[$B.OB_TYPE]}
 var klass
@@ -1653,8 +1656,8 @@ case "function":
 return $B.JSFunction
 case "object":
 if(Array.isArray(obj)){return $B.js_array}else if(typeof Node !=="undefined" 
-&& obj instanceof Node){if(obj.tagName){return $B.imported['browser.html'][obj.tagName]||
-$B.DOMNode}
+&& obj instanceof Node){if(obj.tagName){var res=$B.module_getattr($B.imported['browser.html'],obj.tagName)
+return res===$B.NULL ? $B.DOMNode :res}
 return $B.DOMNode}else if(obj instanceof Event){return $B.DOMEvent}
 break}
 if(klass===undefined){return $B.get_jsobj_class(obj)}
@@ -1995,7 +1998,7 @@ var frame=$B.frame_obj.frame
 if(frame.$coroutine){if(! frame.$coroutine.$sent){var cname=frame.$coroutine.$func.$function_infos[$B.func_attrs.__name__]
 var message=$B.EXC(_b_.RuntimeWarning,`coroutine '${cname}' was never awaited`)
 message.lineno=frame.$coroutine.$lineno
-$B.imported._warnings.warn(message)}}
+$B.module_getattr($B.imported._warnings,'warn')(message)}}
 $B.frame_obj=$B.frame_obj.prev
 if(frame.$has_generators){for(var key in frame[1]){if(frame[1][key]&& $B.get_class(frame[1][key])===$B.generator){var gen=frame[1][key]
 if(gen.$frame===undefined){continue}
@@ -2145,7 +2148,7 @@ if(test){console.log('in mro',in_mro)
 if(in_mro !==$B.NULL){console.log('class of in_mro',$B.get_class(in_mro))}}
 if(in_mro !==$B.NULL &&
 $B.get_class(in_mro)===$B.function &&
-((! self.dict)||$B.get_from_dict(self,attr,$B.NULL)===$B.NULL)){return $B.method.tp_new($B.method,[in_mro,self])}
+((! $B.get_dict(self))||$B.get_from_dict(self,attr,$B.NULL)===$B.NULL)){return $B.method.tp_new($B.method,[in_mro,self])}
 var getter=$B.NULL
 if(in_mro !==$B.NULL){var in_mro_class=$B.get_class(in_mro)
 var getter=in_mro_class.tp_descr_get
@@ -2242,10 +2245,9 @@ if(test){console.log('object.tp_setattro',self,attr,value)}
 if(value===$B.NULL){
 if(test){console.log('in mro',in_mro,'has delete',_b_.hasattr(in_mro,'__delete__'))}
 if(in_mro !==$B.NULL && _b_.hasattr(in_mro,'__delete__')){return $B.$call($B.$getattr(in_mro,'__delete__'),self)}
-if(self.dict && $B.$isinstance(self.dict,_b_.dict)&&
-_b_.dict.$contains_string(self.dict,attr)){_b_.dict.$delete_string(self.dict,attr)
-delete self[attr]
-return _b_.None}else if(self.__dict__===undefined && self[attr]!==undefined){console.log('suspect')
+var dict=$B.get_dict(self)
+if(dict && $B.$isinstance(dict,_b_.dict)&&
+_b_.dict.$contains_string(dict,attr)){_b_.dict.$delete_string(dict,attr)
 delete self[attr]
 return _b_.None}
 throw $B.attr_error(attr,self)}
@@ -2296,7 +2298,7 @@ if(test){console.log('in mro',in_mro)
 if(in_mro !==$B.NULL){console.log('class of in_mro',$B.get_class(in_mro))}}
 if(in_mro !==$B.NULL &&
 $B.get_class(in_mro)===$B.function &&
-((! self.dict)||$B.get_from_dict(self,attr,$B.NULL)===$B.NULL)){return $B.method.tp_new($B.method,[in_mro,self])}
+((! $B.get_dict(self))||$B.get_from_dict(self,attr,$B.NULL)===$B.NULL)){return $B.method.tp_new($B.method,[in_mro,self])}
 var getter=$B.NULL
 if(in_mro !==$B.NULL){var in_mro_class=$B.get_class(in_mro)
 var getter=in_mro_class.tp_descr_get
@@ -2383,8 +2385,8 @@ var self=$.self,spec=$.spec
 if(spec !==""){$B.RAISE(_b_.TypeError,"non-empty format string passed to object.__format__"
 )}
 return _b_.str.$factory(self)}
-object_funcs.__getstate__=function(self){if(self.dict===undefined){return _b_.None}
-return self.dict}
+object_funcs.__getstate__=function(self){var dict=$B.get_dict(self)
+return dict===undefined ? _b_.None :dict}
 object_funcs.__init_subclass__=function(self){
 var $=$B.args("__init_subclass__",1,{cls:null},['cls'],arguments,{},"args","kwargs")
 if($.args.length > 0){var qualname=$B.$getattr($.cls,'__qualname__','<type>')
@@ -2394,7 +2396,7 @@ if(_b_.dict.mp_length($.kwargs)> 0){var qualname=$B.$getattr($.cls,'__qualname__
 $B.RAISE(_b_.TypeError,`${qualname}.__init_subclass__() `+
 `takes no keyword arguments`)}
 return _b_.None}
-object_funcs.__reduce__=function(cls){if(! cls.dict){$B.RAISE(_b_.TypeError,`cannot pickle '${$B.class_name(cls)}' object`)}
+object_funcs.__reduce__=function(cls){if(! $B.get_dict(cls)){$B.RAISE(_b_.TypeError,`cannot pickle '${$B.class_name(cls)}' object`)}
 if($B.imported.copyreg===undefined){$B.$import('copyreg')}
 var res=[$B.module_getattr($B.imported.copyreg,'_reconstructor')]
 var D=$B.get_class(cls),B=object
@@ -2404,7 +2406,7 @@ var args=$B.$list([D,B])
 if(B===object){args.push(_b_.None)}else{args.push($B.$call(B,cls))}
 res.push($B.fast_tuple(args))
 var d=$B.empty_dict()
-for(var attr of _b_.dict.$keys_string(cls.dict)){_b_.dict.$setitem(d,attr,_b_.dict.$getitem_string(cls.dict,attr))}
+for(var attr of _b_.dict.$keys_string($B.get_dict(cls))){_b_.dict.$setitem(d,attr,_b_.dict.$getitem_string($B.get_dict(cls),attr))}
 res.push(d)
 return _b_.tuple.$factory(res)}
 object_funcs.__reduce_ex__=function(self,protocol){var klass=$B.get_class(self)
@@ -2422,7 +2424,7 @@ if(newargs){arg2=arg2.concat(newargs.args)}
 res.push($B.fast_tuple(arg2))
 var getstate=$B.search_in_mro(klass,'__getstate__')
 if(getstate){var d=$B.$call(getstate,self)}else{var d=$B.empty_dict(),nb=0
-if(self.dict){for(var item of _b_.dict.$iter_items(self.dict)){if(item.key=="__class__" ||item.key.startsWith("$")){continue}
+if($B.get_dict(self)){for(var item of _b_.dict.$iter_items($B.get_dict(self))){if(item.key=="__class__" ||item.key.startsWith("$")){continue}
 _b_.dict.$setitem(d,item.key,item.value)
 nb++}}
 if(nb==0){d=_b_.None}}
@@ -2648,11 +2650,12 @@ if(classdict !==null){$B.$call($B.type_getattribute(_b_.dict,'update'),dict,clas
 bases=klass.tp_bases
 if(bases===undefined){return}
 for(var base of bases){$B.merge_class_dict(dict,base)}}
-$B.get_dict=function(cls){return cls.dict}
-$B.init_dict=function(cls){cls.dict=$B.empty_dict()}
-$B.set_dict=function(cls,value){cls.dict=value}
-$B.get_from_dict=function(cls,attr,_default){return $B.str_dict_get(cls.dict,attr,_default)}
-$B.set_to_dict=function(cls,attr,value){$B.str_dict_set(cls.dict,attr,value)}
+var dict_name=Symbol('DICT')
+$B.get_dict=function(cls){return cls[dict_name]}
+$B.init_dict=function(cls){cls[dict_name]=$B.empty_dict()}
+$B.set_dict=function(cls,value){cls[dict_name]=value}
+$B.get_from_dict=function(cls,attr,_default){return $B.str_dict_get(cls[dict_name],attr,_default)}
+$B.set_to_dict=function(cls,attr,value){$B.str_dict_set(cls[dict_name],attr,value)}
 var NULL={NULL:true}
 var counter=0
 $B.slot2dunder={tp_call:'__call__',tp_descr_get:'__get__',tp_descr_set:'__set__',tp_getattro:'__getattribute__',tp_getbuffer:'__buffer__',tp_hash:'__hash__',tp_init:'__init__',tp_iter:'__iter__',tp_iternext:'__next__',tp_new:'__new__',tp_repr:'__repr__',tp_setattro:'__setattr__',tp_str:'__str__'}
@@ -2737,7 +2740,7 @@ var md={ob_type:$B.member_descriptor,d_type:class_obj,d_name:key,d_member:member
 $B.str_dict_set(cl_dict,key,md)}}}
 _b_.type.tp_setattro=function(kls,attr,value){var $test=false 
 if($test){console.log('set attr',attr,'of class',kls,'to',value)
-console.log('kls.dict',kls.dict)}
+console.log('kls dict',$B.get_dict(kls))}
 if(kls.tp_flags & TPFLAGS.IMMUTABLETYPE){$B.RAISE(_b_.TypeError,`cannot set '${attr}' attribute `+
 `of immutable type '${$B.get_name(kls)}'`
 )}
@@ -2751,7 +2754,7 @@ done=true
 setter(in_mro,kls,value)}}
 if(! done){if(value===$B.NULL){var current=$B.get_from_dict(kls,attr,$B.NULL)
 if(current===$B.NULL){throw $B.attr_error(attr,kls)}
-_b_.dict.$delitem(kls.dict,attr)}else{$B.set_to_dict(kls,attr,value)}}
+_b_.dict.$delitem($B.get_dict(kls),attr)}else{$B.set_to_dict(kls,attr,value)}}
 switch(attr){case '__getattribute__':
 case '__getattr__':
 reset_getattribute(kls)
@@ -2845,8 +2848,9 @@ $B.str_dict_set(cl_dict,'__module__',module)
 var qualname=$B.str_dict_get(cl_dict,'__qualname__',name)
 $B.str_dict_set(cl_dict,'__qualname__',qualname)
 var ctx={metatype,args,kwds,cl_dict,name,bases}
-var class_obj={ob_type:metatype,dict:cl_dict,tp_bases:bases,tp_name:name,tp_flags:$B.TPFLAGS.DEFAULT |$B.TPFLAGS.HEAPTYPE |
+var class_obj={ob_type:metatype,tp_bases:bases,tp_name:name,tp_flags:$B.TPFLAGS.DEFAULT |$B.TPFLAGS.HEAPTYPE |
 $B.TPFLAGS.BASETYPE |$B.TPFLAGS.HAVE_GC}
+$B.set_dict(class_obj,cl_dict)
 class_obj.tp_mro=$B.make_mro(class_obj)
 class_obj.tp_subclasses=[]
 $B.make_getattr(class_obj)
@@ -2933,7 +2937,7 @@ if(! $B.exact_type(bases,_b_.tuple)){$B.RAISE(_b_.TypeError,`can only assign tup
 cls.tp_bases=bases
 cls.tp_mro=$B.make_mro(cls)}
 type_funcs.__dict___get=function(cls){return{
-ob_type:$B.mappingproxy,mapping:cls.dict}}
+ob_type:$B.mappingproxy,mapping:$B.get_dict(cls)}}
 type_funcs.__dict___set=function(self){}
 type_funcs.__dir__=function(klass){var dict=$B.empty_dict()
 $B.merge_class_dict(dict,klass)
@@ -2945,7 +2949,7 @@ type_funcs.__instancecheck__=function(cls,instance){var kl=$B.get_class(instance
 var mro=$B.get_mro(kl)
 for(var klass of mro){if(klass===cls){return true}}
 return false}
-type_funcs.__module___get=function(self){if(self.dict){var module=$B.get_from_dict(self,'__module__',$B.NULL)
+type_funcs.__module___get=function(self){if($B.get_dict(self)){var module=$B.get_from_dict(self,'__module__',$B.NULL)
 if(module !==$B.NULL){return module}}
 return 'builtins'}
 type_funcs.__module___set=function(self,value){$B.set_to_dict(self,'__module__',value)}
@@ -3018,8 +3022,9 @@ _b_.property.tp_members=[["fget",$B.TYPES.OBJECT,"prop_get",1],["fset",$B.TYPES.
 _b_.property.tp_getset=["__name__","__isabstractmethod__"]
 $B.set_func_names(property,"builtins")
 $B.make_iterator_class=function(name,reverse){
-var klass={ob_type:_b_.type,__mro__:[_b_.object],__name__:name,__qualname__:name,$factory:function(items){return{
-ob_type:klass,dict:$B.empty_dict(),counter:reverse ? items.length :-1,items:items,len:items.length,$builtin_iterator:true}},$iterator_class:true,tp_iter:function(self){self.counter=
+var klass={ob_type:_b_.type,__mro__:[_b_.object],__name__:name,__qualname__:name,$factory:function(items){var res={ob_type:klass,counter:reverse ? items.length :-1,items:items,len:items.length,$builtin_iterator:true}
+$B.init_dict(res)
+return res},$iterator_class:true,tp_iter:function(self){self.counter=
 self.counter===undefined
 ? reverse
 ? self.items.length
@@ -3281,8 +3286,9 @@ $B.member_descriptor.tp_members=[["__objclass__",$B.TYPES.OBJECT,"d_type",1],["_
 $B.member_descriptor.tp_getset=["__qualname__"]
 $B.set_func_names($B.member_descriptor,"builtins")
 var method=$B.method
-method.$factory=function(func,obj){return{
-ob_type:$B.method,im_func:func,im_self:obj,dict:$B.empty_dict()}}
+method.$factory=function(func,obj){var res={ob_type:$B.method,im_func:func,im_self:obj}
+$B.init_dict(res)
+return res}
 method.tp_setattro=function(self,key){
 if(key=="__class__"){$B.RAISE(_b_.TypeError,"__class__ assignment only supported "+
 "for heap types or ModuleType subclasses")}
@@ -3313,8 +3319,9 @@ if(getter !==$B.NULL){return getter(descr,self,tp)}else{return descr}}
 return $B.object_getattribute(self.im_func,$B.get_class(self.im_func),attr)}
 $B.method.tp_descr_get=function(self){return self}
 $B.method.tp_new=function(cls,args,kw){var[func,obj]=args
-return{
-ob_type:cls,im_func:func,im_self:obj,dict:$B.empty_dict()}}
+var res={ob_type:cls,im_func:func,im_self:obj}
+$B.init_dict(res)
+return res}
 var method_funcs=$B.method.tp_funcs={}
 method_funcs.__reduce__=function(self){}
 $B.method.functions_or_methods=["__new__"]
@@ -3427,15 +3434,17 @@ $B.set_func_names(wrapper_descriptor,"builtins")})(__BRYTHON__)
 (function($B){var _b_=$B.builtins
 var classmethod=_b_.classmethod
 classmethod.$factory=function(func){$B.check_nb_args_no_kw('classmethod',1,arguments)
-return{
-ob_type:classmethod,dict:$B.empty_dict(),cm_callable:func}}
+var res={ob_type:classmethod,cm_callable:func}
+$B.init_dict(res)
+return res}
 _b_.classmethod.tp_repr=function(self){return `<classmethod(${_b_.repr(self.cm_callable)})>`}
 _b_.classmethod.tp_descr_get=function(self,obj,type){if(! self.hasOwnProperty("cm_callable")){$B.RAISE(_b_.RuntimeError,"uninitialized classmethod object")}
 if(type===undefined){type=$B.get_class(obj)}
 return $B.$call($B.method,self.cm_callable,type)}
 _b_.classmethod.tp_init=function(self,func){self.cm_callable=func}
-_b_.classmethod.tp_new=function(cls,args,kw){return{
-ob_type:cls,dict:$B.empty_dict()}}
+_b_.classmethod.tp_new=function(cls,args,kw){var res={ob_type:cls}
+$B.init_dict(res)
+return res}
 var classmethod_funcs=_b_.classmethod.tp_funcs={}
 classmethod_funcs.__annotate___get=function(self){}
 classmethod_funcs.__annotate___set=function(self){}
@@ -3568,7 +3577,8 @@ cells.push($B.cell.$factory(_b_.None))}}
 return $B.fast_tuple(cells)}
 function_funcs.__closure___set=_b_.None
 function_funcs.__code___get=function(self){$B.check_infos(self)
-var res={ob_type:$B.code,dict:$B.empty_dict()}
+var res={ob_type:$B.code}
+$B.init_dict(res)
 for(var attr in self.$infos.__code__){res[attr]=self.$infos.__code__[attr]}
 res.co_name=self.$infos.__name__
 res.co_filename=self.$infos.__code__.co_filename
@@ -3584,7 +3594,7 @@ if(value===_b_.None){value=[]}else if(! $B.$isinstance(value,_b_.tuple)){$B.RAIS
 self.$infos.__defaults__=value
 self.$function_infos[$B.func_attrs.__defaults__]=value
 $B.make_args_parser(self)}
-function_funcs.__dict___get=function(self){return self.dict}
+function_funcs.__dict___get=function(self){return $B.get_dict(self)}
 function_funcs.__dict___set=function(self,value){if(value===$B.NULL){$B.RAISE(_b_.TypeError,"cannot delete __dict__")}
 if(! $B.$isinstance(value,_b_.dict)){$B.RAISE(_b_.TypeError,`__dict__ must be set to a dictionary, not a `+
 `'${$B.class_name(value)}'`
@@ -4255,8 +4265,9 @@ function bad_mode(){$B.RAISE(_b_.ValueError,"Must have exactly one of create/rea
 "mode and at most one plus")}
 function err_closed(){$B.RAISE(_b_.ValueError,"I/O operation on closed file")}
 const O_RDONLY=0,O_WRONLY=1,O_RDWR=2,O_EXCL=1024,O_CREAT=256,O_TRUNC=512,O_APPEND=8
-$B._FileIO.tp_new=function(cls,args,kw){return{
-ob_type:cls,fd:-1,created:0,readable:0,writable:0,appending:0,seekable:-1,closefd:1,dict:$B.obj_dict({})}}
+$B._FileIO.tp_new=function(cls,args,kw){var res={ob_type:cls,fd:-1,created:0,readable:0,writable:0,appending:0,seekable:-1,closefd:1}
+$B.init_dict(res)
+return res}
 $B._FileIO.tp_init=function(){var $=$B.args('__init__',5,{self:null,name:null,mode:null,closefd:null,opener:null},['self','name','mode','closefd','opener'],arguments,{mode:'r',closefd:true,opener:_b_.None},null,null),_self=$.self,name=$.name,mode=$.mode,closefd=$.closefd,opener=$.opener
 var flags=0
 var ret=0
@@ -4372,7 +4383,8 @@ $B._TextIOWrapper=$B.make_builtin_class('_io._TextIOWrapper',[$B._TextIOBase])
 $B._TextIOWrapper.$factory=function(){var $=$B.args("TextIOWrapper",6,{buffer:null,encoding:null,errors:null,newline:null,line_buffering:null,write_through:null},["buffer","encoding","errors","newline","line_buffering","write_through"],arguments,{encoding:"utf-8",errors:_b_.None,newline:_b_.None,line_buffering:_b_.False,write_through:_b_.False},null,null)
 if($.encoding===_b_.None){$.encoding='utf-8'}
 var bytes=$B.fast_bytes($.buffer.raw.$bytes)
-var res={ob_type:$B._TextIOWrapper,$buffer:$.buffer,$bytes:bytes,$encoding:$.encoding,$errors:$.errors,$newline:$.newline,dict:$B.empty_dict()}
+var res={ob_type:$B._TextIOWrapper,$buffer:$.buffer,$bytes:bytes,$encoding:$.encoding,$errors:$.errors,$newline:$.newline}
+$B.init_dict(res)
 return res}
 $B._TextIOWrapper.tp_new=function(cls,args,kw){return $B._TextIOWrapper.$factory(...args)}
 var _TextIOWrapper_funcs=$B._TextIOWrapper.tp_funcs={}
@@ -4702,8 +4714,9 @@ if(start !==undefined){$B.RAISE(_b_.TypeError,"enumerate() receives argument 'st
 )}
 start=entry.value
 break}}
-return{
-ob_type:_b_.enumerate,dict:$B.empty_dict(),it:$B.make_js_iterator(iterable),counter:start ?? 0}}
+var res={ob_type:_b_.enumerate,it:$B.make_js_iterator(iterable),counter:start ?? 0}
+$B.init_dict(res)
+return res}
 var enumerate_funcs=_b_.enumerate.tp_funcs={}
 enumerate_funcs.__class_getitem__=$B.$class_getitem
 enumerate_funcs.__reduce__=function(self){}
@@ -4766,18 +4779,15 @@ if(mro[i].hasOwnProperty && mro[i].hasOwnProperty(attr)){if(test){console.log('f
 console.log(mro[i][attr])}
 var dunder=$B.slot2dunder.hasOwnProperty(attr)?
 $B.slot2dunder[attr]:attr
-if(! mro[i].dict ||
+if(! $B.get_dict(mro[i])||
 $B.get_from_dict(mro[i],dunder,$B.NULL)===$B.NULL){console.log('attr',attr,'found in mro[i]',mro[i],'but absent in dict')
 console.log($B.frame_obj.frame.$lineno)
 console.log(Error('trace').stack)}}
-if(mro[i].dict){var v=$B.get_from_dict(mro[i],attr,$B.NULL)
+if($B.get_dict(mro[i])){var v=$B.get_from_dict(mro[i],attr,$B.NULL)
 if(v !==$B.NULL){if(test){console.log('found in dict of mro',i,v)}
-return v}}else if(mro[i].__dict__){console.log('old school __dict__')
-var v=_b_.dict.$get_string(mro[i].__dict__,attr,false)
-if(v !==false){if(test){console.log('found in dict of mro',i,v)}
 return v}}}
 return _default}
-$B.search_in_dict=function(obj,attr,_default){if(obj.dict){try{var v=$B.get_from_dict(obj,attr,$B.NULL)}catch(err){console.log('error',obj,attr)
+$B.search_in_dict=function(obj,attr,_default){if($B.get_dict(obj)){try{var v=$B.get_from_dict(obj,attr,$B.NULL)}catch(err){console.log('error',obj,attr)
 throw err}
 if(v !==$B.NULL){return v}}
 return _default}
@@ -4869,8 +4879,9 @@ _b_.__import__=function(){
 var $=$B.args('__import__',5,{name:null,globals:null,locals:null,fromlist:null,level:null},['name','globals','locals','fromlist','level'],arguments,{globals:None,locals:None,fromlist:_b_.tuple.$factory(),level:0},null,null)
 return $B.$__import__($.name,$.globals,$.locals,$.fromlist)}
 _b_.input=function(msg){var res=prompt(msg ||'')||''
-if($B.imported["sys"]&& $B.imported["sys"].ps1){
-var ps1=$B.imported["sys"].ps1,ps2=$B.imported["sys"].ps2
+if($B.imported["sys"]&& 
+$B.module_getattr($B.imported["sys"],'ps1')!==$B.NULL){
+var ps1=$B.module_getattr($B.imported["sys"],'ps1'),ps2=$B.module_getattr($B.imported["sys"],'ps2')
 if(msg==ps1 ||msg==ps2){console.log(msg,res)}}
 return res}
 _b_.isinstance=function(obj,cls){check_nb_args_no_kw('isinstance',2,arguments)
@@ -5211,7 +5222,7 @@ if(instance===$B.NULL){return self}
 return $B.$call($$super,self.type,instance)}
 _b_.super.tp_init=function(self,_type,object_or_type){var $=$B.args('__init__',3,{self:null,type:null,object_or_type:null},['self','type','object_or_type'],arguments,{type:_b_.None,object_or_type:_b_.None},null,null)
 var self=$.self,type=$.type,object_or_type=$.object_or_type
-if(object_or_type===_b_.None){if(type===_b_.None){var frame=$B.frame_obj.frame,pyframe=$B.imported["_sys"]._getframe(),code=$B.$getattr(pyframe,'f_code'),co_varnames=$B.$getattr(code,'co_varnames')
+if(object_or_type===_b_.None){if(type===_b_.None){var frame=$B.frame_obj.frame,pyframe=$B.module_getattr($B.imported["_sys"],'_getframe')(),code=$B.$getattr(pyframe,'f_code'),co_varnames=$B.$getattr(code,'co_varnames')
 if(co_varnames.length > 0){type=$B.get_class(frame[1])
 if(type===undefined){$B.RAISE(_b_.RuntimeError,"super(): no arguments")}
 object_or_type=frame[1][co_varnames[0]]}else{$B.RAISE(_b_.RuntimeError,"super(): no arguments")}
@@ -5226,8 +5237,9 @@ if(Array.isArray(object_or_type)){object_or_type=object_or_type[0]}
 self.type=type
 self.obj=object_or_type
 self.obj_type=supercheck(type,object_or_type)}
-_b_.super.tp_new=function(cls){return{
-ob_type:cls,dict:$B.empty_dict()}}
+_b_.super.tp_new=function(cls){var res={ob_type:cls}
+$B.init_dict(res)
+return res}
 var super_funcs=_b_.super.tp_funcs={}
 _b_.super.tp_members=[["__thisclass__",$B.TYPES.OBJECT,"type",1],["__self__",$B.TYPES.OBJECT,"obj",1],["__self_class__",$B.TYPES.OBJECT,"obj_type",1]
 ]
@@ -5290,8 +5302,9 @@ return _b_.NotImplemented}}
 $B.code.tp_repr=function(self){return `<code object ${self.co_name}, file '${self.co_filename}', `+
 `line ${self.co_firstlineno || 1}>`}
 $B.code.tp_hash=function(self){return _b_.object.tp_hash(self)}
-$B.code.tp_new=function(cls,args,kw){return{
-ob_type:cls,dict:$B.empty_dict()}}
+$B.code.tp_new=function(cls,args,kw){var res={ob_type:cls}
+$B.init_dict(res)
+return res}
 var code_funcs=$B.code.tp_funcs={}
 code_funcs.__replace__=function(self){$B.RAISE(_b_.NotImplementedError)}
 code_funcs.__sizeof__=function(self){return 216}
@@ -5801,7 +5814,7 @@ frame_obj=frame_obj.prev}
 if(frame_obj.prev !==null){return frame_obj.prev.frame}
 return _b_.None}
 frame_funcs.f_back_set=_b_.None
-frame_funcs.f_builtins_get=function(self){if(self[3].hasOwnProperty('__builtins__')){return self[3].__builtins__.dict}
+frame_funcs.f_builtins_get=function(self){if(self[3].hasOwnProperty('__builtins__')){return $B.get_dict(self[3].__builtins__)}
 return $B.obj_dict(_b_)}
 frame_funcs.f_builtins_set=_b_.None
 frame_funcs.f_code_get=function(self){var res
@@ -5810,7 +5823,8 @@ if(self[4]){res=$B.$getattr(self[4],'__code__')
 positions=self.positions ?? positions}else if(self.f_code){
 res=self.f_code}else{var infos={co_name:(self[0]==self[2]? '<module>' :self[0]),co_filename:self.__file__,co_varnames:$B.fast_tuple([]),co_firstlineno:1}
 infos.co_qualname=infos.co_name 
-res={ob_type:$B.code,dict:$B.empty_dict()}
+res={ob_type:$B.code}
+$B.init_dict(res)
 for(var attr in infos){res[attr]=infos[attr]}
 positions=self.positions ?? positions}
 res.ob_type=$B.code
@@ -5843,7 +5857,8 @@ $B.frame.tp_getset=["f_back","f_locals","f_lineno","f_trace","f_lasti","f_global
 $B.set_func_names(frame,"builtins")
 $B._frame=frame 
 $B.make_f_code=function(frame,varnames){
-frame.f_code={ob_type:$B.code,dict:$B.empty_dict()}
+frame.f_code={ob_type:$B.code}
+$B.init_dict(frame.f_code)
 Object.assign(frame.f_code,{co_argcount:1,co_firstlineno:frame.$lineno,co_name:"<genexpr>",co_filename:frame.__file__,co_flags:115,co_freevars:$B.fast_tuple([]),co_kwonlyargcount:0,co_posonlyargount:0,co_qualname:"genexpr",co_varnames:$B.fast_tuple(['.0'].concat(varnames))}
 )}
 $B.restore_frame_obj=function(frame_obj,locals){$B.frame_obj=frame_obj
@@ -5912,7 +5927,8 @@ return ''}
 _b_.BaseException.tp_init=function(self,...args){var $=$B.args('__init__',1,{self:null},['self'],arguments,{},'args','kw')
 check_no_keywords($.self,$.kw)
 self.args=$B.fast_tuple(args)}
-_b_.BaseException.tp_new=function(cls,args,kw){var res={ob_type:cls,dict:$B.empty_dict(),args:$B.fast_tuple(args),notes:_b_.None,__traceback__:_b_.None,__cause__:_b_.None,__context__:_b_.None,suppress_context:false}
+_b_.BaseException.tp_new=function(cls,args,kw){var res={ob_type:cls,args:$B.fast_tuple(args),notes:_b_.None,__traceback__:_b_.None,__cause__:_b_.None,__context__:_b_.None,suppress_context:false}
+$B.init_dict(res)
 return res}
 var BaseException_funcs=_b_.BaseException.tp_funcs={}
 BaseException_funcs.__cause___get=function(self){return self.__cause__ ?? _b_.None}
@@ -5921,7 +5937,7 @@ BaseException_funcs.__cause___set=function(self,value){if(value===$B.NULL){$B.RA
 BaseException_funcs.__context___get=function(self){return self.__context__ ?? _b_.None}
 BaseException_funcs.__context___set=function(self,value){if(value===$B.NULL){$B.RAISE(_b_.TypeError,"__context__ may not be deleted")}else if(value===_b_.None){delete self.__context__}else if(! $B.$isinstance(value,_b_.BaseException)){$B.RAISE(_b_.TypeError,"exception context must be None or derive from BaseException"
 )}else{self.__context__=value}}
-BaseException_funcs.__dict___get=function(self){return self.dict}
+BaseException_funcs.__dict___get=function(self){return $B.get_dict(self)}
 BaseException_funcs.__dict___set=function(self,value){$B.set_dict(self,value)}
 BaseException_funcs.__reduce__=function(self){var dict=$B.get_dict(self)
 if(self.args && dict && ! $B.str_dict_empty(dict)){return $B.fast_tuple([$B.get_class(self),$B.fast_tuple(self.args),dict])}else{return $B.fast_tuple([$B.get_class(self),$B.fast_tuple(self.args)])}}
@@ -6020,7 +6036,7 @@ return exc}
 $B.recursion_error=function(frame){var exc=$B.$call(_b_.RecursionError,"maximum recursion depth exceeded")
 $B.set_exc(exc,frame)
 return exc}
-function calculate_suggestions(list,name){return $B.imported._suggestions._generate_suggestions(list,name)}
+function calculate_suggestions(list,name){return $B.module_getattr($B.imported._suggestions,'_generate_suggestions')(list,name)}
 $B.offer_suggestions_for_attribute_error=function(exc){var name=exc.name,obj=exc.obj
 if(name===_b_.None ||name===undefined ||
 obj===_b_.None ||obj===undefined){return _b_.None}
@@ -7675,7 +7691,8 @@ memoryview_funcs.strides_set=_b_.None
 memoryview_funcs.suboffsets_get=function(self){return self.suboffsets}
 memoryview_funcs.suboffsets_set=_b_.None
 memoryview_funcs.tobytes=function(self){if($B.$isinstance(self.obj,[_b_.bytes,_b_.bytearray])){return{
-ob_type:_b_.bytes,source:self.obj.source}}else if($B.imported.array && $B.$isinstance(self.obj,$B.imported.array.array)){return $B.imported.array.array.tobytes(self.obj)}
+ob_type:_b_.bytes,source:self.obj.source}}else if($B.imported.array){var array=$B.module_getattr($B.imported.array,'array')
+if($B.$isinstance(self.obj,array)){return array.tobytes(self.obj)}}
 $B.RAISE(_b_.TypeError,'cannot run tobytes with '+$B.class_name(self.obj))}
 memoryview_funcs.tolist=function(self){if(self.itemsize==1){return _b_.list.$factory(_b_.bytes.$factory(self.obj))}else if(self.itemsize==4){if(self.format=="I"){var res=[]
 for(var i=0;i < self.obj.source.length;i+=4){var item=self.obj.source[i],coef=256
@@ -8704,8 +8721,9 @@ if(args.length > 1){if(encoding !==$B.NULL){$B.RAISE(_b_.TypeError,`argument for
 )}
 encoding=args[1]}
 if(cls===_b_.str){return str.$factory(arg,encoding,errors)}
-return{
-ob_type:cls,$brython_value:str.$factory(arg,encoding,errors),dict:$B.empty_dict()}}
+var res={ob_type:cls,$brython_value:str.$factory(arg,encoding,errors)}
+$B.init_dict(res)
+return res}
 _b_.str.mp_length=function(self){var s=self
 self=to_string(self)
 if(self===undefined){console.log('error',s)}
@@ -9550,8 +9568,9 @@ break}
 if(! $B.$isinstance(cls,_b_.type)){$B.RAISE(_b_.TypeError,"int.__new__(X): X is not a type object")}
 if(cls===bool){$B.RAISE(_b_.TypeError,"int.__new__(bool) is not safe, use bool.__new__()")}
 if(cls===int){return int.$factory(value,base)}
-return{
-ob_type:cls,dict:$B.empty_dict(),value}}
+var res={ob_type:cls,value}
+$B.init_dict(res)
+return res}
 var int_funcs=_b_.int.tp_funcs={}
 int_funcs.__ceil__=function(self){return int_value(self)}
 int_funcs.__floor__=function(self){return int_value(self)}
@@ -10462,8 +10481,8 @@ var setitem=$B.type_getattribute($B.get_class(dict),'__setitem__')
 return new Proxy(dict,{get(target,prop){return $B.$call(getitem,target,prop)},set(target,prop,value){return $B.$call(setitem,target,prop,value)}}
 )}
 $B.assign_dict=function(pyobj,jsobj){
-if(! Object.hasOwn(pyobj,'dict')){$B.init_dict(pyobj)}
-Object.assign(pyobj.dict.$strings,jsobj)}
+if(! $B.get_dict(pyobj)){$B.init_dict(pyobj)}
+Object.assign($B.get_dict(pyobj).$strings,jsobj)}
 function PyDictViewSet_Check(op){return $B.$isinstance(op,[$B.dict_keys,$B.dict_items])}
 function _PyDictView_Intersect(self,other){var dict_contains
 if(! PyDictViewSet_Check(self)){[self,other]=[other,self]}
@@ -11529,8 +11548,9 @@ const PYOBJFCTS=Symbol('PYOBJFCTS')
 function*f(){}
 var Generator=Object.getPrototypeOf(f())
 var JSGenerator=$B.make_builtin_class('JavascriptGenerator')
-JSGenerator.$factory=function(js_gen){return{
-ob_type:JSGenerator,dict:$B.empty_dict,js_gen}}
+JSGenerator.$factory=function(js_gen){var res={ob_type:JSGenerator,js_gen}
+$B.init_dict(res)
+return res}
 JSGenerator.tp_iter=function(self){return self}
 JSGenerator.tp_iternext=function*(self){for(var item of self.js_gen){yield jsobj2pyobj(item)}}
 var jsobj2pyobj=$B.jsobj2pyobj=function(jsobj,_this){
@@ -11662,15 +11682,18 @@ return jsobj2pyobj(new self.js_class(...args))}}
 if(! self.js_class.hasOwnProperty(attr)){return $B.NULL}
 return jsobj2pyobj(self.jsobj[attr],self.jsobj)}
 $B.JSClass.tp_new=function(cls,args,kw){var[name,bases,dict]=args
-var cls={ob_type:cls,tp_name:name,tp_bases:bases,dict}
+var cls={ob_type:cls,tp_name:name,tp_bases:bases}
+$B.set_dict(cls,dict)
 cls.tp_mro=$B.make_mro(cls)
 cls.js_class=cls.tp_bases[0].js_class
 return cls}
 function jsclass2pyclass(js_class){
-var cls={ob_type:$B.JSClass,dict:$B.empty_dict(),tp_bases:[],tp_name:js_class.name,js_class}
+var cls={ob_type:$B.JSClass,tp_bases:[],tp_name:js_class.name,js_class}
+$B.init_dict(cls)
 cls.tp_mro=$B.make_mro(cls)
-$B.set_to_dict(cls,'__new__',function(klass,...args){return{
-ob_type:klass,dict:$B.empty_dict()}}
+$B.set_to_dict(cls,'__new__',function(klass,...args){var res={ob_type:klass}
+$B.init_dict(res)
+return res}
 )
 $B.set_to_dict(cls,'__init__',function(self,...args){self.jsobj=new cls.js_class(...args)}
 )
@@ -11985,7 +12008,8 @@ $B.JSFunction.tp_descr_get=function(self,obj){if(obj===$B.NULL){return self}
 return $B.$call($B.method,self,obj)}
 $B.JSFunction.tp_call=function(self,...args){return self(...args)}
 $B.JSFunction.tp_new=function(cls,args,kw){var[name,bases,dict]=args
-var cls={ob_type:$B.JSConstructor,tp_name:name,tp_bases:bases,dict}
+var cls={ob_type:$B.JSConstructor,tp_name:name,tp_bases:bases}
+$B.set_dict(cls,dict)
 cls.tp_mro=[cls,_b_.object]
 return cls}
 var JSFunction_funcs=$B.JSFunction.tp_funcs={}
@@ -12306,8 +12330,9 @@ if(ev.stopPropagation===undefined){ev.stopPropagation=function(){ev.cancelBubble
 return ev}
 $B.set_func_names(DOMEvent,"browser")
 var Clipboard=$B.make_builtin_class('Clipboard')
-Clipboard.$factory=function(data){return{
-ob_type :Clipboard,dict:$B.empty_dict(),data :data}}
+Clipboard.$factory=function(data){var res={ob_type :Clipboard,data :data}
+$B.init_dict(res)
+return res}
 Clipboard.mp_subscript=function(self,name){return self.data.getData(name)}
 Clipboard.mp_ass_subscript=function(self,name,value){self.data.setData(name,value)}
 $B.set_func_names(Clipboard,"<dom>")
@@ -12569,9 +12594,11 @@ DOMNode_funcs.closest_get=function(){
 var $=$B.args("closest",2,{self:null,selector:null},["self","selector"],arguments,{selector:$B.NULL},null,null),self=$.self,selector=$.selector
 if(self.closest===undefined){$B.RAISE_ATTRIBUTE_ERROR(_b_.str.$factory(self)+
 " has no attribute 'closest'",self,'closest')}
-if(self.selector===$B.NULL){$B.RAISE(_b_.TypeError,`${$B.class_name(self)}.closest() missing 1 required `+
+if(selector===$B.NULL){console.log('closest arguments',arguments)
+$B.RAISE(_b_.TypeError,`${$B.class_name(self)}.closest() missing 1 required `+
 `positional argument: 'selector'`
 )}
+console.log('closest, self',self,'selector',selector,'is NULL',selector===$B.NULL)
 var res=self.closest(selector)
 if(res===null){$B.RAISE(_b_.KeyError,"no parent with selector "+selector)}
 return DOMNode.$factory(res)}
@@ -12957,22 +12984,23 @@ $B.RAISE(_b_.TypeError,`object ${$B.class_name(obj)} `+
 
 (function($B){var _b_=$B.builtins,_window=globalThis
 $B.namespace=function(module_name){
-if($B.imported.hasOwnProperty(module_name)){return $B.dict_as_jsobj($B.imported[module_name].dict)}
+if($B.imported.hasOwnProperty(module_name)){return $B.dict_as_jsobj($B.get_dict($B.imported[module_name]))}
 return{}}
 var Module=$B.module
 Module.$factory=function(name,doc,$package){var self=Module.tp_new(Module)
 Module.tp_init(self,name,doc,$package)
 return self}
 $B.module_getattr=function(module,attr){return $B.get_from_dict(module,attr,$B.NULL)}
-$B.module_setattr=function(module,attr,value){_b_.dict.$setitem(module.dict,attr,value)}
-$B.module_items=function(module){return _b_.dict.$iter_items(module.dict)}
+$B.module_setattr=function(module,attr,value){_b_.dict.$setitem($B.get_dict(module),attr,value)}
+$B.module_items=function(module){return _b_.dict.$iter_items($B.get_dict(module))}
 $B.module.tp_methods=["__dir__"]
 $B.module.tp_getset=["__annotations__","__annotate__"]
 $B.module.tp_repr=function(self){var name=$B.module_getattr(self,'__name__')
 var file=$B.module_getattr(self,'__file__')
 if(file===$B.NULL){file='(built_in)'}else{file='from '+file}
 return `<module '${name}' ${file}>`}
-$B.module.tp_getattro=function(self,attr){if(self.dict===undefined){console.log('no dict for module',self)}
+$B.module.tp_getattro=function(self,attr){if($B.get_dict(self)===undefined ||self.__name__=='sys'){console.log('dict for module',self)
+console.log('attr',attr)}
 var res=_b_.object.tp_getattro(self,attr)
 if(res !==$B.NULL){return res}
 var getattr=$B.get_from_dict(self,'__getattr__',$B.NULL)
@@ -12982,22 +13010,24 @@ $B.module.tp_init=function(self){var $=$B.args('__init__',3,{self:null,name:null
 var self=$.self
 $B.module_setattr(self,'__name__',$.name)
 $B.module_setattr(self,'__doc__',$.doc)}
-$B.module.tp_new=function(cls,args,kw){return{
-ob_type:cls,dict:$B.empty_dict(),}}
+$B.module.tp_new=function(cls,args,kw){var res={ob_type:cls}
+$B.init_dict(res)
+return res}
 var module_funcs=$B.module.tp_funcs={}
 module_funcs.__annotate___get=function(self){}
 module_funcs.__annotate___set=function(self){}
 module_funcs.__annotations___get=function(self){}
 module_funcs.__annotations___set=function(self){}
+module_funcs.__dict___get=function(self){return $B.get_dict(self)}
+module_funcs.__dict___set=_b_.None
 module_funcs.__dir__=function(self){var dir_func=$B.module_getattr(self,'__dir__')
 if(dir_func !==$B.NULL){return $B.$call(dir_func)}
 var names=[]
-for(var item of _b_.dict.$iter_items(self.dict)){names.push(item.key)}
+for(var item of _b_.dict.$iter_items($B.get_dict(self))){names.push(item.key)}
 return $B.$list(names.sort())}
 $B.module.tp_methods=["__dir__"]
-$B.module.tp_members=[["__dict__",$B.TYPES.OBJECT,"dict",1]
+$B.module.tp_getset=["__annotations__","__annotate__","__dict__" 
 ]
-$B.module.tp_getset=["__annotations__","__annotate__"]
 $B.set_func_names(Module,"builtins")
 $B.make_import_paths=function(filename){
 var filepath=$B.script_domain ? $B.script_domain+'/'+filename :filename
@@ -13046,7 +13076,7 @@ for(var attr in modobj){if(typeof modobj[attr]=="function" && ! modobj[attr].$in
 modobj[attr].$in_js_module=true
 modobj[attr].ob_type=$B.function
 $B.init_dict(modobj[attr])
-$B.add_function_infos(modobj,attr,name)}else if($B.$isinstance(modobj[attr],_b_.type)){if(modobj[attr].dict){if($B.get_from_dict(modobj[attr],'__module__',$B.NULL)===
+$B.add_function_infos(modobj,attr,name)}else if($B.$isinstance(modobj[attr],_b_.type)){if($B.get_dict(modobj[attr])){if($B.get_from_dict(modobj[attr],'__module__',$B.NULL)===
 $B.NULL){$B.set_to_dict(modobj[attr],'__module__',name)}}}
 $B.module_setattr(module,attr,modobj[attr])}}
 function run_js(module_contents,path,_module){var mod_name=$B.module_getattr(_module,'__name__')
@@ -13113,7 +13143,8 @@ throw err}}
 $B.run_py=run_py 
 $B.run_js=run_js
 var ModuleSpec=$B.ModuleSpec=$B.make_builtin_class("ModuleSpec")
-ModuleSpec.$factory=function(fields){var spec={ob_type:ModuleSpec,dict:$B.empty_dict()}
+ModuleSpec.$factory=function(fields){var spec={ob_type:ModuleSpec}
+$B.init_dict(spec)
 for(var field in fields){$B.set_to_dict(spec,field,fields[field])}
 if(! fields.hasOwnProperty('loader')){console.log('no loader',fields)
 console.log(Error('trace').stack)}
@@ -13493,7 +13524,7 @@ throw err}
 if(__all__ !==thunk){
 aliases={}}}
 if(__all__===thunk){
-for(var item of _b_.dict.$iter_items(modobj.dict)){var attr=item.key
+for(var item of _b_.dict.$iter_items($B.get_dict(modobj))){var attr=item.key
 if(attr[0]!=="_"){locals[attr]=item.value}}}else{
 for(let name of __all__){var[ns,alias]=[locals,name]
 if(aliases[name]){[ns,alias]=aliases[name]}
@@ -13649,8 +13680,7 @@ var arg=item.key,value=item.value
 if(arg.toLowerCase().substr(0,2)=="on"){
 $B.DOMNode.tp_setattro(self,arg,value)}else if(arg.toLowerCase()=="style"){$B.DOMNode.tp_setattro(self,"style",value)}else{if(value !==false){
 try{
-arg=$B.imported["browser.html"].
-attribute_mapper(arg)
+arg=$B.module_getattr($B.imported["browser.html"],'attribute_mapper')(arg)
 self.setAttribute(arg,$B.pyobj2jsobj(value))}catch(err){$B.RAISE(_b_.ValueError,"can't set attribute "+arg)}}}}}
 cls.tp_new=function(cls){
 var res=document.createElement(tagName)
@@ -13681,7 +13711,8 @@ if(html[tagName]!==undefined){$B.RAISE(_b_.ValueError,"cannot reset class for "
 var klass=makeTagClass(tagName)
 klass.$factory=makeFactory(klass,ComponentClass)
 html[tagName]=klass
-_b_.dict.$setitem(html.tags,tagName,html[tagName])
+var tags=html.tags ?? $B.module_getattr(html,'tags')
+_b_.dict.$setitem(tags,tagName,html[tagName])
 return klass}
 for(var tagName of tags){maketag(tagName)}
 html.maketag=maketag
@@ -13747,7 +13778,8 @@ if(loaded===undefined){loaded=[]}
 if(! Array.isArray(refs)){$B.RAISE(_b_.TypeError,`first argument must be a list, got ${$B.class_name(refs)}`)}
 if(refs.length > 1){var ref=refs.shift()
 import(ref).then(function(module){loaded.push(module)
-$B.imported.javascript.import_modules(refs,callback,loaded)}).catch($B.show_error)}else{import(refs[0]).then(function(module){loaded.push(module)
+var im=$B.module_getattr($B.imported.javascript,'import_modules')
+im(refs,callback,loaded)}).catch($B.show_error)}else{import(refs[0]).then(function(module){loaded.push(module)
 return $B.$call(callback,...loaded)}).catch($B.show_error)}},import_scripts:function(refs,callback,loaded){
 console.log('import scripts',refs)
 if(loaded===undefined){loaded=[]}
@@ -13756,7 +13788,8 @@ if(refs.length > 0){var ref=refs.shift()
 var script=document.createElement('script')
 script.src=ref
 script.addEventListener('load',function(){loaded.push(script)
-$B.imported.javascript.import_scripts(refs,callback,loaded)}
+var is=$B.module_getattr($B.imported.javascript,'import_scripts')
+is(refs,callback,loaded)}
 )
 document.body.appendChild(script)}else{return $B.$call(callback,...loaded)}},JSObject:$B.JSObj,JSON:{ob_type:$B.make_builtin_class("JSON")},jsobj2pyobj:function(obj){return $B.jsobj2pyobj(obj)},load:function(script_url){console.log('"javascript.load" is deprecrated. '+
 'Use browser.load instead.')
@@ -13770,8 +13803,9 @@ JSON.parse.apply(this,arguments))},stringify:function(obj,replacer,space){return
 )
 modules.javascript.UndefinedType.__module__='javascript'
 var $io=$B.$io=$B.make_builtin_class("io")
-$io.$factory=function(out){return{
-ob_type:$io,dict:$B.empty_dict(),out,encoding:'utf-8'}}
+$io.$factory=function(out){var res={ob_type:$io,out,encoding:'utf-8'}
+$B.init_dict(res)
+return res}
 var $io_funcs=$io.tp_funcs={}
 $io_funcs.encoding_get=function(self){return 'utf-8'}
 $io_funcs.encoding_set=_b_.None
@@ -13812,7 +13846,7 @@ if(exc !==undefined){return exc}
 frame_obj=frame_obj.prev}
 return _b_.None},executable:$B.strip_host($B.brython_path+'brython.js'),float_repr_style:'short',getdefaultencoding:function(){return 'utf-8'},getrecursionlimit:function(){return $B.recursion_limit},getrefcount:function(){return 0},gettrace:function(){return $B.tracefunc ||_b_.None},getunicodeinternedsize:function(){
 return 0},last_exc:_b_.property.$factory(
-function(){return $B.imported._sys.exception()},function(value){$B.frame_obj.frame.$current_exception=value}
+function(){return $B.module_getattr($B.imported._sys,'exception')()},function(value){$B.frame_obj.frame.$current_exception=value}
 ),modules:$B.obj_dict($B.imported),path:_b_.property.$factory(
 function(){var filename=$B.get_filename_for_import()
 return $B.$list($B.import_info[filename].path)},function(self,value){var filename=$B.get_filename_for_import()
@@ -14012,7 +14046,9 @@ names.forEach(function(name){var callback=function(evt){
 callbacks.forEach(function(items){$B.DOMNode.unbind(element,items[0],items[1])})
 resolve($B.$DOMEvent(evt))}
 callbacks.push([name,callback])
-$B.DOMNode.bind(element,name,callback)})})},get:function(){return $B.imported['browser.aio'].ajax.bind(null,"GET").apply(null,arguments)},iscoroutine:function(f){return $B.get_class(f)===$B.coroutine},iscoroutinefunction:function(f){return(f.$function_infos[$B.func_attrs.flags]& 128)!=0},post:function(){return $B.imported['browser.aio'].ajax.bind(null,"POST").apply(null,arguments)},run:function(){var handle_success=function(){$B.leave_frame()},handle_error=$B.show_error
+$B.DOMNode.bind(element,name,callback)})})},get:function(){var ajax=$B.module_getattr($B.imported['browser.aio'],'ajax')
+return ajax.bind(null,"GET").apply(null,arguments)},iscoroutine:function(f){return $B.get_class(f)===$B.coroutine},iscoroutinefunction:function(f){return(f.$function_infos[$B.func_attrs.flags]& 128)!=0},post:function(){var ajax=$B.module_getattr($B.imported['browser.aio'],'ajax')
+return ajax.bind(null,"POST").apply(null,arguments)},run:function(){var handle_success=function(){$B.leave_frame()},handle_error=$B.show_error
 var $=$B.args("run",3,{coro:null,onsuccess:null,onerror:null},["coro","onsuccess","onerror"],arguments,{onsuccess:handle_success,onerror:handle_error},null,null),coro=$.coro,onsuccess=$.onsuccess,onerror=$.onerror
 var save_frame_obj=$B.frame_obj
 $B.$call($B.$getattr($B.coroutine,'send'),coro).then(onsuccess).catch(onerror)
@@ -14029,13 +14065,17 @@ ob_type:$B.coroutine,$args:[seconds],$func:func}},Future,__getattr__:function(at
 $B.$import('_aio')
 return $B.$getattr($B.imported._aio,attr)}}
 function load(name,module_obj){
-module_obj.ob_type=$B.module
 $B.init_dict(module_obj)
+var dict=$B.get_dict(module_obj)
 $B.imported[name]=module_obj
-for(var attr in module_obj){if(typeof module_obj[attr]=='function'){module_obj[attr].$infos={__module__:name,__name__:attr,__qualname__:name+'.'+attr}
+for(var attr in module_obj){if(module_obj[attr]===dict){continue}
+if(attr.startsWith('$')){continue}
+if(typeof module_obj[attr]=='function'){module_obj[attr].$infos={__module__:name,__name__:attr,__qualname__:name+'.'+attr}
 $B.set_function_infos(module_obj[attr],{__module__:name,__name__:attr,__qualname__:name+'.'+attr}
 )}
-$B.module_setattr(module_obj,attr,module_obj[attr])}
+$B.module_setattr(module_obj,attr,module_obj[attr])
+delete module_obj[attr]}
+module_obj.ob_type=$B.module
 $B.module_setattr(module_obj,'__name__',name)
 $B.module_setattr(module_obj,'__module__','builtins')}
 for(let attr in modules){load(attr,modules[attr])}
@@ -16469,7 +16509,7 @@ var js=`
                         throw _e
                     }else if($B.is_exc(_e, _b_.BaseException)){
                         var sys_module = $B.imported._sys,
-                            _x${n} = sys_module.exc_info()
+                            _x${n} = $B.module_getattr(sys_module, 'exc_info')()
                         var failed3${n} = false
                         try{
                             var _m${n} = $B.$getattr(_i${n}, "throw")

@@ -55,10 +55,11 @@ $B.code.tp_hash = function(self){
 }
 
 $B.code.tp_new = function(cls, args, kw){
-    return {
-        ob_type: cls,
-        dict: $B.empty_dict()
+    var res = {
+        ob_type: cls
     }
+    $B.init_dict(res)
+    return res
 }
 
 var code_funcs = $B.code.tp_funcs = {}

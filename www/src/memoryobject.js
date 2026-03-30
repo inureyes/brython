@@ -426,8 +426,11 @@ memoryview_funcs.tobytes = function(self){
             ob_type: _b_.bytes,
             source: self.obj.source
         }
-    }else if($B.imported.array && $B.$isinstance(self.obj, $B.imported.array.array)){
-        return $B.imported.array.array.tobytes(self.obj)
+    }else if($B.imported.array){
+        var array = $B.module_getattr($B.imported.array, 'array')
+        if($B.$isinstance(self.obj, array)){
+            return array.tobytes(self.obj)
+        }
     }
     $B.RAISE(_b_.TypeError, 'cannot run tobytes with ' + $B.class_name(self.obj))
 }

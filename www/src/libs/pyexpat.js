@@ -24,9 +24,8 @@ const xml_entities = {
 var xmlparser = $B.make_type('xmlparser')
 
 xmlparser.$factory = function(encoding, namespace_separator, intern){
-    return {
+    var res = {
         ob_type: xmlparser,
-        dict: $B.empty_dict(),
         encoding,
         namespace_separator,
         intern,
@@ -39,6 +38,8 @@ xmlparser.$factory = function(encoding, namespace_separator, intern){
         _element_stack: [],
         _chunk_size: 2 << 14
     }
+    $B.init_dict(res)
+    return res
 }
 
 xmlparser._handle_stack = function(self){

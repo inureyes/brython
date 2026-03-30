@@ -687,11 +687,12 @@ _b_.int.tp_new = function(cls, args, kw){
     if(cls === int){
         return int.$factory(value, base)
     }
-    return {
+    var res = {
         ob_type: cls,
-        dict: $B.empty_dict(),
         value
     }
+    $B.init_dict(res)
+    return res
 }
 
 var int_funcs = _b_.int.tp_funcs = {}

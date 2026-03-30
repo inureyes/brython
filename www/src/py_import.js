@@ -11,7 +11,7 @@ $B.namespace = function(module_name){
     // If $B.imported[module_name] exists, setting attributes to the
     // namespace must update the module's `dict`
     if($B.imported.hasOwnProperty(module_name)){
-        return $B.dict_as_jsobj($B.imported[module_name].dict)
+        return $B.dict_as_jsobj($B.get_dict($B.imported[module_name]))
     }
     // When the generated Javascript is copied / pasted from the console for
     // debugging, $B.imported[module_name] is not set; return an empty JS
@@ -34,11 +34,11 @@ $B.module_getattr = function(module, attr){
 }
 
 $B.module_setattr = function(module, attr, value){
-    _b_.dict.$setitem(module.dict, attr, value)
+    _b_.dict.$setitem($B.get_dict(module), attr, value)
 }
 
 $B.module_items = function(module){
-    return _b_.dict.$iter_items(module.dict)
+    return _b_.dict.$iter_items($B.get_dict(module))
 }
 
 $B.module.tp_methods = ["__dir__"]
@@ -58,8 +58,9 @@ $B.module.tp_repr = function(self){
 }
 
 $B.module.tp_getattro = function(self, attr){
-    if(self.dict === undefined){
-        console.log('no dict for module', self)
+    if($B.get_dict(self) === undefined || self.__name__ == 'sys'){
+        console.log('dict for module', self)
+        console.log('attr', attr)
     }
     var res = _b_.object.tp_getattro(self, attr)
     if(res !== $B.NULL){
@@ -83,10 +84,11 @@ $B.module.tp_init = function(self){
 }
 
 $B.module.tp_new = function(cls, args, kw){
-    return {
-        ob_type: cls,
-        dict: $B.empty_dict(),
+    var res = {
+        ob_type: cls
     }
+    $B.init_dict(res)
+    return res
 }
 
 var module_funcs = $B.module.tp_funcs = {}
@@ -107,13 +109,19 @@ module_funcs.__annotations___set = function(self){
 
 }
 
+module_funcs.__dict___get = function(self){
+    return $B.get_dict(self)
+}
+
+module_funcs.__dict___set = _b_.None
+
 module_funcs.__dir__ = function(self){
     var dir_func = $B.module_getattr(self, '__dir__')
     if(dir_func !== $B.NULL){
         return $B.$call(dir_func)
     }
     var names = []
-    for(var item of _b_.dict.$iter_items(self.dict)){
+    for(var item of _b_.dict.$iter_items($B.get_dict(self))){
         names.push(item.key)
     }
     return $B.$list(names.sort())
@@ -121,11 +129,10 @@ module_funcs.__dir__ = function(self){
 
 $B.module.tp_methods = ["__dir__"]
 
-$B.module.tp_members = [
-    ["__dict__", $B.TYPES.OBJECT, "dict", 1]
+$B.module.tp_getset = [
+    "__annotations__", "__annotate__",
+    "__dict__" // is member in CPython
 ]
-
-$B.module.tp_getset = ["__annotations__", "__annotate__"]
 
 /* module end */
 
@@ -287,7 +294,7 @@ $B.addToImported = function(name, modobj){
             $B.init_dict(modobj[attr])
             $B.add_function_infos(modobj, attr, name)
         }else if($B.$isinstance(modobj[attr], _b_.type)){
-            if(modobj[attr].dict){
+            if($B.get_dict(modobj[attr])){
                 if($B.get_from_dict(modobj[attr], '__module__', $B.NULL) ===
                         $B.NULL){
                     $B.set_to_dict(modobj[attr], '__module__', name)
@@ -337,7 +344,7 @@ function run_js(module_contents, path, _module){
 function run_py(module_contents, path, module, compiled) {
     // set file cache for path ; used in built-in function open()
     var filename = $B.module_getattr(module, '__file__')
-    var test = false // filename == 'bisect'
+    var test = false // filename == 'sys'
     if(test){
         console.log('run py', filename)
     }
@@ -444,9 +451,9 @@ var ModuleSpec = $B.ModuleSpec = $B.make_builtin_class("ModuleSpec")
 
 ModuleSpec.$factory = function(fields){
     var spec = {
-        ob_type: ModuleSpec,
-        dict: $B.empty_dict()
+        ob_type: ModuleSpec
     }
+    $B.init_dict(spec)
     for(var field in fields){
         $B.set_to_dict(spec, field, fields[field])
     }
@@ -1504,7 +1511,7 @@ $B.$import = function(mod_name, fromlist, aliases, locals, inum){
         }
         if(__all__ === thunk){
             // from mod_name import * ... when __all__ is not defined
-            for(var item of _b_.dict.$iter_items(modobj.dict)){
+            for(var item of _b_.dict.$iter_items($B.get_dict(modobj))){
                 var attr = item.key
                 if(attr[0] !== "_"){
                     locals[attr] = item.value

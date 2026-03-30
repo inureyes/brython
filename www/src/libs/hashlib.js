@@ -49,7 +49,7 @@ function $get_CryptoJS_lib(alg){
     }
 
     var module = {__name__: 'CryptoJS', $is_package: false}
-    var res = $B.$download_module(module, 
+    var res = $B.$download_module(module,
         $B.brython_path + 'libs/crypto_js/rollups/' + alg + '.js')
 
     try{
@@ -81,9 +81,9 @@ var hash = $B.make_type('hash')
 
 hash.$factory = function(alg, obj) {
     var res = {
-        ob_type: hash,
-        dict: $B.empty_dict()
+        ob_type: hash
     }
+    $B.init_dict(res)
 
     switch(alg) {
       case 'md5':

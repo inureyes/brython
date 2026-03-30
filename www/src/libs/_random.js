@@ -337,11 +337,12 @@ Random.$factory = function(){
 }
 
 Random.tp_new = function(cls, args, kw){
-    return {
+    var res = {
         ob_type: cls,
-        _random: RandomStream(Date.now()),
-        dict: $B.empty_dict()
+        _random: RandomStream(Date.now())
     }
+    $B.init_dict(res)
+    return res
 }
 
 Random.tp_init = function(){

@@ -141,7 +141,7 @@ function warn(klass, message, pos, text){
     warning.offset = warning.end_offset = col_offset
     warning.line = line
     // module _warning is in builtin_modules.js
-    $B.imported._warnings.warn(warning)
+    $B.module_getattr($B.imported._warnings, 'warn')(warning)
 }
 
 function chr(i){

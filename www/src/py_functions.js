@@ -8,11 +8,12 @@ var classmethod = _b_.classmethod
 
 classmethod.$factory = function(func){
     $B.check_nb_args_no_kw('classmethod', 1, arguments)
-    return {
+    var res = {
         ob_type: classmethod,
-        dict: $B.empty_dict(),
         cm_callable: func
     }
+    $B.init_dict(res)
+    return res
 }
 
 /* classmethod start */
@@ -35,10 +36,11 @@ _b_.classmethod.tp_init = function(self, func){
 }
 
 _b_.classmethod.tp_new = function(cls, args, kw){
-    return {
-        ob_type: cls,
-        dict: $B.empty_dict()
+    var res = {
+        ob_type: cls
     }
+    $B.init_dict(res)
+    return res
 }
 
 var classmethod_funcs = _b_.classmethod.tp_funcs = {}
@@ -434,9 +436,9 @@ function_funcs.__closure___set = _b_.None
 function_funcs.__code___get = function(self){
     $B.check_infos(self)
     var res = {
-        ob_type: $B.code,
-        dict: $B.empty_dict()
+        ob_type: $B.code
     }
+    $B.init_dict(res)
     for(var attr in self.$infos.__code__){
         res[attr] = self.$infos.__code__[attr]
     }
@@ -475,7 +477,7 @@ function_funcs.__defaults___set = function(self, value){
 }
 
 function_funcs.__dict___get = function(self){
-    return self.dict
+    return $B.get_dict(self)
 }
 
 function_funcs.__dict___set = function(self, value){

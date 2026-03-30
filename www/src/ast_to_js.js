@@ -943,7 +943,7 @@ function make_comp(scopes){
     if(first.target instanceof $B.ast.Name){
         var target_name = first.target.id
         if($B.str_dict_get(comp_scope_symbols, target_name) !== $B.NULL){
-            save_target_flags = $B.str_dict_get(comp_scope_symbols, 
+            save_target_flags = $B.str_dict_get(comp_scope_symbols,
                 target_name)
             $B.str_dict_set(comp_scope_symbols, target_name,
                 SF.LOCAL << SF.SCOPE_OFF)
@@ -4301,7 +4301,7 @@ $B.ast.YieldFrom.prototype.to_js = function(scopes){
                         throw _e
                     }else if($B.is_exc(_e, _b_.BaseException)){
                         var sys_module = $B.imported._sys,
-                            _x${n} = sys_module.exc_info()
+                            _x${n} = $B.module_getattr(sys_module, 'exc_info')()
                         var failed3${n} = false
                         try{
                             var _m${n} = $B.$getattr(_i${n}, "throw")

@@ -1826,11 +1826,12 @@ _b_.str.tp_new = function(cls, args, kw){
     if(cls === _b_.str){
         return str.$factory(arg, encoding, errors)
     }
-    return {
+    var res = {
         ob_type: cls,
-        $brython_value: str.$factory(arg, encoding, errors),
-        dict: $B.empty_dict()
+        $brython_value: str.$factory(arg, encoding, errors)
     }
+    $B.init_dict(res)
+    return res
 }
 
 _b_.str.mp_length = function(self){

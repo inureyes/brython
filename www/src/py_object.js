@@ -32,7 +32,7 @@ $B.builtin_object_getattro = function(self, klass, attr){
 
     if(in_mro !== $B.NULL &&
             $B.get_class(in_mro) === $B.function &&
-            ((! self.dict) || $B.get_from_dict(self, attr, $B.NULL) === $B.NULL)){
+            ((! $B.get_dict(self)) || $B.get_from_dict(self, attr, $B.NULL) === $B.NULL)){
         return $B.method.tp_new($B.method, [in_mro, self])
     }
 
@@ -251,13 +251,10 @@ _b_.object.tp_setattro = function(self, attr, value){
             return $B.$call($B.$getattr(in_mro, '__delete__'), self)
         }
         // No data descriptor, delete from instance __dict__
-        if(self.dict && $B.$isinstance(self.dict, _b_.dict) &&
-                _b_.dict.$contains_string(self.dict, attr)){
-            _b_.dict.$delete_string(self.dict, attr)
-            delete self[attr]
-            return _b_.None
-        }else if(self.__dict__ === undefined && self[attr] !== undefined){
-            console.log('suspect')
+        var dict = $B.get_dict(self)
+        if(dict && $B.$isinstance(dict, _b_.dict) &&
+                _b_.dict.$contains_string(dict, attr)){
+            _b_.dict.$delete_string(dict, attr)
             delete self[attr]
             return _b_.None
         }
@@ -375,7 +372,7 @@ _b_.object.tp_getattro = function(self, attr){
 
     if(in_mro !== $B.NULL &&
             $B.get_class(in_mro) === $B.function &&
-            ((! self.dict) || $B.get_from_dict(self, attr, $B.NULL) === $B.NULL)){
+            ((! $B.get_dict(self)) || $B.get_from_dict(self, attr, $B.NULL) === $B.NULL)){
         return $B.method.tp_new($B.method, [in_mro, self])
     }
 
@@ -574,10 +571,8 @@ object_funcs.__format__ = function(){
 }
 
 object_funcs.__getstate__ = function(self){
-    if(self.dict === undefined){
-        return _b_.None
-    }
-    return self.dict
+    var dict = $B.get_dict(self)
+    return dict === undefined ? _b_.None : dict
 }
 
 object_funcs.__init_subclass__ = function(self){
@@ -601,7 +596,7 @@ object_funcs.__init_subclass__ = function(self){
 }
 
 object_funcs.__reduce__ = function(cls){
-    if(! cls.dict){
+    if(! $B.get_dict(cls)){
         $B.RAISE(_b_.TypeError, `cannot pickle '${$B.class_name(cls)}' object`)
     }
     if($B.imported.copyreg === undefined){
@@ -625,9 +620,9 @@ object_funcs.__reduce__ = function(cls){
 
     res.push($B.fast_tuple(args))
     var d = $B.empty_dict()
-    for(var attr of _b_.dict.$keys_string(cls.dict)){
+    for(var attr of _b_.dict.$keys_string($B.get_dict(cls))){
         _b_.dict.$setitem(d, attr,
-            _b_.dict.$getitem_string(cls.dict, attr))
+            _b_.dict.$getitem_string($B.get_dict(cls), attr))
     }
     res.push(d)
     return _b_.tuple.$factory(res)
@@ -663,8 +658,8 @@ object_funcs.__reduce_ex__ = function(self, protocol){
     }else{
         var d = $B.empty_dict(),
             nb = 0
-        if(self.dict){
-            for(var item of _b_.dict.$iter_items(self.dict)){
+        if($B.get_dict(self)){
+            for(var item of _b_.dict.$iter_items($B.get_dict(self))){
                 if(item.key == "__class__" || item.key.startsWith("$")){
                     continue
                 }

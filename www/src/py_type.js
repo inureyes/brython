@@ -625,24 +625,26 @@ $B.merge_class_dict = function(dict, klass){
     }
 }
 
+var dict_name = Symbol('DICT')
+
 $B.get_dict = function(cls){
-    return cls.dict
+    return cls[dict_name]
 }
 
 $B.init_dict = function(cls){
-    cls.dict = $B.empty_dict()
+    cls[dict_name] = $B.empty_dict()
 }
 
 $B.set_dict= function(cls, value){
-    cls.dict = value
+    cls[dict_name] = value
 }
 
 $B.get_from_dict = function(cls, attr, _default){
-    return $B.str_dict_get(cls.dict, attr, _default)
+    return $B.str_dict_get(cls[dict_name], attr, _default)
 }
 
 $B.set_to_dict = function(cls, attr, value){
-    $B.str_dict_set(cls.dict, attr, value)
+    $B.str_dict_set(cls[dict_name], attr, value)
 }
 
 var NULL = {NULL:true}
@@ -935,7 +937,7 @@ _b_.type.tp_setattro = function(kls, attr, value){
     var $test = false // attr == '__getattribute__' // kls.tp_name == 'A'
     if($test){
         console.log('set attr', attr, 'of class', kls, 'to', value)
-        console.log('kls.dict', kls.dict)
+        console.log('kls dict', $B.get_dict(kls))
     }
     if(kls.tp_flags & TPFLAGS.IMMUTABLETYPE){
         $B.RAISE(_b_.TypeError,
@@ -965,7 +967,7 @@ _b_.type.tp_setattro = function(kls, attr, value){
             if(current === $B.NULL){
                 throw $B.attr_error(attr, kls)
             }
-            _b_.dict.$delitem(kls.dict, attr)
+            _b_.dict.$delitem($B.get_dict(kls), attr)
         }else{
             $B.set_to_dict(kls, attr, value)
         }
@@ -1218,12 +1220,12 @@ _b_.type.tp_new = function(cls, args, kw){
     // PyObject *type = NULL;
     var class_obj = {
         ob_type: metatype,
-        dict: cl_dict,
         tp_bases: bases,
         tp_name: name,
         tp_flags: $B.TPFLAGS.DEFAULT | $B.TPFLAGS.HEAPTYPE |
                    $B.TPFLAGS.BASETYPE | $B.TPFLAGS.HAVE_GC
     }
+    $B.set_dict(class_obj, cl_dict)
     class_obj.tp_mro = $B.make_mro(class_obj)
     class_obj.tp_subclasses = []
 
@@ -1449,7 +1451,7 @@ type_funcs.__bases___set = function(){
 type_funcs.__dict___get = function(cls){
     return {
         ob_type: $B.mappingproxy,
-        mapping: cls.dict
+        mapping: $B.get_dict(cls)
     }
 }
 
@@ -1486,7 +1488,7 @@ type_funcs.__instancecheck__ = function(cls, instance){
 }
 
 type_funcs.__module___get = function(self){
-    if(self.dict){
+    if($B.get_dict(self)){
         var module = $B.get_from_dict(self, '__module__', $B.NULL)
         if(module !== $B.NULL){
             return module
@@ -1728,14 +1730,15 @@ $B.make_iterator_class = function(name, reverse){
         __qualname__: name,
 
         $factory: function(items){
-            return {
+            var res = {
                 ob_type: klass,
-                dict: $B.empty_dict(),
                 counter: reverse ? items.length : -1,
                 items: items,
                 len: items.length,
                 $builtin_iterator: true
             }
+            $B.init_dict(res)
+            return res
         },
         $iterator_class: true,
 

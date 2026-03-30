@@ -262,7 +262,7 @@ frame_funcs.f_back_set = _b_.None
 
 frame_funcs.f_builtins_get = function(self){
     if(self[3].hasOwnProperty('__builtins__')){
-        return self[3].__builtins__.dict
+        return $B.get_dict(self[3].__builtins__)
     }
     return $B.obj_dict(_b_)
 }
@@ -287,9 +287,9 @@ frame_funcs.f_code_get = function(self){
         }
         infos.co_qualname = infos.co_name // XXX
         res = {
-            ob_type: $B.code,
-            dict: $B.empty_dict()
+            ob_type: $B.code
         }
+        $B.init_dict(res)
         for(var attr in infos){
             res[attr] = infos[attr]
         }
@@ -383,9 +383,9 @@ $B._frame = frame // used in builtin_modules.js
 $B.make_f_code = function(frame, varnames){
     // create attribute f_code of generator expressions frame
     frame.f_code = {
-        ob_type: $B.code,
-        dict: $B.empty_dict()
+        ob_type: $B.code
     }
+    $B.init_dict(frame.f_code)
     Object.assign(frame.f_code,
         {
             co_argcount: 1,
@@ -566,7 +566,6 @@ _b_.BaseException.tp_init = function(self, ...args){
 _b_.BaseException.tp_new = function(cls, args, kw){
     var res = {
         ob_type: cls,
-        dict: $B.empty_dict(),
         args: $B.fast_tuple(args),
         notes: _b_.None,
         __traceback__: _b_.None,
@@ -574,6 +573,7 @@ _b_.BaseException.tp_new = function(cls, args, kw){
         __context__: _b_.None,
         suppress_context: false
     }
+    $B.init_dict(res)
     return res
 }
 
@@ -616,7 +616,7 @@ BaseException_funcs.__context___set = function(self, value){
 }
 
 BaseException_funcs.__dict___get = function(self){
-    return self.dict
+    return $B.get_dict(self)
 }
 
 BaseException_funcs.__dict___set = function(self, value){
@@ -912,7 +912,8 @@ $B.recursion_error = function(frame){
 // Suggestions in case of NameError or AttributeError
 
 function calculate_suggestions(list, name){
-    return $B.imported._suggestions._generate_suggestions(list, name)
+    return $B.module_getattr($B.imported._suggestions,
+        '_generate_suggestions')(list, name)
 }
 
 $B.offer_suggestions_for_attribute_error = function(exc){

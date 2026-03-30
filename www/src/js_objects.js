@@ -130,11 +130,12 @@ var Generator = Object.getPrototypeOf(f())
 var JSGenerator = $B.make_builtin_class('JavascriptGenerator')
 
 JSGenerator.$factory = function(js_gen){
-    return {
+    var res = {
         ob_type: JSGenerator,
-        dict: $B.empty_dict,
         js_gen
     }
+    $B.init_dict(res)
+    return res
 }
 
 JSGenerator.tp_iter = function(self){
@@ -502,9 +503,9 @@ $B.JSClass.tp_new = function(cls, args, kw){
     var cls = {
         ob_type: cls,
         tp_name: name,
-        tp_bases: bases,
-        dict
+        tp_bases: bases
     }
+    $B.set_dict(cls, dict)
     cls.tp_mro = $B.make_mro(cls)
     cls.js_class = cls.tp_bases[0].js_class
     return cls
@@ -514,18 +515,19 @@ function jsclass2pyclass(js_class){
     // Create a Python class based on a Javascript class
     var cls = {
         ob_type: $B.JSClass,
-        dict: $B.empty_dict(),
         tp_bases: [],
         tp_name: js_class.name,
         js_class
     }
+    $B.init_dict(cls)
     cls.tp_mro = $B.make_mro(cls)
     $B.set_to_dict(cls, '__new__',
         function(klass, ...args){
-            return {
-                ob_type: klass,
-                dict: $B.empty_dict()
+            var res = {
+                ob_type: klass
             }
+            $B.init_dict(res)
+            return res
         }
     )
     $B.set_to_dict(cls, '__init__',
@@ -1366,9 +1368,9 @@ $B.JSFunction.tp_new = function(cls, args, kw){
     var cls = {
         ob_type: $B.JSConstructor,
         tp_name: name,
-        tp_bases: bases,
-        dict
+        tp_bases: bases
     }
+    $B.set_dict(cls, dict)
     cls.tp_mro = [cls, _b_.object]
     return cls
 }

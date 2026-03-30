@@ -257,8 +257,8 @@
                                 // option.selected = false sets it to true :-)
                                 try{
                                     // Call attribute mapper (cf. issue#1187)
-                                    arg = $B.imported["browser.html"].
-                                        attribute_mapper(arg)
+                                    arg = $B.module_getattr($B.imported["browser.html"],
+                                        'attribute_mapper')(arg)
                                     self.setAttribute(arg, $B.pyobj2jsobj(value))
                                 }catch(err){
                                     $B.RAISE(_b_.ValueError,
@@ -361,7 +361,10 @@
                 var klass = makeTagClass(tagName)
                 klass.$factory = makeFactory(klass, ComponentClass)
                 html[tagName] = klass
-                _b_.dict.$setitem(html.tags, tagName, html[tagName])
+                // after running load() below, html.tags is replaced by
+                // html.__dict__['tags']
+                var tags = html.tags ?? $B.module_getattr(html, 'tags')
+                _b_.dict.$setitem(tags, tagName, html[tagName])
                 return klass
             }
 
@@ -538,7 +541,9 @@
                 var ref = refs.shift()
                 import(ref).then(function(module){
                     loaded.push(module)
-                    $B.imported.javascript.import_modules(refs, callback, loaded)
+                    var im = $B.module_getattr($B.imported.javascript,
+                        'import_modules')
+                    im(refs, callback, loaded)
                 }).catch($B.show_error)
             }else{
                 import(refs[0]).then(function(module){
@@ -566,7 +571,9 @@
                 script.addEventListener('load',
                     function(){
                         loaded.push(script)
-                        $B.imported.javascript.import_scripts(refs, callback, loaded)
+                        var is = $B.module_getattr($B.imported.javascript,
+                            'import_scripts')
+                        is(refs, callback, loaded)
                     }
                 )
                 document.body.appendChild(script)
@@ -633,12 +640,13 @@
     // Can be reset by sys.stdout or sys.stderr
     var $io = $B.$io = $B.make_builtin_class("io")
     $io.$factory = function(out){
-        return {
+        var res = {
             ob_type: $io,
-            dict: $B.empty_dict(),
             out,
             encoding: 'utf-8'
         }
+        $B.init_dict(res)
+        return res
     }
     var $io_funcs = $io.tp_funcs = {}
 
@@ -770,7 +778,7 @@
         },
         last_exc: _b_.property.$factory(
             function(){
-                return $B.imported._sys.exception()
+                return $B.module_getattr($B.imported._sys, 'exception')()
             },
             function(value){
                 $B.frame_obj.frame.$current_exception = value
@@ -1348,7 +1356,8 @@
             })
         },
         get: function(){
-            return $B.imported['browser.aio'].ajax.bind(null, "GET").apply(null, arguments)
+            var ajax = $B.module_getattr($B.imported['browser.aio'], 'ajax')
+            return ajax.bind(null, "GET").apply(null, arguments)
         },
         iscoroutine: function(f){
             return $B.get_class(f) === $B.coroutine
@@ -1357,7 +1366,8 @@
             return (f.$function_infos[$B.func_attrs.flags] & 128) != 0
         },
         post: function(){
-            return $B.imported['browser.aio'].ajax.bind(null, "POST").apply(null, arguments)
+            var ajax = $B.module_getattr($B.imported['browser.aio'], 'ajax')
+            return ajax.bind(null, "POST").apply(null, arguments)
         },
         run: function(){
             var handle_success = function(){
@@ -1409,12 +1419,18 @@
     }
 
     function load(name, module_obj){
-        // add class and __str__
-        module_obj.ob_type = $B.module
+        // move all module attribute in its __dict__
         $B.init_dict(module_obj)
+        var dict = $B.get_dict(module_obj)
         $B.imported[name] = module_obj
         // set attribute "name" of functions
         for(var attr in module_obj){
+            if(module_obj[attr] === dict){
+                continue
+            }
+            if(attr.startsWith('$')){
+                continue
+            }
             if(typeof module_obj[attr] == 'function'){
                 module_obj[attr].$infos = {
                     __module__: name,
@@ -1430,7 +1446,9 @@
                 )
             }
             $B.module_setattr(module_obj, attr, module_obj[attr])
+            delete module_obj[attr]
         }
+        module_obj.ob_type = $B.module
         $B.module_setattr(module_obj, '__name__', name)
         $B.module_setattr(module_obj, '__module__', 'builtins')
     }

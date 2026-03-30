@@ -777,10 +777,10 @@ $B.get_class = function(obj){
     // but Javascript builtins used by Brython (functions, numbers, strings...)
     // don't have this attribute so we must return it
     if(obj === null){
-        return $B.imported.javascript.NullType // in builtin_modules.js
+        return $B.module_getattr($B.imported.javascript, 'NullType') // in builtin_modules.js
     }
     if(obj === undefined){
-        return $B.imported.javascript.UndefinedType // idem
+        return $B.module_getattr($B.imported.javascript, 'UndefinedType') // idem
     }
     if(obj.ob_type){
         return obj.ob_type
@@ -811,8 +811,8 @@ $B.get_class = function(obj){
             }else if(typeof Node !== "undefined" // undefined in Web Workers
                     && obj instanceof Node){
                 if(obj.tagName){
-                    return $B.imported['browser.html'][obj.tagName] ||
-                               $B.DOMNode
+                    var res = $B.module_getattr($B.imported['browser.html'], obj.tagName)
+                    return res === $B.NULL ? $B.DOMNode : res
                 }
                 return $B.DOMNode
             }else if(obj instanceof Event){
@@ -1750,7 +1750,7 @@ $B.leave_frame = function(arg){
             var message = $B.EXC(_b_.RuntimeWarning,
                 `coroutine '${cname}' was never awaited`)
             message.lineno = frame.$coroutine.$lineno
-            $B.imported._warnings.warn(message)
+            $B.module_getattr($B.imported._warnings, 'warn')(message)
         }
     }
     $B.frame_obj = $B.frame_obj.prev

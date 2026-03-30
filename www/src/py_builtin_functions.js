@@ -565,12 +565,13 @@ _b_.enumerate.tp_new = function(cls, args, kw){
                 break
         }
     }
-    return {
+    var res = {
         ob_type: _b_.enumerate,
-        dict: $B.empty_dict(),
         it: $B.make_js_iterator(iterable),
         counter: start ?? 0
     }
+    $B.init_dict(res)
+    return res
 }
 
 var enumerate_funcs = _b_.enumerate.tp_funcs = {}
@@ -725,7 +726,7 @@ $B.search_in_mro = function(klass, attr, _default){
             }
             var dunder = $B.slot2dunder.hasOwnProperty(attr) ?
                 $B.slot2dunder[attr] : attr
-            if(! mro[i].dict ||
+            if(! $B.get_dict(mro[i]) ||
                     $B.get_from_dict(mro[i], dunder, $B.NULL) === $B.NULL){
                 console.log('attr', attr, 'found in mro[i]', mro[i],
                     'but absent in dict')
@@ -734,18 +735,9 @@ $B.search_in_mro = function(klass, attr, _default){
             }
             //return mro[i][attr]
         }
-        if(mro[i].dict){
+        if($B.get_dict(mro[i])){
             var v = $B.get_from_dict(mro[i], attr, $B.NULL)
             if(v !== $B.NULL){
-                if(test){
-                    console.log('found in dict of mro', i, v)
-                }
-                return v
-            }
-        }else if(mro[i].__dict__){
-            console.log('old school __dict__')
-            var v = _b_.dict.$get_string(mro[i].__dict__, attr, false)
-            if(v !== false){
                 if(test){
                     console.log('found in dict of mro', i, v)
                 }
@@ -757,7 +749,7 @@ $B.search_in_mro = function(klass, attr, _default){
 }
 
 $B.search_in_dict = function(obj, attr, _default){
-    if(obj.dict){
+    if($B.get_dict(obj)){
         try{
             var v = $B.get_from_dict(obj, attr, $B.NULL)
         }catch(err){
@@ -1005,11 +997,12 @@ _b_.__import__ = function(){
 // not a direct alias of prompt: input has no default value
 _b_.input = function(msg) {
     var res = prompt(msg || '') || ''
-    if($B.imported["sys"] && $B.imported["sys"].ps1){
+    if($B.imported["sys"] && 
+            $B.module_getattr($B.imported["sys"], 'ps1') !== $B.NULL){
         // Interactive mode : echo the prompt + input
         // cf. issue #853
-        var ps1 = $B.imported["sys"].ps1,
-            ps2 = $B.imported["sys"].ps2
+        var ps1 = $B.module_getattr($B.imported["sys"], 'ps1'),
+            ps2 = $B.module_getattr($B.imported["sys"], 'ps2')
         if(msg == ps1 || msg == ps2){
             console.log(msg, res)
         }
@@ -2008,7 +2001,7 @@ _b_.super.tp_init = function(self, _type, object_or_type){
     if(object_or_type === _b_.None){
         if(type === _b_.None){
             var frame = $B.frame_obj.frame,
-                pyframe = $B.imported["_sys"]._getframe(),
+                pyframe = $B.module_getattr($B.imported["_sys"], '_getframe')(),
                 code = $B.$getattr(pyframe, 'f_code'),
                 co_varnames = $B.$getattr(code, 'co_varnames')
             if(co_varnames.length > 0){
@@ -2040,10 +2033,11 @@ _b_.super.tp_init = function(self, _type, object_or_type){
 }
 
 _b_.super.tp_new = function(cls){
-    return {
-        ob_type: cls,
-        dict: $B.empty_dict()
+    var res = {
+        ob_type: cls
     }
+    $B.init_dict(res)
+    return res
 }
 
 var super_funcs = _b_.super.tp_funcs = {}

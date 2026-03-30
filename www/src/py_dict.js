@@ -60,10 +60,10 @@ $B.dict_proxy = function(dict){
 
 $B.assign_dict = function(pyobj, jsobj){
     // assign the keys / values in jsobj to the pyobj dict
-    if(! Object.hasOwn(pyobj, 'dict')){
+    if(! $B.get_dict(pyobj)){
         $B.init_dict(pyobj)
     }
-    Object.assign(pyobj.dict.$strings, jsobj)
+    Object.assign($B.get_dict(pyobj).$strings, jsobj)
 }
 
 function PyDictViewSet_Check(op){

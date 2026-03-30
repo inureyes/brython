@@ -365,10 +365,10 @@ ajax.$factory = function(){
     }
     var res = {
         ob_type: ajax,
-        dict: $B.empty_dict(),
         js: xmlhttp,
         headers: {}
     }
+    $B.init_dict(res)
     return res
 }
 
