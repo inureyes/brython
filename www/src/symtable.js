@@ -908,14 +908,15 @@ function symtable_add_def_helper(st, name, flag, ste, _location){
         /* XXX need to update SF.DEF_GLOBAL for other flags too;
            perhaps only DEF_FREE_GLOBAL */
         val = flag
-        if (st.global.hasOwnProperty(mangled)){ // (o = PyDict_GetItemWithError(st.global, mangled))) {
-            val |= st.global[mangled]
+        var mangled_global = $B.str_dict_get(st.global, 'mangled', $B.NULL)
+        if(mangled_global !== $B.NULL){ // (o = PyDict_GetItemWithError(st.global, mangled))) {
+            val |= mangled_global
         }
         o = val
         if (o == NULL){
             return 0
         }
-        st.global[mangled] = o
+        _b_.dict.$setitem(st.global, 'mangled', o)
     }
     return 1
 }
