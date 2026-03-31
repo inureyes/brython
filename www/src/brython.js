@@ -674,8 +674,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-03-31 07:58:26.724503"
-__BRYTHON__.timestamp=1774936706724
+__BRYTHON__.compiled_date="2026-03-31 08:51:44.308816"
+__BRYTHON__.timestamp=1774939904308
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -4810,7 +4810,6 @@ return obj.$method_cache[attr][0]}
 var rawname=attr
 if(obj===undefined){console.log("get attr",attr,"of undefined")}
 var klass=$B.get_class(obj)
-if(klass===_b_.str){if(Object.hasOwn($B.ZTR.prototype,attr)){return $B.ZTR.prototype[attr].bind(obj)}}
 var is_class=klass.tp_mro.includes(_b_.type)
 if(test){console.log("attr",attr,"of",obj,"class",klass ?? $B.get_class(obj),"isclass",is_class)}
 if(! is_class){if(klass.tp_funcs){var func=$B.get_from_dict(klass,attr,$B.NULL)
@@ -9250,44 +9249,7 @@ $B.Template.tp_methods=["__class_getitem__","__reduce__"]
 $B.Template.tp_members=[["strings",$B.TYPES.OBJECT,"strings",1],["interpolations",$B.TYPES.OBJECT,"interpolations",1]
 ]
 Template.tp_getset=["values"]
-$B.set_func_names(Template,'builtins')
-$B.ZTR=function(s){this.s=s}
-$B.ZTR.prototype.split=function(sep){var t0=globalThis.performance.now()
-var $=$B.args("split",2,{sep:null,maxsplit:null},["sep","maxsplit"],arguments,{sep:_b_.None,maxsplit:-1},null,null),maxsplit=$.maxsplit,sep=$.sep
-var pos=0,_self=to_string(this)
-if($B.is_big_int(maxsplit)){maxsplit=Number($B.int_value(maxsplit))}
-if(sep==""){$B.RAISE(_b_.ValueError,"empty separator")}
-if(sep===_b_.None){let res=[]
-while(pos < _self.length && _self.charAt(pos).search(/\s/)>-1){pos++}
-if(pos===_self.length-1){return $B.$list([_self])}
-let name=""
-while(1){if(_self.charAt(pos).search(/\s/)==-1){if(name==""){name=_self.charAt(pos)}else{name+=_self.charAt(pos)}}else{if(name !==""){res.push(name)
-if(maxsplit !==-1 && res.length==maxsplit+1){res.pop()
-res.push(name+_self.substr(pos))
-return $B.$list(res.map($B.String))}
-name=""}}
-pos++
-if(pos > _self.length-1){if(name){res.push(name)}
-break}}
-return $B.$list(res.map($B.String))}else{if(! $B.$isinstance(sep,_b_.str)){$B.RAISE(_b_.TypeError,'must be str or None, not '+
-$B.class_name(sep))}
-sep=to_string(sep)
-let res=[],s="",seplen=sep.length
-if(maxsplit==0){return $B.$list([$.self])}
-if(maxsplit==-1){return $B.$list(_self.split(sep))}
-res=[]
-while(pos < _self.length){var ix=_self.indexOf(sep,pos)
-if(ix==-1){res.push(_self.substr(pos))
-break}
-res.push(_self.substring(pos,ix))
-pos=ix+seplen
-if(maxsplit >-1 && res.length >=maxsplit){res.push(_self.substr(pos))
-break}}
-if(_self.surrogates){res=res.map($B.String)}
-return $B.$list(res)}}
-_b_.ztr=$B.make_builtin_class('ztr')
-_b_.ztr.tp_new=function(cls,args,kw){return new $B.ZTR(args[0])}
-_b_.ztr.tp_getattro=function(self,attr){return $B.ZTR.prototype[attr].bind(self)}})(__BRYTHON__);
+$B.set_func_names(Template,'builtins')})(__BRYTHON__);
 ;
 (function($B){var _b_=$B.builtins
 var int=_b_.int

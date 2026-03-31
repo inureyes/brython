@@ -808,11 +808,6 @@ $B.$getattr = function(obj, attr, _default){
     }
 
     var klass = $B.get_class(obj)
-    if(klass === _b_.str){
-        if(Object.hasOwn($B.ZTR.prototype, attr)){
-            return $B.ZTR.prototype[attr].bind(obj)
-        }
-    }
     var is_class = klass.tp_mro.includes(_b_.type)
 
     if(test){
