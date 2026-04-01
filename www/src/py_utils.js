@@ -952,8 +952,8 @@ $B.make_js_iterator = function(iterator, frame, lineno){
                     if($B.is_exc(err, [_b_.StopIteration])){
                         return {done: true, value: null}
                     }
-                    if(iterator.$inum){
-                        $B.set_inum(iterator.$inum)
+                    if(iterator[$B.INUM]){
+                        $B.set_inum(iterator[$B.INUM])
                     }
                     throw err
                 }

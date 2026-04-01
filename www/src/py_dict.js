@@ -42,7 +42,7 @@ $B.dict_proxy = function(dict){
     // Used for the namespace of user-defined classes
     if($B.exact_type(dict, _b_.dict)){
         // most usual case
-        return dict.$strings
+        return dict
     }
     var getitem = $B.type_getattribute($B.get_class(dict), '__getitem__')
     var setitem = $B.type_getattribute($B.get_class(dict), '__setitem__')
@@ -63,7 +63,7 @@ $B.assign_dict = function(pyobj, jsobj){
     if(! $B.get_dict(pyobj)){
         $B.init_dict(pyobj)
     }
-    Object.assign($B.get_dict(pyobj).$strings, jsobj)
+    Object.assign($B.get_dict(pyobj), jsobj)
 }
 
 function PyDictViewSet_Check(op){
@@ -290,33 +290,33 @@ var dict = _b_.dict
 dict.$match_mapping_pattern = true // for pattern matching (PEP 634)
 
 $B.str_dict_get = function(d, key, _default){
-    if(d.$strings.hasOwnProperty(key)){
-        return d.$strings[key]
+    if(d.hasOwnProperty(key)){
+        return d[key]
     }
     return _default === undefined ? $B.NULL : _default
 }
 
 $B.str_dict_set = function(d, attr, value){
-    d.$strings[attr] = value
+    d[attr] = value
 }
 
 $B.str_dict_del = function(d, attr){
-    delete d.$strings[attr]
+    delete d[attr]
 }
 
 $B.str_dict_pop = function(d, attr){
-    if(! d.$strings.hasOwnProperty(attr)){
+    if(! d.hasOwnProperty(attr)){
         return $B.NULL
     }
-    delete d.$strings[attr]
+    delete d[attr]
 }
 
 $B.str_dict_empty = function(d){
-    return Object.keys(d.$strings).length == 0
+    return Object.keys(d).length == 0
 }
 
 $B.str_dict_length = function(d){
-    return Object.keys(d.$strings).length
+    return Object.keys(d).length
 }
 
 $B.hasOnlyStringKeys = function(d){
@@ -338,7 +338,7 @@ $B.dict_from_jsobj = function(obj){
 }
 
 $B.dict_as_jsobj = function(d){
-    return d.$strings
+    return d
 }
 
 dict.$to_obj = function(d){
@@ -372,9 +372,9 @@ dict.$set_like = function(self){
 
 dict.$iter_items = function*(d){
     if(! d[KEYS]){
-        for(let key in d.$strings){
+        for(let key in d){
             if(key != '$dict_strings'){
-                yield {key, value: d.$strings[key]}
+                yield {key, value: d[key]}
             }
         }
         return
@@ -400,12 +400,12 @@ var $copy_dict = function(left, right){
     var right_version = right[VERSION]
     if(! right[KEYS]){
         if(! left[KEYS]){
-            for(let key in right.$strings){
-                left.$strings[key] = right.$strings[key]
+            for(let key in right){
+                left[key] = right[key]
             }
         }else{
-            for(let key in right.$strings){
-                dict.$setitem(left, key, right.$strings[key])
+            for(let key in right){
+                dict.$setitem(left, key, right[key])
             }
         }
     }else{
@@ -446,10 +446,10 @@ dict.$lookup_by_key = function(d, key, hash){
 dict.$contains = function(self, key){
     if(! self[KEYS]){
         if(typeof key == 'string'){
-            return self.$strings.hasOwnProperty(key)
+            return self.hasOwnProperty(key)
         }
         var hash = $B.$getattr($B.get_class(key), '__hash__')
-        if(hash === $B.get_from_dict(_b_.object, '__hash__')){
+        if(hash === $B.str_dict_get($B.get_dict(_b_.object), '__hash__')){
             return false
         }
         convert_all_str(self)
@@ -464,7 +464,7 @@ dict.$delitem  = function(self, key){
     }
     if(! self[KEYS]){
         if(typeof key == 'string'){
-            if(self.$strings.hasOwnProperty(key)){
+            if(self.hasOwnProperty(key)){
                 dict.$delete_string(self, key)
                 return _b_.None
             }else{
@@ -510,11 +510,11 @@ dict.$eq = function(self, other){
         if(dict.mp_length(self) !== dict.mp_length(other)){
             return false
         }
-        for(let k in self.$strings){
-            if(! other.$strings.hasOwnProperty(k)){
+        for(let k in self){
+            if(! other.hasOwnProperty(k)){
                 return false
             }
-            if(! $B.is_or_equals(self.$strings[k], other.$strings[k])){
+            if(! $B.is_or_equals(self[k], other[k])){
                 return false
             }
         }
@@ -572,7 +572,7 @@ dict.$eq = function(self, other){
 dict.$contains_string = function(self, key){
     // Test if string "key" is in a dict where all keys are string
     if(! self[KEYS]){
-        return self.$strings.hasOwnProperty(key)
+        return self.hasOwnProperty(key)
     }
     if(self[TABLE] && self[TABLE][_b_.hash(key)] !== undefined){
         return true
@@ -583,9 +583,9 @@ dict.$contains_string = function(self, key){
 dict.$delete_string = function(self, key){
     // Used for dicts where all keys are strings
     if(! self[KEYS]){
-        var ix = self.$strings[key]
+        var ix = self[key]
         if(ix !== undefined){
-            delete self.$strings[key]
+            delete self[key]
         }
     }
 
@@ -598,8 +598,8 @@ dict.$missing = {}
 
 dict.$get_string = function(self, key, _default){
     // Used for dicts where all keys are strings
-    if(! self[KEYS] && self.$strings.hasOwnProperty(key)){
-        return self.$strings[key]
+    if(! self[KEYS] && self.hasOwnProperty(key)){
+        return self[key]
     }
     if(self[TABLE] && dict.mp_length(self)){
         var indices = self[TABLE][_b_.hash(key)]
@@ -612,8 +612,8 @@ dict.$get_string = function(self, key, _default){
 
 dict.$getitem_string = function(self, key){
     // Used for dicts where all keys are strings
-    if(! self[KEYS] && self.$strings.hasOwnProperty(key)){
-        return self.$strings[key]
+    if(! self[KEYS] && self.hasOwnProperty(key)){
+        return self[key]
     }
     if(self[TABLE]){
         var indices = self[TABLE][_b_.hash(key)]
@@ -628,7 +628,7 @@ dict.$keys_string = function(self){
     // return the list of keys in a dict where are keys are strings
     var res = []
     if(! self[TABLE]){
-        return Object.keys(self.$strings)
+        return Object.keys(self)
     }else{
         res = res.concat(self[KEYS].filter((x) => x !== undefined))
     }
@@ -638,7 +638,7 @@ dict.$keys_string = function(self){
 dict.$setitem_string = function(self, key, value){
     // Used for dicts where all keys are strings
     if(! self[TABLE]){
-        self.$strings[key] = value
+        self[key] = value
         return _b_.None
     }else{
         var h = _b_.hash(key),
@@ -649,7 +649,7 @@ dict.$setitem_string = function(self, key, value){
         }
     }
     var index = self[KEYS].length
-    self.$strings[key] = index
+    self[key] = index
     self[KEYS].push(key)
     self[VALUES].push(value)
     self[VERSION]++
@@ -666,12 +666,12 @@ dict.$getitem = function(self, key, ignore_missing){
     }
     if(! self[TABLE]){
         if(typeof key == 'string'){
-            if(self.$strings.hasOwnProperty(key)){
-                return self.$strings[key]
+            if(self.hasOwnProperty(key)){
+                return self[key]
             }
         }else{
             var hash_method = $B.$getattr($B.get_class(key), '__hash__')
-            if(hash_method !== $B.get_from_dict(_b_.object, '__hash__')){
+            if(hash_method !== $B.str_dict_get($B.get_dict(_b_.object), '__hash__')){
                 convert_all_str(self)
                 let lookup = dict.$lookup_by_key(self, key)
                 if(lookup.found){
@@ -726,7 +726,7 @@ dict.$set_string_no_duplicate = function(d, keys, string, value){
         $B.RAISE(_b_.TypeError, 'dict() got multiple values for keyword ' +
             `argument '${string}'`)
     }
-    d.$strings[string] = value
+    d[string] = value
     keys.add(string)
 }
 
@@ -752,7 +752,7 @@ function add_iterable(d, js_iterable){
 dict.$iter_items_reversed = function*(d){
     var version = d[VERSION]
     if(! d[TABLE]){
-        for(var item of Object.entries(d.$strings).reverse()){
+        for(var item of Object.entries(d).reverse()){
             yield $B.fast_tuple(item)
             if(d[VERSION] !== version){
                 $B.RAISE(_b_.RuntimeError, 'changed in iteration')
@@ -836,8 +836,8 @@ function convert_all_str(d){
     d[VALUES] = []
     d[HASHES] = []
 
-    for(var key in d.$strings){
-        dict.$setitem(d, key, d.$strings[key])
+    for(var key in d){
+        dict.$setitem(d, key, d[key])
     }
 }
 
@@ -854,13 +854,13 @@ dict.$setitem = function(self, key, value, $hash, from_setdefault){
         // dictionary only needs to use d.$strings (the class dictionary
         // might have non-string keys if __prepare__ returns a dict with
         // non-string keys)
-        self.$strings[key] = value
+        self[key] = value
     }
     if(! self[TABLE]){
         if(typeof key == 'string'){
             var int = parseInt(key)
             if(isNaN(int) || int >= 0){
-                self.$strings[key] = value
+                self[key] = value
                 return _b_.None
             }else{
                 // string parsed as negative integer: insertion order
@@ -1109,7 +1109,7 @@ _b_.dict.mp_ass_subscript = function(self){
 }
 
 _b_.dict.mp_length = function(self){
-    var count = Object.keys(self.$strings).length
+    var count = Object.keys(self).length
     if(self[KEYS]){
         for(var d of self[KEYS]){
             if(d !== undefined){
@@ -1175,7 +1175,9 @@ dict_funcs.clear = function(self){
         delete self[KEYS]
         delete self[VALUES]
     }
-    self.$strings = {}
+    for(var key in self){
+        delete self[key]
+    }
     self[VERSION]++
     return _b_.None
 }
@@ -1281,11 +1283,11 @@ dict_funcs.popitem = function(self){
         $B.RAISE(_b_.KeyError, "'popitem(): dictionary is empty'")
     }
     if(! self[TABLE]){
-        for(var key in self.$strings){
+        for(var key in self){
             // go to last key
         }
-        let res = $B.fast_tuple([key, self.$strings[key]])
-        delete self.$strings[key]
+        let res = $B.fast_tuple([key, self[key]])
+        delete self[key]
         self[VERSION]++
         return res
     }
@@ -1312,10 +1314,10 @@ dict_funcs.setdefault = function(self){
 
     if(! self[TABLE]){
         if(typeof key === 'string'){
-            if(! self.$strings.hasOwnProperty(key)){
-                self.$strings[key] = _default
+            if(! self.hasOwnProperty(key)){
+                self[key] = _default
             }
-            return self.$strings[key]
+            return self[key]
         }else{
             // Non-string key, convert to regular dict
             convert_all_str(self)
@@ -1768,9 +1770,7 @@ $B.dict_reverseitemiterator.tp_methods = ["__length_hint__", "__reduce__"]
 /* dict_reverseitemiterator end */
 
 $B.empty_dict = function(){
-    var res = {
-        $strings: {}
-    }
+    var res = {}
     res[$B.OB_TYPE] = dict
     res[VERSION] = 0
     return res
@@ -1869,14 +1869,14 @@ $B.mappingproxy.mp_length = function(self){
 }
 
 $B.mappingproxy.mp_subscript = function(self, key){
-    if(self.mapping.$strings.hasOwnProperty(key)){
-        return self.mapping.$strings[key]
+    if(self.mapping.hasOwnProperty(key)){
+        return self.mapping[key]
     }
     $B.RAISE(_b_.KeyError, key)
 }
 
 $B.mappingproxy.sq_contains = function(self, key){
-    return self.mapping.$strings.hasOwnProperty(key)
+    return self.mapping.hasOwnProperty(key)
 }
 
 var mappingproxy_funcs = $B.mappingproxy.tp_funcs = {}
@@ -1895,8 +1895,8 @@ mappingproxy_funcs.copy = function(self){
 }
 
 mappingproxy_funcs.get = function(self, key, _default){
-    if(self.mapping.$strings.hasOwnProperty(key)){
-        return self.mapping.$strings[key]
+    if(self.mapping.hasOwnProperty(key)){
+        return self.mapping[key]
     }
     return _default ?? _b_.None
 }
@@ -1914,7 +1914,7 @@ mappingproxy_funcs.keys = function(self){
 }
 
 mappingproxy_funcs.values = function(self){
-    return _b_.dict.tp_funcs.value(self.mapping)
+    return _b_.dict.tp_funcs.values(self.mapping)
 }
 
 $B.mappingproxy.functions_or_methods = ["__new__"]
@@ -1928,8 +1928,8 @@ $B.mappingproxy.classmethods = ["__class_getitem__"]
 $B.set_func_names(mappingproxy, "builtins")
 
 function* mappingproxy_iter_items(self){
-    for(var key in self.mapping.$strings){
-        yield {key, value: self.mapping.$strings[key]}
+    for(var key in self.mapping){
+        yield {key, value: self.mapping[key]}
     }
 }
 

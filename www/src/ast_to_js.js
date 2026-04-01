@@ -2231,7 +2231,7 @@ $B.ast.For.prototype.to_js = function(scopes){
         js += prefix + `var no_break_${id} = true,\n` +
               prefix + tab + tab + `iterator_${id} = ${iter}\n`
         if(this.iter.inum){
-            js += prefix + tab + tab + `iterator_${id}.$inum = ${this.iter.inum}\n`
+            js += prefix + tab + tab + `iterator_${id}[$B.INUM] = ${this.iter.inum}\n`
         }
         js += prefix + `for(var next_${id} of $B.make_js_iterator(` +
                   `iterator_${id}, frame, ${this.lineno})){\n`
@@ -2443,7 +2443,7 @@ $B.ast.FunctionDef.prototype.to_js = function(scopes){
         // generate code to store type params in the scope namespace
         type_params = prefix + `$B.$import('_typing')\n` +
               prefix + `var _typing = $B.imported._typing\n` +
-              prefix + `var locals_${type_params_ref} = {},\n` +
+              prefix + `var locals_${type_params_ref} = $B.empty_dict(),\n` +
               prefix + tab + tab + `locals = locals_${type_params_ref},\n` +
               prefix + tab + tab + `frame = ['${type_params_ref}', locals, '${gname}', ${globals_name}],\n` +
               prefix + tab + tab + `type_params = []\n` +
@@ -2525,7 +2525,7 @@ $B.ast.FunctionDef.prototype.to_js = function(scopes){
     if(positional.length == 0 && slots.length == 0 &&
             this.args.vararg === undefined &&
             this.args.kwarg === undefined){
-        js += prefix + `var ${locals_name} = locals = {};\n`
+        js += prefix + `var ${locals_name} = locals = $B.empty_dict();\n`
         // generate error message
         js += prefix + `if(arguments.length !== 0){\n` +
               prefix + tab + `${name2}.$args_parser(${parse_args.join(', ')})\n` +

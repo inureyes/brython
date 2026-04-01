@@ -767,7 +767,7 @@ function generate_args0_str(hasPosOnly, posOnlyDefaults, hasPos, posDefaults, ha
     }
 
 
-    const result = {};
+    const result = $B.empty_dict();
 
     // using const should enable the browser to perform some optimisation.
     const $INFOS = fct.$infos;

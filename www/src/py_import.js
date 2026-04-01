@@ -8,15 +8,15 @@ var _b_ = $B.builtins,
 
 $B.namespace = function(module_name){
     // Used at the beginning of each script, returns the module namespace.
-    // If $B.imported[module_name] exists, setting attributes to the
-    // namespace must update the module's `dict`
-    if($B.imported.hasOwnProperty(module_name)){
-        return $B.dict_as_jsobj($B.get_dict($B.imported[module_name]))
-    }
-    // When the generated Javascript is copied / pasted from the console for
-    // debugging, $B.imported[module_name] is not set; return an empty JS
-    // object
-    return {}
+    var res = $B.imported.hasOwnProperty(module_name)
+        // if $B.imported[module_name] exists, return its dictionary
+        ? $B.get_dict($B.imported[module_name])
+        // otherwise, e.g. if the generated Javascript is copied / pasted from
+        // the console for debugging, $B.imported[module_name] is not set; 
+        // return an empty dict
+        : $B.empty_dict()
+
+    return res
 }
 
 // Class for modules

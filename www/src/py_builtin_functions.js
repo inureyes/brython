@@ -856,10 +856,7 @@ _b_.globals = function(){
     // $B.frame_obj.frame is
     // [locals_name, locals_obj, globals_name, globals_obj]
     check_nb_args_no_kw('globals', 0, arguments)
-    var res = $B.obj_dict($B.frame_obj.frame[3])
-    $B.str_dict_set(res, __BRYTHON__, $B.jsobj2pyobj($B)) // issue 1181
-    res.$is_namespace = true
-    return res
+    return $B.frame_obj.frame[3]
 }
 
 _b_.hasattr = function(obj,attr){
@@ -992,7 +989,7 @@ _b_.__import__ = function(){
 // not a direct alias of prompt: input has no default value
 _b_.input = function(msg) {
     var res = prompt(msg || '') || ''
-    if($B.imported["sys"] && 
+    if($B.imported["sys"] &&
             $B.module_getattr($B.imported["sys"], 'ps1') !== $B.NULL){
         // Interactive mode : echo the prompt + input
         // cf. issue #853
@@ -1253,13 +1250,7 @@ _b_.locals = function(){
     if(class_locals){
         return class_locals
     }
-    var res = $B.obj_dict($B.clone(locals_obj),
-        function(key){
-            return key.startsWith('$')
-        }
-    )
-    res.$is_namespace = true
-    return res
+    return locals_obj
 }
 
 

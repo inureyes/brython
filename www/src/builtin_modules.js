@@ -1,6 +1,9 @@
 "use strict";
  (function($B) {
     var _b_ = $B.builtins
+
+    $B.imported[$B.OB_TYPE] = _b_.dict
+    
     var update = $B.update_obj = function(mod, data) {
         for(let attr in data) {
             mod[attr] = data[attr]
