@@ -690,6 +690,10 @@ $B.search_own_slot = function(cls, slot, _default){
 }
 
 $B.search_slot = function(cls, slot, _default){
+    var test = false // cls.tp_name == 'MagicMock' && slot == 'tp_call'
+    if(test){
+        console.log('search slot', cls, slot)
+    }
     var dunder = $B.slot2dunder[slot]
     if(cls.tp_mro === undefined){
         console.log('no mro', cls)
@@ -701,6 +705,9 @@ $B.search_slot = function(cls, slot, _default){
         if(dunder){
             var v = $B.get_from_dict(klass, dunder, $B.NULL)
             if(v !== $B.NULL){
+                if(test){
+                    console.log('klass has __call__', v)
+                }
                 if(typeof v !== 'function'){
                     var v_type = $B.get_class(v)
                     var getter = v_type.tp_descr_get
@@ -843,6 +850,37 @@ function reset_getattribute(cls){
     }
 }
 
+$B.make_call = function(cls){
+    cls.tp_call = $B.NULL
+    var call = $B.get_from_dict(cls, '__call__', $B.NULL)
+    if(call !== $B.NULL){
+        cls.tp_call = call
+    }else{
+        for(var kls of cls.tp_mro){
+            if(kls.tp_call && kls.tp_call !== $B.NULL){
+                cls.tp_call = kls.tp_call
+                return
+            }else{
+                call = $B.get_from_dict(kls, '__call__', $B.NULL)
+                if(call !== $B.NULL){
+                    cls.tp_call = call
+                    return
+                }
+            }
+        }
+    }
+}
+
+function reset_call(cls){
+    $B.make_call(cls)
+    if(cls.tp_subclasses === undefined){
+        console.log('no subclasses', cls)
+    }
+    for(var kls of cls.tp_subclasses){
+        reset_call(kls)
+    }
+}
+
 $B.make_descr_get = function(cls){
     cls.tp_descr_get = $B.NULL
     var get = $B.get_from_dict(cls, '__get__', $B.NULL)
@@ -911,6 +949,20 @@ $B.make_fast_iter = function(cls){
     }
 }
 
+$B.make_new = function(cls){
+    cls.tp_new = $B.search_slot(cls, 'tp_new', $B.NULL)
+}
+
+function reset_new(cls){
+    $B.make_new(cls)
+    if(cls.tp_subclasses === undefined){
+        console.log('no subclasses', cls)
+    }
+    for(var kls of cls.tp_subclasses){
+        reset_new(kls)
+    }
+}
+
 function set_slots(cl_dict, class_obj){
     let slots = $B.str_dict_get(cl_dict, '__slots__', $B.NULL)
     if(slots !== $B.NULL){
@@ -973,6 +1025,9 @@ _b_.type.tp_setattro = function(kls, attr, value){
         }
     }
     switch(attr){
+        case '__call__':
+            reset_call(kls)
+            break
         case '__getattribute__':
         case '__getattr__':
             reset_getattribute(kls)
@@ -1037,9 +1092,12 @@ _b_.type.tp_call = function(){
             $B.RAISE(_b_.TypeError, 'type() takes 1 or 3 arguments')
         }
     }
-    var new_func = $B.search_slot(cls, "tp_new")
+    var new_func = $B.search_slot(cls, 'tp_new', $B.NULL)
     if(test){
         console.log('new_func', new_func, 'is slot tp_new', new_func.$is_slot)
+    }
+    if(new_func === undefined){
+        console.log('new func undefined', cls)
     }
 
     // create an instance with __new__
@@ -1340,9 +1398,11 @@ _b_.type.tp_new = function(cls, args, kw){
         console.log('$getattribute is set for', class_obj)
     }
 
+    //$B.make_new(class_obj)
     $B.make_descr_get(class_obj)
     $B.make_descr_set(class_obj)
     $B.make_iter(class_obj)
+    $B.make_call(class_obj)
     return class_obj
 }
 

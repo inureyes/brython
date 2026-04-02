@@ -12,7 +12,7 @@ $B.namespace = function(module_name){
         // if $B.imported[module_name] exists, return its dictionary
         ? $B.get_dict($B.imported[module_name])
         // otherwise, e.g. if the generated Javascript is copied / pasted from
-        // the console for debugging, $B.imported[module_name] is not set; 
+        // the console for debugging, $B.imported[module_name] is not set;
         // return an empty dict
         : $B.empty_dict()
 
@@ -58,12 +58,12 @@ $B.module.tp_repr = function(self){
 }
 
 $B.module.tp_getattro = function(self, attr){
-    if($B.get_dict(self) === undefined || self.__name__ == 'sys'){
-        console.log('dict for module', self)
-        console.log('attr', attr)
-    }
+    var test = false // attr == '__dict__'
     var res = _b_.object.tp_getattro(self, attr)
     if(res !== $B.NULL){
+        if(test){
+            console.log('res', res, $B.get_class(res).tp_name)
+        }
         return res
     }
     // search with __getattr__ if defined in the module

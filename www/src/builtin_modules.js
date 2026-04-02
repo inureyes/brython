@@ -3,7 +3,7 @@
     var _b_ = $B.builtins
 
     $B.imported[$B.OB_TYPE] = _b_.dict
-    
+
     var update = $B.update_obj = function(mod, data) {
         for(let attr in data) {
             mod[attr] = data[attr]
@@ -1646,7 +1646,7 @@ var builtins_doc = "Built-in functions, types, exceptions, and other " +
 $B.imported.builtins = $B.module.tp_new($B.module)
 $B.module.tp_init($B.imported.builtins, 'builtins', builtins_doc)
 
-$B.set_dict($B.imported.builtins, $B.obj_dict(_b_))
+$B.set_dict($B.imported.builtins, _b_)
 
 $B.module_setattr($B.imported.builtins, '__doc__', builtins_doc)
 //$B.module_setattr($B.imported.builtins, '__name__', 'builtins')

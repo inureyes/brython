@@ -302,6 +302,7 @@ var jsobj2pyobj = $B.jsobj2pyobj = function(jsobj, _this){
 var pyobj2jsobj = $B.pyobj2jsobj = function(pyobj){
     // conversion of a Python object into a Javascript object
     // Immutable types
+
     switch(pyobj){
         case true:
         case false:
@@ -499,16 +500,9 @@ $B.JSClass.tp_getattro = function(self, attr){
 }
 
 $B.JSClass.tp_new = function(cls, args, kw){
-    var [name, bases, dict] = args
-    var cls = {
-        ob_type: cls,
-        tp_name: name,
-        tp_bases: bases
-    }
-    $B.set_dict(cls, dict)
-    cls.tp_mro = $B.make_mro(cls)
-    cls.js_class = cls.tp_bases[0].js_class
-    return cls
+    var kls = _b_.type.tp_new(cls, args, kw)
+    kls.js_class = kls.tp_bases[0].js_class
+    return kls
 }
 
 function jsclass2pyclass(js_class){
@@ -545,6 +539,7 @@ function jsclass2pyclass(js_class){
             self.jsobj[attr] = pyobj2jsobj(value)
         }
     )
+    $B.make_new(cls)
     return cls
 }
 

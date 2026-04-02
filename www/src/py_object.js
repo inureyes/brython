@@ -2,6 +2,8 @@
 (function($B){
 
 var _b_ = $B.builtins
+_b_[$B.OB_TYPE] = _b_.dict
+
 var object = _b_.object
 
 $B.time_object_getattribute = 0
@@ -262,8 +264,6 @@ _b_.object.tp_setattro = function(self, attr, value){
     }
     if(value === undefined){
         // setting an attribute to 'object' type is not allowed
-        console.log('value is undefined', self, attr)
-        console.log(Error('trace').stack)
         $B.RAISE(_b_.TypeError,
             "can't set attributes of built-in/extension type 'object'")
     }else if($B.get_class(self) === object){

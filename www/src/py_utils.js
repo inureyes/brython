@@ -1483,17 +1483,6 @@ $B.$call_with_position = function(callable, inum, ...args){
         $B.set_inum(inum)
         throw err
     }
-
-    var f = function(){
-        try{
-            return callable.apply(null, arguments)
-        }catch(exc){
-            $B.set_inum(inum)
-            throw exc
-        }
-    }
-    f.$original = original
-    return f
 }
 
 $B.$call = function(callable, ...args){
@@ -1509,7 +1498,7 @@ $B.$call = function(callable, ...args){
     if(test){
         console.log('call', callable, 'klass', klass, 'args', args)
     }
-    var call_method = $B.search_slot(klass, 'tp_call', $B.NULL)
+    var call_method = klass.tp_call // $B.search_slot(klass, 'tp_call', $B.NULL)
     if(test){
         console.log('call_method', call_method)
     }
@@ -1518,7 +1507,7 @@ $B.$call = function(callable, ...args){
             "' object is not callable")
     }
     if(typeof call_method !== 'function'){
-        if($B.search_slot($B.get_class(call_method), 'tp_call', $B.NULL) !== $B.NULL){
+        if($B.get_class(call_method).tp_call !== $B.NULL){
             // for instance __call__ might be set to dict
             return $B.$call(call_method, ...args)
         }else{

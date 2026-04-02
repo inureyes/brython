@@ -673,8 +673,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-04-01 09:19:53.683656"
-__BRYTHON__.timestamp=1775027993670
+__BRYTHON__.compiled_date="2026-04-02 07:49:34.170064"
+__BRYTHON__.timestamp=1775108974169
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -1885,22 +1885,18 @@ if(test){console.log('call',callable,inum)}
 var original=callable
 try{var res=$B.$call(callable,...args)
 return res}catch(err){$B.set_inum(inum)
-throw err}
-var f=function(){try{return callable.apply(null,arguments)}catch(exc){$B.set_inum(inum)
-throw exc}}
-f.$original=original
-return f}
+throw err}}
 $B.$call=function(callable,...args){var test=false 
 if(typeof callable=='function'){var res=callable(...args)
 if(callable.$in_js_module && res===undefined){return _b_.None}
 return res}
 var klass=$B.get_class(callable)
 if(test){console.log('call',callable,'klass',klass,'args',args)}
-var call_method=$B.search_slot(klass,'tp_call',$B.NULL)
+var call_method=klass.tp_call 
 if(test){console.log('call_method',call_method)}
 if(call_method===$B.NULL){$B.RAISE(_b_.TypeError,"'"+$B.class_name(callable)+
 "' object is not callable")}
-if(typeof call_method !=='function'){if($B.search_slot($B.get_class(call_method),'tp_call',$B.NULL)!==$B.NULL){
+if(typeof call_method !=='function'){if($B.get_class(call_method).tp_call !==$B.NULL){
 return $B.$call(call_method,...args)}else{$B.RAISE(_b_.TypeError,"'"+$B.class_name(callable)+
 "' object is not callable")}}
 var res=call_method.apply(null,arguments)
@@ -2131,6 +2127,7 @@ $B.RAISE(_b_.RecursionError,"maximum recursion depth "+
 "exceeded while getting the repr of an object")}}},leave:function(obj){repr_stack.delete(_b_.id(obj))}}})(__BRYTHON__);
 ;
 (function($B){var _b_=$B.builtins
+_b_[$B.OB_TYPE]=_b_.dict
 var object=_b_.object
 $B.time_object_getattribute=0
 $B.time_getattribute=0
@@ -2251,8 +2248,6 @@ delete self[attr]
 return _b_.None}
 throw $B.attr_error(attr,self)}
 if(value===undefined){
-console.log('value is undefined',self,attr)
-console.log(Error('trace').stack)
 $B.RAISE(_b_.TypeError,"can't set attributes of built-in/extension type 'object'")}else if($B.get_class(self)===object){
 if(object[attr]===undefined){throw $B.attr_error(attr,self)}else{$B.RAISE_ATTRIBUTE_ERROR(
 "'object' object attribute '"+attr+"' is read-only",self,attr)}}
@@ -2666,11 +2661,14 @@ if(dunder){var v=$B.get_from_dict(cls,dunder,$B.NULL)
 if(v !==$B.NULL){if(v.ob_type.tp_descr_get){v=v.ob_type.tp_descr_get(v,cls)}
 return v}}
 return _default}
-$B.search_slot=function(cls,slot,_default){var dunder=$B.slot2dunder[slot]
+$B.search_slot=function(cls,slot,_default){var test=false 
+if(test){console.log('search slot',cls,slot)}
+var dunder=$B.slot2dunder[slot]
 if(cls.tp_mro===undefined){console.log('no mro',cls)}
 for(var klass of cls.tp_mro){if(klass.hasOwnProperty(slot)){return klass[slot]}
 if(dunder){var v=$B.get_from_dict(klass,dunder,$B.NULL)
-if(v !==$B.NULL){if(typeof v !=='function'){var v_type=$B.get_class(v)
+if(v !==$B.NULL){if(test){console.log('klass has __call__',v)}
+if(typeof v !=='function'){var v_type=$B.get_class(v)
 var getter=v_type.tp_descr_get
 if(getter !==$B.NULL){v=getter(v,cls)}}
 return v}}}
@@ -2714,6 +2712,15 @@ return res}}}else{cls.$getattribute=$B.NULL}}
 function reset_getattribute(cls){
 $B.make_getattr(cls)
 for(var kls of cls.tp_subclasses){reset_getattribute(kls)}}
+$B.make_call=function(cls){cls.tp_call=$B.NULL
+var call=$B.get_from_dict(cls,'__call__',$B.NULL)
+if(call !==$B.NULL){cls.tp_call=call}else{for(var kls of cls.tp_mro){if(kls.tp_call && kls.tp_call !==$B.NULL){cls.tp_call=kls.tp_call
+return}else{call=$B.get_from_dict(kls,'__call__',$B.NULL)
+if(call !==$B.NULL){cls.tp_call=call
+return}}}}}
+function reset_call(cls){$B.make_call(cls)
+if(cls.tp_subclasses===undefined){console.log('no subclasses',cls)}
+for(var kls of cls.tp_subclasses){reset_call(kls)}}
 $B.make_descr_get=function(cls){cls.tp_descr_get=$B.NULL
 var get=$B.get_from_dict(cls,'__get__',$B.NULL)
 if(get !==$B.NULL){cls.tp_descr_get=get}else if(cls.tp_base){cls.tp_descr_get=cls.tp_base.tp_descr_get}else{console.log('no tp_base',cls)}}
@@ -2733,6 +2740,10 @@ for(var kls of cls.tp_subclasses){reset_iter(kls)}}
 $B.make_fast_iter=function(cls){if(cls.tp_base &&
 cls.tp_base[$B.FAST_ITER]&&
 $B.get_from_dict(cls,'__iter__',$B.NULL)===$B.NULL){cls[$B.FAST_ITER]=cls.tp_base[$B.FAST_ITER]}}
+$B.make_new=function(cls){cls.tp_new=$B.search_slot(cls,'tp_new',$B.NULL)}
+function reset_new(cls){$B.make_new(cls)
+if(cls.tp_subclasses===undefined){console.log('no subclasses',cls)}
+for(var kls of cls.tp_subclasses){reset_new(kls)}}
 function set_slots(cl_dict,class_obj){let slots=$B.str_dict_get(cl_dict,'__slots__',$B.NULL)
 if(slots !==$B.NULL){for(let key of $B.make_js_iterator(slots)){var member={name:key,type:$B.TYPES.OBJECT,attr:'slot_value_'+key,flags:0}
 var md={ob_type:$B.member_descriptor,d_type:class_obj,d_name:key,d_member:member}
@@ -2754,7 +2765,10 @@ setter(in_mro,kls,value)}}
 if(! done){if(value===$B.NULL){var current=$B.get_from_dict(kls,attr,$B.NULL)
 if(current===$B.NULL){throw $B.attr_error(attr,kls)}
 _b_.dict.$delitem($B.get_dict(kls),attr)}else{$B.set_to_dict(kls,attr,value)}}
-switch(attr){case '__getattribute__':
+switch(attr){case '__call__':
+reset_call(kls)
+break
+case '__getattribute__':
 case '__getattr__':
 reset_getattribute(kls)
 break
@@ -2784,8 +2798,9 @@ console.log(Error('trace').stack)}
 if(cls===_b_.type){if($.args.length==1 && kw_len==0){
 return $B.get_class(args[0])}
 if(args.length !==1 && args.length !==3){$B.RAISE(_b_.TypeError,'type() takes 1 or 3 arguments')}}
-var new_func=$B.search_slot(cls,"tp_new")
+var new_func=$B.search_slot(cls,'tp_new',$B.NULL)
 if(test){console.log('new_func',new_func,'is slot tp_new',new_func.$is_slot)}
+if(new_func===undefined){console.log('new func undefined',cls)}
 var instance
 if(new_func.$is_slot){instance=new_func(cls,args,kw)}else{instance=new_func(cls,...args,$B.dict2kwarg(kw))}
 var instance_class=$B.get_class(instance)
@@ -2896,6 +2911,7 @@ if(test){console.log('$getattribute is set for',class_obj)}
 $B.make_descr_get(class_obj)
 $B.make_descr_set(class_obj)
 $B.make_iter(class_obj)
+$B.make_call(class_obj)
 return class_obj}
 var type_funcs=_b_.type.tp_funcs={}
 type_funcs.__abstractmethods___get=function(cls){if(cls !==type){var res=$B.get_from_dict(cls,'__abstractmethods__',$B.NULL)
@@ -11636,12 +11652,9 @@ $B.JSClass.tp_getattro=function(self,attr){if(attr=='new'){return function(){var
 return jsobj2pyobj(new self.js_class(...args))}}
 if(! self.js_class.hasOwnProperty(attr)){return $B.NULL}
 return jsobj2pyobj(self.jsobj[attr],self.jsobj)}
-$B.JSClass.tp_new=function(cls,args,kw){var[name,bases,dict]=args
-var cls={ob_type:cls,tp_name:name,tp_bases:bases}
-$B.set_dict(cls,dict)
-cls.tp_mro=$B.make_mro(cls)
-cls.js_class=cls.tp_bases[0].js_class
-return cls}
+$B.JSClass.tp_new=function(cls,args,kw){var kls=_b_.type.tp_new(cls,args,kw)
+kls.js_class=kls.tp_bases[0].js_class
+return kls}
 function jsclass2pyclass(js_class){
 var cls={ob_type:$B.JSClass,tp_bases:[],tp_name:js_class.name,js_class}
 $B.init_dict(cls)
@@ -11656,6 +11669,7 @@ $B.set_to_dict(cls,'__getattr__',function(self,attr){return jsobj2pyobj(self.jso
 )
 $B.set_to_dict(cls,'__setattr__',function(self,attr,value){self.jsobj[attr]=pyobj2jsobj(value)}
 )
+$B.make_new(cls)
 return cls}
 var js_iterator=$B.make_builtin_class('js_iterator')
 js_iterator.tp_iternext=function*(self){for(var key of self.it){yield key}}
@@ -12956,10 +12970,10 @@ $B.module.tp_repr=function(self){var name=$B.module_getattr(self,'__name__')
 var file=$B.module_getattr(self,'__file__')
 if(file===$B.NULL){file='(built_in)'}else{file='from '+file}
 return `<module '${name}' ${file}>`}
-$B.module.tp_getattro=function(self,attr){if($B.get_dict(self)===undefined ||self.__name__=='sys'){console.log('dict for module',self)
-console.log('attr',attr)}
+$B.module.tp_getattro=function(self,attr){var test=false 
 var res=_b_.object.tp_getattro(self,attr)
-if(res !==$B.NULL){return res}
+if(res !==$B.NULL){if(test){console.log('res',res,$B.get_class(res).tp_name)}
+return res}
 var getattr=$B.get_from_dict(self,'__getattr__',$B.NULL)
 if(getattr !==$B.NULL){return $B.$call(getattr,attr)}
 return $B.NULL}
@@ -14100,7 +14114,7 @@ var builtins_doc="Built-in functions, types, exceptions, and other "+
 "but in\nwhich the built-in of that name is also needed."
 $B.imported.builtins=$B.module.tp_new($B.module)
 $B.module.tp_init($B.imported.builtins,'builtins',builtins_doc)
-$B.set_dict($B.imported.builtins,$B.obj_dict(_b_))
+$B.set_dict($B.imported.builtins,_b_)
 $B.module_setattr($B.imported.builtins,'__doc__',builtins_doc)
 $B.module_setattr($B.imported.builtins,'__package__',_b_.None)
 $B.module_setattr($B.imported.builtins,'__loader__',_b_.None)
@@ -14238,7 +14252,7 @@ $B.set_to_dict(cls,name,{ob_type:$B.member_descriptor,d_member:{name,type,attr,f
 )}}
 if(cls.classmethods){for(var descr of cls.classmethods){$B.set_to_dict(cls,descr,{ob_type:$B.classmethod_descriptor,d_name:descr,d_type:cls,d_method:cls.tp_funcs[descr]})}}
 if(cls.staticmethods){for(var descr of cls.staticmethods){$B.set_to_dict(cls,descr,_b_.staticmethod.$factory(cls.tp_funcs[descr]))}}
-for(var slot in $B.wrapper_methods){if(cls[slot]){$B.wrapper_methods[slot](cls,slot)}else if(['tp_descr_get','tp_descr_set','tp_iter'].includes(slot)){cls[slot]=$B.NULL
+for(var slot in $B.wrapper_methods){if(cls[slot]){$B.wrapper_methods[slot](cls,slot)}else if(['tp_descr_get','tp_descr_set','tp_iter','tp_call'].includes(slot)){cls[slot]=$B.NULL
 if(cls.tp_mro){for(var kls of cls.tp_mro.slice(1)){if(Object.hasOwn(cls,slot)){cls[slot]=kls[slot]
 break}}}}}
 $B.make_getattr(cls)}
