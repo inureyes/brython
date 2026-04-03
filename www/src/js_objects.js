@@ -487,11 +487,16 @@ function pyargs2jsargs(pyargs){
 $B.JSClass = $B.make_builtin_class('JSClass', [_b_.type])
 
 $B.JSClass.tp_getattro = function(self, attr){
+    console.log('JSClass getatro', self, attr)
     if(attr == 'new'){
         return function(){
             var args = Array.from(arguments).map(pyobj2jsobj)
             return jsobj2pyobj(new self.js_class(...args))
         }
+    }
+    var res = _b_.type.tp_getattro(self, attr)
+    if(res !== $B.NULL){
+        return res
     }
     if(! self.js_class.hasOwnProperty(attr)){
         return $B.NULL
@@ -511,6 +516,7 @@ function jsclass2pyclass(js_class){
         ob_type: $B.JSClass,
         tp_bases: [],
         tp_name: js_class.name,
+        tp_flags: $B.TPFLAGS.HEAPTYPE | $B.TPFLAGS.BASETYPE,
         js_class
     }
     $B.init_dict(cls)
@@ -540,6 +546,7 @@ function jsclass2pyclass(js_class){
         }
     )
     $B.make_new(cls)
+    $B.make_init(cls)
     return cls
 }
 

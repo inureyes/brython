@@ -315,7 +315,8 @@ $B.make_builtin_class = function(tp_name, tp_bases){
         ob_type: _b_.type,
         tp_name,
         tp_bases: tp_bases ?? [_b_.object],
-        tp_base: tp_bases ? tp_bases[0] : _b_.object
+        tp_base: tp_bases ? tp_bases[0] : _b_.object,
+        tp_flags: $B.TPFLAGS.BASETYPE
     }
     if(tp_bases){
         cls.tp_mro = [cls, ...tp_bases, _b_.object]

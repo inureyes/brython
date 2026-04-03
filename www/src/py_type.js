@@ -699,7 +699,7 @@ $B.search_slot = function(cls, slot, _default){
         console.log('no mro', cls)
     }
     for(var klass of cls.tp_mro){
-        if(klass.hasOwnProperty(slot)){
+        if(klass.hasOwnProperty(slot) && klass[slot] !== $B.NULL){
             return klass[slot]
         }
         if(dunder){
@@ -794,7 +794,6 @@ $B.type_check = function(obj, cls){
 function type_mro(cls){
     return $B.$list($B.make_mro(cls))
 }
-
 
 function set_tp_slots(cls){
     for(var [slot, dunder] of Object.entries($B.slot2dunder)){
@@ -950,7 +949,7 @@ $B.make_fast_iter = function(cls){
 }
 
 $B.make_new = function(cls){
-    cls.tp_new = $B.search_slot(cls, 'tp_new', $B.NULL)
+    cls.tp_newXXX = $B.search_slot(cls, 'tp_new', $B.NULL)
 }
 
 function reset_new(cls){
@@ -960,6 +959,32 @@ function reset_new(cls){
     }
     for(var kls of cls.tp_subclasses){
         reset_new(kls)
+    }
+}
+
+$B.make_init = function(cls){
+    cls.tp_init = $B.NULL
+    for(var kls of cls.tp_mro){
+        if(kls.tp_flags & $B.TPFLAGS.HEAPTYPE){
+            var init = $B.get_from_dict(kls, '__init__', $B.NULL)
+            if(init !== $B.NULL){
+                cls.tp_init = init
+                return
+            }
+        }else{
+            cls.tp_init = kls.tp_init
+            return
+        }
+    }
+}
+
+function reset_init(cls){
+    $B.make_init(cls)
+    if(cls.tp_subclasses === undefined){
+        console.log('no subclasses', cls)
+    }
+    for(var kls of cls.tp_subclasses){
+        reset_init(kls)
     }
 }
 
@@ -1038,8 +1063,14 @@ _b_.type.tp_setattro = function(kls, attr, value){
         case '__set__':
             reset_descr_set(kls)
             break
+        case '__init__':
+            reset_init(kls)
+            break
         case '__iter__':
             reset_iter(kls)
+            break
+        case '__new__':
+            reset_new(kls)
             break
     }
 
@@ -1071,14 +1102,16 @@ _b_.type.tp_repr = function(kls){
     return "<class '" + qualname + "'>"
 }
 
+$B.nb_call = 0
+
 _b_.type.tp_call = function(){
+    $B.nb_call++
     var $ = $B.args('__call__', 1, {cls: null}, ['cls'], arguments, {}, 'args', 'kw'),
         cls = $.cls,
         args = $.args,
         kw = $.kw,
         kw_len = _b_.dict.mp_length(kw)
-
-    var test = false // cls.tp_name === 'A'
+    var test = false // cls.tp_name === 'version_info'
     if(test){
         console.log('type.tp_call', cls, args)
         console.log(Error('trace').stack)
@@ -1092,14 +1125,10 @@ _b_.type.tp_call = function(){
             $B.RAISE(_b_.TypeError, 'type() takes 1 or 3 arguments')
         }
     }
-    var new_func = $B.search_slot(cls, 'tp_new', $B.NULL)
+    var new_func = cls.tp_newXXX ///$B.search_slot(cls, 'tp_new', $B.NULL)
     if(test){
         console.log('new_func', new_func, 'is slot tp_new', new_func.$is_slot)
     }
-    if(new_func === undefined){
-        console.log('new func undefined', cls)
-    }
-
     // create an instance with __new__
     var instance
     if(new_func.$is_slot){
@@ -1114,13 +1143,16 @@ _b_.type.tp_call = function(){
     }
     if($B.type_check(instance, cls)){
         // call __init__ with the same parameters
-        var init_func = $B.search_slot(instance_class, 'tp_init', $B.NULL)
+        var init_func = instance_class.tp_init
         if(test){
             console.log('init func', init_func)
         }
         if(init_func !== $B.NULL && init_func !== _b_.object.tp_init){
             // object.__init__ is not called in this case (it would raise an
             // exception if there are parameters).
+            if(typeof init_func != 'function'){
+                console.log('init func', init_func, 'instance', instance)
+            }
             try{
                 if(kw_len > 0){
                     var kwarg = $B.dict2kwarg(kw)
@@ -1253,7 +1285,7 @@ _b_.type.tp_new = function(cls, args, kw){
     var extra_kwargs = kwds
     var [name, bases, cl_dict] = args
 
-    var test = false // name == 'EnumCheck'
+    var test = false // name == '_dataclass'
     if(test){
         console.log('type.tp_new', name, 'metatype', metatype,
             'extrakw', kwds)
@@ -1398,7 +1430,8 @@ _b_.type.tp_new = function(cls, args, kw){
         console.log('$getattribute is set for', class_obj)
     }
 
-    //$B.make_new(class_obj)
+    $B.make_new(class_obj)
+    $B.make_init(class_obj)
     $B.make_descr_get(class_obj)
     $B.make_descr_set(class_obj)
     $B.make_iter(class_obj)
