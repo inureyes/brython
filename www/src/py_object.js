@@ -449,7 +449,7 @@ _b_.object.tp_init = function(){
     }else if(args.length > 1 || _b_.len(kw) > 0){
         var self = args[0]
         var type = $B.get_class(self)
-        var self_init = $B.search_slot(type, 'tp_init', $B.NULL)
+        var self_init = type.tp_init
         if(self_init !== _b_.object.tp_init){
             $B.RAISE(_b_.TypeError,
                 `object.__init__() takes exactly ` +
@@ -468,13 +468,13 @@ _b_.object.tp_init = function(){
 
 _b_.object.tp_new = function(cls, args, kw){
     if(args.length > 0 || ! $B.str_dict_empty(kw)){
-        if($B.search_slot(cls, 'tp_new', $B.NULL) !== _b_.object.tp_new){
+        if(cls.tp_new !== _b_.object.tp_new){
             $B.RAISE(_b_.TypeError,
                 "object.__new__() takes exactly one argument "  +
                 "(the type to instantiate)"
             )
         }
-        if($B.search_slot(cls, 'tp_init', $B.NULL) === _b_.object.tp_init){
+        if(cls.tp_init === _b_.object.tp_init){
             $B.RAISE(_b_.TypeError, `${$B.get_name(cls)} takes no arguments`)
         }
     }

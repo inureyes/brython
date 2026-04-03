@@ -75,7 +75,7 @@ $B.$class_constructor = function(class_name, dict, metaclass, resolved_bases,
     set_type_new(dict)
 
     // Apply method __new__ of metaclass to create the class object
-    var meta_new = $B.search_slot(metaclass, 'tp_new')
+    var meta_new = metaclass.tp_new
     if(test){
         console.log('metaclass', metaclass, 'meta_new', meta_new)
     }
@@ -355,8 +355,8 @@ function type_new_get_bases(ctx, type){
     var winner = calculate_metaclass(ctx.metatype, ctx.bases)
 
     if(winner !== ctx.metatype){
-        var winner_new_func = $B.search_slot(winner, 'tp_new', $B.NULL)
-        var type_new_func = $B.search_slot(type, 'tp_new', $B.NULL)
+        var winner_new_func = winner.tp_new
+        var type_new_func = type.tp_new
         if(winner_new_func !== type_new_func){
             /* Pass it to the winner */
             if(winner_new_func.$is_slot){
@@ -949,7 +949,23 @@ $B.make_fast_iter = function(cls){
 }
 
 $B.make_new = function(cls){
-    cls.tp_newXXX = $B.search_slot(cls, 'tp_new', $B.NULL)
+    //cls.tp_newXXX = $B.search_slot(cls, 'tp_new', $B.NULL)
+    cls.tp_new = $B.NULL
+    for(var kls of cls.tp_mro){
+        if(kls.tp_flags & $B.TPFLAGS.HEAPTYPE){
+            var _new = $B.get_from_dict(kls, '__new__', $B.NULL)
+            if(_new !== $B.NULL){
+                if($B.get_class(_new) === _b_.staticmethod){
+                    _new = _new.sm_callable
+                }
+                cls.tp_new = _new
+                return
+            }
+        }else{
+            cls.tp_new = kls.tp_new
+            return
+        }
+    }
 }
 
 function reset_new(cls){
@@ -1125,7 +1141,7 @@ _b_.type.tp_call = function(){
             $B.RAISE(_b_.TypeError, 'type() takes 1 or 3 arguments')
         }
     }
-    var new_func = cls.tp_newXXX ///$B.search_slot(cls, 'tp_new', $B.NULL)
+    var new_func = cls.tp_new ///$B.search_slot(cls, 'tp_new', $B.NULL)
     if(test){
         console.log('new_func', new_func, 'is slot tp_new', new_func.$is_slot)
     }
@@ -1285,7 +1301,7 @@ _b_.type.tp_new = function(cls, args, kw){
     var extra_kwargs = kwds
     var [name, bases, cl_dict] = args
 
-    var test = false // name == '_dataclass'
+    var test = false // name == 'FlagBoundary'
     if(test){
         console.log('type.tp_new', name, 'metatype', metatype,
             'extrakw', kwds)
@@ -1349,6 +1365,7 @@ _b_.type.tp_new = function(cls, args, kw){
             console.log('type.tp_new returns', res.type)
         }
         class_obj = res.type
+        $B.make_init(class_obj)
     }else{
         if(test){
             console.log('res in not Object')
@@ -1362,6 +1379,7 @@ _b_.type.tp_new = function(cls, args, kw){
                 [object_get_dict, $B.set_dict]
             )
         )
+        $B.make_init(class_obj)
         // set class attributes
         if(test){
             console.log('scan cl_dict')
@@ -1431,7 +1449,6 @@ _b_.type.tp_new = function(cls, args, kw){
     }
 
     $B.make_new(class_obj)
-    $B.make_init(class_obj)
     $B.make_descr_get(class_obj)
     $B.make_descr_set(class_obj)
     $B.make_iter(class_obj)
