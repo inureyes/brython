@@ -1783,6 +1783,7 @@ function make_args(scopes){
 }
 
 $B.ast.ClassDef.prototype.to_js = function(scopes){
+
     var enclosing_scope = bind(this.name, scopes)
     var class_scope = new Scope(this.name, 'class', this)
 
@@ -2504,7 +2505,11 @@ $B.ast.FunctionDef.prototype.to_js = function(scopes){
         js += 'async '
     }
 
-    js += `function ${name2}(){\n`
+    if(this.args.vararg === undefined && this.args.kwarg === undefined){
+        js += `function ${name2}(${positional.map(x => '_' + x.arg).join(', ')}){\n`
+    }else{
+        js += `function ${name2}(){\n`
+    }
 
     indent()
 
@@ -2533,6 +2538,20 @@ $B.ast.FunctionDef.prototype.to_js = function(scopes){
     }else if(this.name == 'fxd51jy'){
         js += prefix + `var ${locals_name} = locals = ` +
               `$B.args_parser(${name2}, arguments)\n`
+    }else if(false &&
+             this.args.vararg === undefined &&
+             this.args.kwarg === undefined &&
+             this.args.posonlyargs.length == 0 &&
+             defaults === '_b_.None' &&
+             kw_defaults === '_b_.None'){
+         js += prefix + `if(arguments.length == ${positional.length} && ` +
+                   `! _${positional[positional.length -1].arg}.$kw){\n` +
+               prefix + tab + `var ${locals_name} = locals = ` +
+                   `{${positional.map(x => x.arg + ': _' + x.arg).join(', ')}}\n` +
+               prefix + `}else{\n` +
+               prefix + tab + `var ${locals_name} = locals = ` +
+                   `${name2}.$args_parser(${parse_args.join(', ')})\n` +
+               prefix + `}\n`
     }else{
         js += prefix + `var ${locals_name} = locals = ` +
               `${name2}.$args_parser(${parse_args.join(', ')})\n`

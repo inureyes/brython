@@ -673,8 +673,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-04-03 21:46:11.683704"
-__BRYTHON__.timestamp=1775245571683
+__BRYTHON__.compiled_date="2026-04-05 21:01:58.768540"
+__BRYTHON__.timestamp=1775415718768
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -1890,16 +1890,20 @@ $B.$call=function(callable,...args){var test=false
 if(typeof callable=='function'){var res=callable(...args)
 if(callable.$in_js_module && res===undefined){return _b_.None}
 return res}
+if(callable.tp_name=='Acv78om'){var res=new callable[$B.FACTORY](...args)
+console.log('call Acv78om',res)
+return res}
 var klass=$B.get_class(callable)
 if(test){console.log('call',callable,'klass',klass,'args',args)}
-var call_method=klass.tp_call 
+var call_method=klass.tp_call
 if(test){console.log('call_method',call_method)}
 if(call_method===$B.NULL){$B.RAISE(_b_.TypeError,"'"+$B.class_name(callable)+
 "' object is not callable")}
 if(typeof call_method !=='function'){if($B.get_class(call_method).tp_call !==$B.NULL){
 return $B.$call(call_method,...args)}else{$B.RAISE(_b_.TypeError,"'"+$B.class_name(callable)+
 "' object is not callable")}}
-var res=call_method.apply(null,arguments)
+var t0=globalThis.performance.now()
+var res=call_method(callable,...args)
 if(test){console.log('result of call1',res)}
 if(callable.$in_js_module && res===undefined){return _b_.None}
 return res}
@@ -2283,6 +2287,7 @@ $B.time_object_tp_getattro=0
 _b_.object.tp_getattro=function(self,attr){var t0=globalThis.performance.now()
 var test=false 
 var klass=$B.get_class(self)
+if(klass.tp_name==='Acv78om'){return self[attr]}
 if(test){console.log('getattr',attr,'of self',self,klass)
 console.log(Error('trace').stack)
 if(self.jsobj){console.log('in jsobj',self.jsobj[attr])}
@@ -2292,7 +2297,8 @@ if(test){console.log('in mro',in_mro)
 if(in_mro !==$B.NULL){console.log('class of in_mro',$B.get_class(in_mro))}}
 if(in_mro !==$B.NULL &&
 $B.get_class(in_mro)===$B.function &&
-((! $B.get_dict(self))||$B.get_from_dict(self,attr,$B.NULL)===$B.NULL)){return $B.method.tp_new($B.method,[in_mro,self])}
+((! $B.get_dict(self))||$B.get_from_dict(self,attr,$B.NULL)===$B.NULL)){$B.time_object_tp_getattro+=globalThis.performance.now()-t0
+return $B.method.tp_new($B.method,[in_mro,self])}
 var getter=$B.NULL
 if(in_mro !==$B.NULL){var in_mro_class=$B.get_class(in_mro)
 var getter=in_mro_class.tp_descr_get
@@ -2758,6 +2764,16 @@ return}}}
 function reset_init(cls){$B.make_init(cls)
 if(cls.tp_subclasses===undefined){console.log('no subclasses',cls)}
 for(var kls of cls.tp_subclasses){reset_init(kls)}}
+$B.FACTORY=Symbol('FACTORY')
+$B.make_factory=function(cls){cls[$B.FACTORY]=function(){var $=$B.args('__new__',0,{},[],arguments,{},'args','kw')
+this.ob_type=cls
+$B.init_dict(this)
+if(cls.tp_init !==$B.NULL &&
+cls.tp_init !==_b_.object.tp_init){cls.tp_init.call(null,this,...arguments)}}
+var dict=$B.get_dict(cls)
+for(var item of _b_.dict.$iter_items(dict)){var value=item.value
+if(typeof value=='function'){value=(function(f){return function(){return f(this,...arguments)}})(item.value)}
+cls[$B.FACTORY].prototype[item.key]=value}}
 function set_slots(cl_dict,class_obj){let slots=$B.str_dict_get(cl_dict,'__slots__',$B.NULL)
 if(slots !==$B.NULL){for(let key of $B.make_js_iterator(slots)){var member={name:key,type:$B.TYPES.OBJECT,attr:'slot_value_'+key,flags:0}
 var md={ob_type:$B.member_descriptor,d_type:class_obj,d_name:key,d_member:member}
@@ -2933,6 +2949,7 @@ try{$B.$call(init_subclass,$B.dict2kwarg(extra_kwargs))}catch(err){throw err}
 class_obj.tp_flags |=$B.TPFLAGS.READY}
 if(test){console.log('$getattribute is set for',class_obj)}
 $B.make_new(class_obj)
+$B.make_factory(class_obj)
 $B.make_descr_get(class_obj)
 $B.make_descr_set(class_obj)
 $B.make_iter(class_obj)
@@ -15613,7 +15630,7 @@ dedent(is_generator ? 3 :2)
 var parse_args=[name2]
 var js=prefix+`$B.set_lineno(frame, ${this.lineno})\n`+prefix
 if(is_async && ! is_generator){js+='async '}
-js+=`function ${name2}(){\n`
+if(this.args.vararg===undefined && this.args.kwarg===undefined){js+=`function ${name2}(${positional.map(x => '_' + x.arg).join(', ')}){\n`}else{js+=`function ${name2}(){\n`}
 indent()
 if(is_generator){
 js+=prefix+'$B.frame_obj.frame.$has_generators = true\n'}
@@ -15629,7 +15646,19 @@ this.args.kwarg===undefined){js+=prefix+`var ${locals_name} = locals = $B.empty_
 js+=prefix+`if(arguments.length !== 0){\n`+
 prefix+tab+`${name2}.$args_parser(${parse_args.join(', ')})\n`+
 prefix+`}\n`}else if(this.name=='fxd51jy'){js+=prefix+`var ${locals_name} = locals = `+
-`$B.args_parser(${name2}, arguments)\n`}else{js+=prefix+`var ${locals_name} = locals = `+
+`$B.args_parser(${name2}, arguments)\n`}else if(false &&
+this.args.vararg===undefined &&
+this.args.kwarg===undefined &&
+this.args.posonlyargs.length==0 &&
+defaults==='_b_.None' &&
+kw_defaults==='_b_.None'){js+=prefix+`if(arguments.length == ${positional.length} && `+
+`! _${positional[positional.length -1].arg}.$kw){\n`+
+prefix+tab+`var ${locals_name} = locals = `+
+`{${positional.map(x => x.arg + ': _' + x.arg).join(', ')}}\n`+
+prefix+`}else{\n`+
+prefix+tab+`var ${locals_name} = locals = `+
+`${name2}.$args_parser(${parse_args.join(', ')})\n`+
+prefix+`}\n`}else{js+=prefix+`var ${locals_name} = locals = `+
 `${name2}.$args_parser(${parse_args.join(', ')})\n`}
 js+=prefix+`var frame = ["${this.$is_lambda ? '<lambda>': this.name}", `+
 `locals, "${gname}", ${globals_name}, ${name2}]\n`+

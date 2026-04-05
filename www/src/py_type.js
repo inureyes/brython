@@ -1004,6 +1004,34 @@ function reset_init(cls){
     }
 }
 
+$B.FACTORY = Symbol('FACTORY')
+
+$B.make_factory = function(cls){
+    cls[$B.FACTORY] = function(){
+        var $ = $B.args('__new__', 0, {}, [], arguments, {}, 'args',
+                'kw')
+        this.ob_type = cls
+        $B.init_dict(this)
+        // var obj = cls.tp_new.call(this, cls, $.args, $.kw)
+        if(cls.tp_init !== $B.NULL &&
+                cls.tp_init !== _b_.object.tp_init){
+            cls.tp_init.call(null, this, ...arguments)
+        }
+    }
+    var dict = $B.get_dict(cls)
+    for(var item of _b_.dict.$iter_items(dict)){
+        var value = item.value
+        if(typeof value == 'function'){
+            value = (function(f){
+                return function(){
+                    return f(this, ...arguments)
+                }
+            })(item.value)
+        }
+        cls[$B.FACTORY].prototype[item.key] = value
+    }
+}
+
 function set_slots(cl_dict, class_obj){
     let slots = $B.str_dict_get(cl_dict, '__slots__', $B.NULL)
     if(slots !== $B.NULL){
@@ -1449,6 +1477,7 @@ _b_.type.tp_new = function(cls, args, kw){
     }
 
     $B.make_new(class_obj)
+    $B.make_factory(class_obj)
     $B.make_descr_get(class_obj)
     $B.make_descr_set(class_obj)
     $B.make_iter(class_obj)

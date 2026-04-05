@@ -1494,11 +1494,16 @@ $B.$call = function(callable, ...args){
         }
         return res
     }
+    if(callable.tp_name == 'Acv78om'){
+        var res = new callable[$B.FACTORY](...args)
+        console.log('call Acv78om', res)
+        return res
+    }
     var klass = $B.get_class(callable)
     if(test){
         console.log('call', callable, 'klass', klass, 'args', args)
     }
-    var call_method = klass.tp_call // $B.search_slot(klass, 'tp_call', $B.NULL)
+    var call_method = klass.tp_call
     if(test){
         console.log('call_method', call_method)
     }
@@ -1515,7 +1520,8 @@ $B.$call = function(callable, ...args){
                 "' object is not callable")
         }
     }
-    var res = call_method.apply(null, arguments)
+    var t0 = globalThis.performance.now()
+    var res = call_method(callable, ...args)
     if(test){
         console.log('result of call1', res)
     }

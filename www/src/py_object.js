@@ -102,7 +102,7 @@ $B.builtin_object_getattro = function(self, klass, attr){
 
 $B.object_getattribute = function(obj, klass, attr){
     var t0 = globalThis.performance.now()
-    var test = false // attr == 'append' // && klass.tp_name === 'AttributeError'
+    var test = false //klass.tp_name === 'A'
     if(test){
         console.log('klass', klass, 'attr', attr)
     }
@@ -352,6 +352,9 @@ _b_.object.tp_getattro = function(self, attr){
     var t0 = globalThis.performance.now()
     var test = false // attr == '__dict__' // && self.ob_type && self.ob_type.tp_name == 'tuple'
     var klass = $B.get_class(self)
+    if(klass.tp_name === 'Acv78om'){
+        return self[attr]
+    }
     if(test){
         console.log('getattr', attr, 'of self', self, klass)
         console.log(Error('trace').stack)
@@ -373,6 +376,7 @@ _b_.object.tp_getattro = function(self, attr){
     if(in_mro !== $B.NULL &&
             $B.get_class(in_mro) === $B.function &&
             ((! $B.get_dict(self)) || $B.get_from_dict(self, attr, $B.NULL) === $B.NULL)){
+        $B.time_object_tp_getattro += globalThis.performance.now() - t0
         return $B.method.tp_new($B.method, [in_mro, self])
     }
 
