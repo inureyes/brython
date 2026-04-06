@@ -789,6 +789,7 @@ $B.$getattr = function(obj, attr, _default){
         $B.RAISE_ATTRIBUTE_ERROR("Javascript object '" + obj +
             "' has no attribute", obj, attr)
     }
+    /*
     if(obj.$method_cache &&
             obj.$method_cache[attr] &&
             $B.get_class(obj)[attr] == obj.$method_cache[attr][1]){
@@ -800,6 +801,7 @@ $B.$getattr = function(obj, attr, _default){
         // cached and if not, return the method
         return obj.$method_cache[attr][0]
     }
+    */
 
     var rawname = attr
 
@@ -807,8 +809,7 @@ $B.$getattr = function(obj, attr, _default){
         console.log("get attr", attr, "of undefined")
     }
 
-    var klass = $B.get_class(obj)
-    var is_class = klass.tp_mro.includes(_b_.type)
+    var is_class = Object.hasOwn(obj, 'tp_name') //klass.tp_mro.includes(_b_.type)
 
     if(test){
         console.log("attr", attr, "of", obj, "class", klass ?? $B.get_class(obj),
@@ -816,6 +817,7 @@ $B.$getattr = function(obj, attr, _default){
     }
 
     if(! is_class){
+        var klass = $B.get_class(obj)
         if(klass.tp_funcs){
             var func = $B.get_from_dict(klass, attr, $B.NULL)
             if(func !== $B.NULL){

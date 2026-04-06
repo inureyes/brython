@@ -2538,14 +2538,13 @@ $B.ast.FunctionDef.prototype.to_js = function(scopes){
     }else if(this.name == 'fxd51jy'){
         js += prefix + `var ${locals_name} = locals = ` +
               `$B.args_parser(${name2}, arguments)\n`
-    }else if(false &&
-             this.args.vararg === undefined &&
+    }else if(this.args.vararg === undefined &&
              this.args.kwarg === undefined &&
              this.args.posonlyargs.length == 0 &&
              defaults === '_b_.None' &&
              kw_defaults === '_b_.None'){
          js += prefix + `if(arguments.length == ${positional.length} && ` +
-                   `! _${positional[positional.length -1].arg}.$kw){\n` +
+                   `! _${positional[positional.length -1].arg}?.$kw){\n` +
                prefix + tab + `var ${locals_name} = locals = ` +
                    `{${positional.map(x => x.arg + ': _' + x.arg).join(', ')}}\n` +
                prefix + `}else{\n` +

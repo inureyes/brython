@@ -673,8 +673,8 @@ $B.unicode_bidi_whitespace=[9,10,11,12,13,28,29,30,31,32,133,5760,8192,8193,8194
 ;
 __BRYTHON__.implementation=[3,14,1,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-04-05 21:01:58.768540"
-__BRYTHON__.timestamp=1775415718768
+__BRYTHON__.compiled_date="2026-04-06 08:09:19.784518"
+__BRYTHON__.timestamp=1775455759784
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","_zlib_utils1","_zlib_utils_kozh","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","python_re_new","unicodedata","xml_helpers","xml_parser","xml_parser_backup"];
 ;
 
@@ -4860,16 +4860,12 @@ if(test){console.log('$getattr',obj,attr)}
 var res
 if(obj===undefined ||obj===null){$B.RAISE_ATTRIBUTE_ERROR("Javascript object '"+obj+
 "' has no attribute",obj,attr)}
-if(obj.$method_cache &&
-obj.$method_cache[attr]&&
-$B.get_class(obj)[attr]==obj.$method_cache[attr][1]){
-return obj.$method_cache[attr][0]}
 var rawname=attr
 if(obj===undefined){console.log("get attr",attr,"of undefined")}
-var klass=$B.get_class(obj)
-var is_class=klass.tp_mro.includes(_b_.type)
+var is_class=Object.hasOwn(obj,'tp_name')
 if(test){console.log("attr",attr,"of",obj,"class",klass ?? $B.get_class(obj),"isclass",is_class)}
-if(! is_class){if(klass.tp_funcs){var func=$B.get_from_dict(klass,attr,$B.NULL)
+if(! is_class){var klass=$B.get_class(obj)
+if(klass.tp_funcs){var func=$B.get_from_dict(klass,attr,$B.NULL)
 if(func !==$B.NULL){var res=$B.NULL
 if(test){console.log('built-in type',func.ob_type)}
 switch(func.ob_type){case $B.builtin_method:
@@ -15646,13 +15642,12 @@ this.args.kwarg===undefined){js+=prefix+`var ${locals_name} = locals = $B.empty_
 js+=prefix+`if(arguments.length !== 0){\n`+
 prefix+tab+`${name2}.$args_parser(${parse_args.join(', ')})\n`+
 prefix+`}\n`}else if(this.name=='fxd51jy'){js+=prefix+`var ${locals_name} = locals = `+
-`$B.args_parser(${name2}, arguments)\n`}else if(false &&
-this.args.vararg===undefined &&
+`$B.args_parser(${name2}, arguments)\n`}else if(this.args.vararg===undefined &&
 this.args.kwarg===undefined &&
 this.args.posonlyargs.length==0 &&
 defaults==='_b_.None' &&
 kw_defaults==='_b_.None'){js+=prefix+`if(arguments.length == ${positional.length} && `+
-`! _${positional[positional.length -1].arg}.$kw){\n`+
+`! _${positional[positional.length -1].arg}?.$kw){\n`+
 prefix+tab+`var ${locals_name} = locals = `+
 `{${positional.map(x => x.arg + ': _' + x.arg).join(', ')}}\n`+
 prefix+`}else{\n`+
