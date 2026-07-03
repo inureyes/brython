@@ -164,7 +164,7 @@ def comp_times(x, y):
     return True
 
 target = time.struct_time([1970, 1, 1, 0, 0, 0, 3, 1, 0])
-print('len', len(target))
+assert len(target) == 9
 gmt = time.gmtime(0)
 assert comp_times(time.gmtime(0), target)
 target = time.struct_time([1970, 1, 1, 0, 1, 40, 3, 1, 0])
@@ -3333,15 +3333,15 @@ assert f2683.__annotations__ == {}
 # PR 2731
 open(pathlib.Path('index.html'))
 
-print('y', y)
-
 # PR 2735
+y2735 = 0
+
 def f2735(x):
   assert 'x' in locals()
   locals()['y'] = 99
   assert 'y' not in locals()
-  print('eval y', eval('y'))
-  assert_raises(NameError, eval, 'y')
+  eval('y2735') # no error
+  assert_raises(NameError, eval, 'y2735')
 
 f2735(0)
 
