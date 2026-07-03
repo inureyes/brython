@@ -714,7 +714,10 @@ object_funcs.__reduce_ex__ = function(self, protocol) {
 }
 
 object_funcs.__sizeof__ = function(self) {
-
+    // CPython: _PyObject_SIZE(Py_TYPE(self)). 16 is the 64-bit build
+    // value (Brython emulates a 64-bit CPython; a 32-bit build, e.g.
+    // Pyodide, says 8)
+    return 16
 }
 
 object_funcs.__subclasshook__ = function(self) {
