@@ -174,18 +174,21 @@ $B.set_func_names(staticmethod, "builtins")
 /* builtin_function_or_method start */
 $B.builtin_function_or_method.tp_richcompare = function(self, other, op) {
     if((op != '__eq__' && op != '__ne__') ||
-        ! $B.$isinstance(self, $B.builtin_function_or_method) ||
-        ! $B.$isinstance(other, $B.builtin_function_or_method)){
+            ! $B.$isinstance(self, $B.builtin_function_or_method) ||
+            ! $B.$isinstance(other, $B.builtin_function_or_method)){
         return _b_.NotImplemented
     }
-    var res
-    var eq = self === other
-    if (op == '__eq__') {
-        res = eq
+    let res
+    if (self === other) {
+        res = true
+    } else if( self.m_self === undefined || other.m_self === undefined) {
+        res = false
     } else {
-        res = ! eq
+        res = self.m_self === other.m_self &&
+                  self.ml && other.ml
+                  && self.ml.ml_name === other.ml.ml_name
     }
-    return res
+    return op == '__eq__' ? res : ! res
 }
 
 $B.builtin_function_or_method.tp_repr = function(self) {
