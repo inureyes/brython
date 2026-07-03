@@ -674,22 +674,25 @@ $B.unpacker = function(obj, nb_targets, has_starred) {
     // For "[a, b] = t", nb_targets is 2, has_starred is false
     // For "[a, *b, c]", nb_targets is 1 (a), has_starred is true (*b),
     // nb_after_starred is 1 (c)
-    var test = false // obj.tp_name == 'FlagBoundary'
-    if (test) {
-        console.log('unpacker', obj, nb_targets, has_starred)
-    }
     var inum_rank = 3
     if (has_starred) {
         var nb_after_starred = arguments[3]
         inum_rank++
     }
     var inum = arguments[inum_rank]
-    var t = _b_.list.$factory(obj),
+    let it
+    try {
+        it = $B.make_js_iterator(obj)
+    } catch(err) {
+        $B.set_inum(inum)
+        $B.RAISE(_b_.TypeError,
+            `cannot unpack non-iterable ${$B.class_name(obj)} object`
+        )
+    }
+    var t = Array.from(it),
         right_length = t.length,
         left_length = nb_targets + (has_starred ? nb_after_starred - 1 : 0)
-    if (test) {
-        console.log('list from obj', t)
-    }
+    
     if((! has_starred && (right_length < nb_targets)) ||
             (has_starred && (right_length < nb_targets - 1))){
         $B.set_inum(inum)

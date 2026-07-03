@@ -724,8 +724,8 @@ $B.unicode_titles={"\u01c5":"\u01c5","\u01c6":"\u01c5","\u01c4":"\u01c5","\u01c8
 "use strict";
 __BRYTHON__.implementation=[3,14,3,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-07-03 07:09:58.555051"
-__BRYTHON__.timestamp=1783055398554
+__BRYTHON__.compiled_date="2026-07-03 08:08:41.704565"
+__BRYTHON__.timestamp=1783058921704
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","unicodedata","xml_helpers","xml_parser"];
 ;
 
@@ -1784,14 +1784,16 @@ return{done:false,value}}catch(err){if($B.is_exc(err,[_b_.StopIteration])){retur
 if(iterator[$B.INUM]){$B.set_inum(iterator[$B.INUM])}
 throw err}}}}}
 $B.unpacker=function(obj,nb_targets,has_starred){
-var test=false 
-if(test){console.log('unpacker',obj,nb_targets,has_starred)}
 var inum_rank=3
 if(has_starred){var nb_after_starred=arguments[3]
 inum_rank++}
 var inum=arguments[inum_rank]
-var t=_b_.list.$factory(obj),right_length=t.length,left_length=nb_targets+(has_starred ? nb_after_starred-1 :0)
-if(test){console.log('list from obj',t)}
+let it
+try{
+it=$B.make_js_iterator(obj)}catch(err){$B.set_inum(inum)
+$B.RAISE(_b_.TypeError,`cannot unpack non-iterable ${$B.class_name(obj)} object`
+)}
+var t=Array.from(it),right_length=t.length,left_length=nb_targets+(has_starred ? nb_after_starred-1 :0)
 if((! has_starred &&(right_length < nb_targets))||
 (has_starred &&(right_length < nb_targets-1))){$B.set_inum(inum)
 var exc=$B.EXC(_b_.ValueError,`not enough values to unpack `+
@@ -6473,9 +6475,8 @@ token.lineno==ast_obj.func.end_lineno &&
 token.col_offset >=ast_obj.func.end_col_offset){opening_parenth=reset_lineno(token)}else if(token.string==')'){closing_parenth=reset_lineno(token)}}}
 var func=reset_lineno(ast_obj.func)
 return fill_marks(lines,lineno,func.col_offset,'~',opening_parenth.lineno,opening_parenth.col_offset,'^',closing_parenth.end_lineno,closing_parenth.end_col_offset)}
-function handle_Expr_error(lines,lineno,ast_obj){var reset_lineno=make_line_setter(lineno)
-var expr=reset_lineno(ast_obj)
-return fill_marks(lines,lineno,expr.col_offset,'^',expr.end_lineno,expr.end_col_offset)}
+function handle_Expr_error(lines,positions){let[lineno,end_lineno,col_offset,end_col_offset]=positions
+return fill_marks(lines,lineno,col_offset,'^',end_lineno,end_col_offset)}
 function is_before(obj,lineno,col){
 return lineno < obj.lineno ||
 (lineno==obj.lineno && col < obj.col_offset)}
@@ -6550,7 +6551,7 @@ lines,lineno,expr.value,tokens))
 break
 default:
 trace.push(handle_Expr_error(
-lines,lineno,expr.value))
+lines,positions))
 break}}catch(err){if($B.get_option('debug')> 1){console.log('error in error handlers',err)}
 trace.push(make_trace_lines(lines,lineno,expr))}
 break
