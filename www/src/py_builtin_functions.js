@@ -1040,8 +1040,13 @@ _b_.id = function(obj) {
            t === 'boolean' || $B.get_class(obj) === _b_.float) {
        // JS primitives can't carry $B.ID, and a base float is value-identified;
        // a str/int/float subclass instance is a distinct object, so it falls
-       // through to a per-instance UUID (else two MyStr("x") shared one id)
-       return $B.$call($B.$getattr(_b_.str.$factory(obj), '__hash__'))
+       // through to a per-instance UUID (else two MyStr("x") shared one id).
+       // Mix the type into the hashed text: id(42) must differ from id('42')
+       // (two live, distinct objects; a shared id corrupts anything keyed
+       // by id, e.g. the pure-Python pickle memo)
+       return $B.$call($B.$getattr(
+           _b_.str.$factory($B.class_name(obj) + ':' + _b_.str.$factory(obj)),
+           '__hash__'))
    }
    return obj[$B.ID] = $B.UUID()
 }
