@@ -1380,12 +1380,11 @@ function handle_Call_error(lines, lineno, ast_obj, tokens) {
 }
 
 
-function handle_Expr_error(lines, lineno, ast_obj) {
-    var reset_lineno = make_line_setter(lineno)
-    var expr = reset_lineno(ast_obj)
+function handle_Expr_error(lines, positions) {
+    let [lineno, end_lineno, col_offset, end_col_offset] = positions
     // marks are '^' under the expression
-    return fill_marks(lines, lineno, expr.col_offset,
-                      '^', expr.end_lineno, expr.end_col_offset)
+    return fill_marks(lines, lineno, col_offset,
+                      '^', end_lineno, end_col_offset)
 }
 
 function is_before(obj, lineno, col) {
@@ -1540,7 +1539,7 @@ function trace_from_stack(err) {
                                     break
                                 default:
                                     trace.push(handle_Expr_error(
-                                        lines, lineno, expr.value))
+                                        lines, positions))
                                     break
                             }
                         } catch (err) {
