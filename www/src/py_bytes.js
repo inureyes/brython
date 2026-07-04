@@ -323,23 +323,6 @@ function count(self) {
     return nb
 }
 
-function decode(self) {
-    var $ = $B.args("decode", 3, {self: null, encoding: null, errors: null},
-                arguments, {encoding: "utf-8", errors: "strict"}, null, null)
-    switch ($.errors) {
-      case 'strict':
-      case 'ignore':
-      case 'replace':
-      case 'surrogateescape':
-      case 'surrogatepass':
-      case 'xmlcharrefreplace':
-      case 'backslashreplace':
-        return decode($.self, $.encoding, $.errors)
-      default:
-        // raise error since errors variable is not valid
-    }
-}
-
 function endswith() {
     var $ = $B.args('endswith', 4,
                 {self: null, suffix: null, start: null, end: null},
@@ -1215,6 +1198,13 @@ function check_exports(self) {
         // would have been set before if there was a garbage collector
         self.exports = 0
     }
+}
+
+function decode_error(obj, encoding, start, end, reason) {
+    let exc = _b_.UnicodeDecodeError.tp_new(_b_.UnicodeDecodeError)
+    _b_.UnicodeDecodeError.tp_init(exc, encoding, obj,
+                          start, end, reason)
+    return exc
 }
 
 bytearray.$factory = function() {
@@ -2148,12 +2138,10 @@ var decode = $B.decode = function(obj, encoding, errors) {
                       if (errors == "ignore") {
                           pos++
                       } else {
-                          $B.RAISE(_b_.UnicodeDecodeError,
-                              "'utf-8' codec can't decode byte 0x" +
-                              err_info[0].toString(16) +"  in position " +
-                              err_info[1] +
-                              (err_info[2] == "end" ? ": unexpected end of data" :
-                                  ": invalid continuation byte"))
+                          throw decode_error(obj, enc,
+                              err_info[1], err_info[1] + 1,
+                              err_info[2] == "end" ? ": unexpected end of data" :
+                                  ": invalid continuation byte")
                       }
                   } else {
                       let cp = byte & 0x1f
@@ -2182,12 +2170,10 @@ var decode = $B.decode = function(obj, encoding, errors) {
                           }
                           pos = err_info[3]
                       } else {
-                          $B.RAISE(_b_.UnicodeDecodeError,
-                              "'utf-8' codec can't decode byte 0x" +
-                              err_info[0].toString(16) +"  in position " +
-                              err_info[1] +
-                              (err_info[2] == "end" ? ": unexpected end of data" :
-                                  ": invalid continuation byte"))
+                          throw decode_error(obj, enc,
+                              err_info[3], err_info[3] + 1,
+                              err_info[2] == "end" ? ": unexpected end of data" :
+                                  ": invalid continuation byte")
                       }
                   } else {
                       let cp = byte & 0xf
@@ -2221,12 +2207,10 @@ var decode = $B.decode = function(obj, encoding, errors) {
                           }
                           pos = err_info[3]
                       } else {
-                          $B.RAISE(_b_.UnicodeDecodeError,
-                              "'utf-8' codec can't decode byte 0x" +
-                              err_info[0].toString(16) +"  in position " +
-                              err_info[1] +
-                              (err_info[2] == "end" ? ": unexpected end of data" :
-                                  ": invalid continuation byte"))
+                          throw decode_error(obj, enc, err_info[3],
+                              err_info[3] + 1,
+                              err_info[2] == "end" ? ": unexpected end of data" :
+                                  ": invalid continuation byte")
                       }
                   } else {
                       let cp = byte & 0xf
@@ -2245,10 +2229,8 @@ var decode = $B.decode = function(obj, encoding, errors) {
                       s += String.fromCodePoint(0xdc80 + b[pos] - 0x80)
                       pos++
                   } else {
-                      $B.RAISE(_b_.UnicodeDecodeError,
-                          "'utf-8' codec can't decode byte 0x" +
-                          byte.toString(16) + " in position " + pos +
-                          ": invalid start byte")
+                      throw decode_error(obj, enc, pos, pos + 1,
+                          'invalid start byte')
                   }
               }
           }
@@ -2316,17 +2298,38 @@ var decode = $B.decode = function(obj, encoding, errors) {
                    replace(/\\'/g, "'").
                    replace(/\\"/g, '"')
       case "raw_unicode_escape":
-          if ([bytes, bytearray].includes($B.get_class(obj))) {
-              obj = decode(obj, "latin-1", "strict")
-          }
-          return obj.replace(/\\U([a-fA-F0-9]{8})|\\u([a-fA-F0-9]{4})/g,
-              function(mo, u8, u4) {
-                  let cp = parseInt(u8 || u4, 16)
-                  if (cp > 0x10ffff) {
-                      $B.RAISE(_b_.UnicodeDecodeError, '\\Uxxxxxxxx out of range')
+          let str = decode(obj, "latin-1", "strict")
+          let uni_re = /(\\U)([a-fA-F0-9]{0,8})|(\\u)([a-fA-F0-9]{0,4})/g
+          let start = 0
+          for (let mo of str.matchAll(uni_re)) {
+              s += str.substring(start, mo.index)
+              if (mo[1] == '\\U') {
+                  if (mo[2].length < 8) {
+                      throw decode_error(obj, enc,
+                          mo.index, mo.index + mo[0].length - 1,
+                          'truncated \\UXXXXXXXX escape')
                   }
-                  return String.fromCodePoint(cp)
-          })
+                  let cp = parseInt(mo[2], 16)
+                  if (cp > 0x10ffff) {
+                      throw decode_error(obj, enc,
+                          mo.index, mo.index + mo[0].length - 1,
+                          '\\Uxxxxxxxx out of range')
+                  }
+                  s += String.fromCodePoint(cp)
+                  start = mo.index + mo[0].length
+              } else {
+                  if (mo[4].length < 4) {
+                      throw decode_error(obj, enc,
+                          mo.index, mo.index + mo[0].length - 1,
+                          'truncated \\uXXXX escape')
+                  }
+                  let cp = parseInt(mo[4], 16)
+                  s += String.fromCodePoint(cp)
+                  start = mo.index + mo[0].length
+              }
+          }
+          s += str.substr(start)
+          return s
       case "ascii":
           for (let i = 0, len = b.length; i < len; i++) {
               let cp = b[i]
@@ -2338,10 +2341,8 @@ var decode = $B.decode = function(obj, encoding, errors) {
                   } else if (errors == "backslashreplace") {
                       s += '\\x' + cp.toString(16)
                   } else {
-                      let msg = "'ascii' codec can't decode byte 0x" +
-                        cp.toString(16) + " in position " + i +
-                        ": ordinal not in range(128)"
-                      $B.RAISE(_b_.UnicodeDecodeError, msg)
+                      throw decode_error(obj, enc, i, i + 1,
+                          'ordinal not in range(128)')
                   }
               }
           }
