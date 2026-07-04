@@ -88,6 +88,7 @@ $B.set_func_names(classmethod, "builtins")
 
 // staticmethod() built in function
 var staticmethod = _b_.staticmethod
+
 staticmethod.$factory = function(func) {
     return {
         ob_type: staticmethod,

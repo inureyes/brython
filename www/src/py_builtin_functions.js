@@ -743,7 +743,7 @@ $B.time_builtin_getattr = 0
 
 $B.$getattr = function(obj, attr, _default) {
     // Used internally to avoid having to parse the arguments
-    var test = false // attr == 'closest'
+    var test = false // attr == 'maketrans'
     if (test) {
         console.log('$getattr', obj, attr)
     }

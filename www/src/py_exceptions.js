@@ -1955,7 +1955,5 @@ $B.handle_error = function(err) {
     throw err
 }
 
-console.log('UnicodeEncodeError', _b_.UnicodeEncodeError.tp_members)
-
 })(__BRYTHON__);
 

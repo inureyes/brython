@@ -724,8 +724,8 @@ $B.unicode_titles={"\u01c5":"\u01c5","\u01c6":"\u01c5","\u01c4":"\u01c5","\u01c8
 "use strict";
 __BRYTHON__.implementation=[3,14,3,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-07-04 09:26:39.069222"
-__BRYTHON__.timestamp=1783149999069
+__BRYTHON__.compiled_date="2026-07-04 16:07:10.048116"
+__BRYTHON__.timestamp=1783174030047
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","unicodedata","xml_helpers","xml_parser"];
 ;
 
@@ -6762,8 +6762,7 @@ console.log('handle error',$B.frame_obj)
 if(err.$handled){return}
 err.$handled=true
 $B.show_error(err)
-throw err}
-console.log('UnicodeEncodeError',_b_.UnicodeEncodeError.tp_members)})(__BRYTHON__);
+throw err}})(__BRYTHON__);
 ;
 "use strict";
 (function($B){var _b_=$B.builtins,None=_b_.None,range=_b_.range
@@ -7155,16 +7154,6 @@ for(var j=0;j < seq_len;j++){if(self.source[i+j]!=seq[j]){found=0
 break}}
 nb+=found}
 return nb}
-function decode(self){var $=$B.args("decode",3,{self:null,encoding:null,errors:null},arguments,{encoding:"utf-8",errors:"strict"},null,null)
-switch($.errors){case 'strict':
-case 'ignore':
-case 'replace':
-case 'surrogateescape':
-case 'surrogatepass':
-case 'xmlcharrefreplace':
-case 'backslashreplace':
-return decode($.self,$.encoding,$.errors)
-default:}}
 function endswith(){var $=$B.args('endswith',4,{self:null,suffix:null,start:null,end:null},arguments,{start:-1,end:-1},null,null)
 var self=$.self,suffix=$.suffix,start=$.start,end=$.end
 if(is_bytes_like(suffix)){var seq=get_list_from_bytes_like(suffix)
@@ -7495,6 +7484,9 @@ break}}catch(err){}}
 frame_obj=frame_obj.prev}
 if(has_exports){if(self.exports){no_resizing()}}else{
 self.exports=0}}
+function decode_error(obj,encoding,start,end,reason){let exc=_b_.UnicodeDecodeError.tp_new(_b_.UnicodeDecodeError)
+_b_.UnicodeDecodeError.tp_init(exc,encoding,obj,start,end,reason)
+return exc}
 bytearray.$factory=function(){var res=bytearray.tp_new(bytearray,Array.from(arguments),$B.empty_dict())
 res.exports=0
 return res}
@@ -7790,11 +7782,8 @@ s+=String.fromCodePoint(byte)
 pos++}else if((byte >> 5)==6){
 if(b[pos+1]===undefined){err_info=[byte,pos,"end"]}else if((b[pos+1]& 0xc0)!=0x80){err_info=[byte,pos,"continuation"]}
 if(err_info !==null){if(errors=="ignore"){pos++}else{
-$B.RAISE(_b_.UnicodeDecodeError,"'utf-8' codec can't decode byte 0x"+
-err_info[0].toString(16)+"  in position "+
-err_info[1]+
-(err_info[2]=="end" ? ": unexpected end of data" :
-": invalid continuation byte"))}}else{
+throw decode_error(obj,enc,err_info[1],err_info[1]+1,err_info[2]=="end" ? ": unexpected end of data" :
+": invalid continuation byte")}}else{
 let cp=byte & 0x1f
 cp <<=6
 cp+=b[pos+1]& 0x3f
@@ -7803,11 +7792,8 @@ pos+=2}}else if((byte >> 4)==14){
 if(b[pos+1]===undefined){err_info=[byte,pos,"end",pos+1]}else if((b[pos+1]& 0xc0)!=0x80){err_info=[byte,pos,"continuation",pos+2]}else if(b[pos+2]===undefined){err_info=[byte,pos+'-'+(pos+1),"end",pos+2]}else if((b[pos+2]& 0xc0)!=0x80){err_info=[byte,pos,"continuation",pos+3]}
 if(err_info !==null){if(errors=="ignore"){pos=err_info[3]}else if(errors=="surrogateescape"){for(let i=pos;i < err_info[3];i++){s+=String.fromCodePoint(0xdc80+b[i]-0x80)}
 pos=err_info[3]}else{
-$B.RAISE(_b_.UnicodeDecodeError,"'utf-8' codec can't decode byte 0x"+
-err_info[0].toString(16)+"  in position "+
-err_info[1]+
-(err_info[2]=="end" ? ": unexpected end of data" :
-": invalid continuation byte"))}}else{
+throw decode_error(obj,enc,err_info[3],err_info[3]+1,err_info[2]=="end" ? ": unexpected end of data" :
+": invalid continuation byte")}}else{
 let cp=byte & 0xf
 cp=cp << 12
 cp+=(b[pos+1]& 0x3f)<< 6
@@ -7817,11 +7803,8 @@ pos+=3}}else if((byte >> 3)==30){
 if(b[pos+1]===undefined){err_info=[byte,pos,"end",pos+1]}else if((b[pos+1]& 0xc0)!=0x80){err_info=[byte,pos,"continuation",pos+2]}else if(b[pos+2]===undefined){err_info=[byte,pos+'-'+(pos+1),"end",pos+2]}else if((b[pos+2]& 0xc0)!=0x80){err_info=[byte,pos,"continuation",pos+3]}else if(b[pos+3]===undefined){err_info=[byte,pos+'-'+(pos+1)+'-'+(pos+2),"end",pos+3]}
 if(err_info !==null){if(errors=="ignore"){pos=err_info[3]}else if(errors=="surrogateescape"){for(let i=pos;i < err_info[3];i++){s+=String.fromCodePoint(0xdc80+b[i]-0x80)}
 pos=err_info[3]}else{
-$B.RAISE(_b_.UnicodeDecodeError,"'utf-8' codec can't decode byte 0x"+
-err_info[0].toString(16)+"  in position "+
-err_info[1]+
-(err_info[2]=="end" ? ": unexpected end of data" :
-": invalid continuation byte"))}}else{
+throw decode_error(obj,enc,err_info[3],err_info[3]+1,err_info[2]=="end" ? ": unexpected end of data" :
+": invalid continuation byte")}}else{
 let cp=byte & 0xf
 cp=cp << 18
 cp+=(b[pos+1]& 0x3f)<< 12
@@ -7831,9 +7814,7 @@ s+=String.fromCodePoint(cp)
 pos+=4}}else{
 if(errors=="ignore"){pos++}else if(errors=="surrogateescape"){s+=String.fromCodePoint(0xdc80+b[pos]-0x80)
 pos++}else{
-$B.RAISE(_b_.UnicodeDecodeError,"'utf-8' codec can't decode byte 0x"+
-byte.toString(16)+" in position "+pos+
-": invalid start byte")}}}
+throw decode_error(obj,enc,pos,pos+1,'invalid start byte')}}}
 return s
 case "utf_8_sig":{
 let bom=b[0]==0xef && b[1]==0xbb && b[2]==0xbf
@@ -7873,18 +7854,26 @@ replace(/\\t/g,"\t").
 replace(/\\'/g,"'").
 replace(/\\"/g,'"')
 case "raw_unicode_escape":
-if([bytes,bytearray].includes($B.get_class(obj))){obj=decode(obj,"latin-1","strict")}
-return obj.replace(/\\U([a-fA-F0-9]{8})|\\u([a-fA-F0-9]{4})/g,function(mo,u8,u4){let cp=parseInt(u8 ||u4,16)
-if(cp > 0x10ffff){$B.RAISE(_b_.UnicodeDecodeError,'\\Uxxxxxxxx out of range')}
-return String.fromCodePoint(cp)})
+let str=decode(obj,"latin-1","strict")
+let uni_re=/(\\U)([a-fA-F0-9]{0,8})|(\\u)([a-fA-F0-9]{0,4})/g
+let start=0
+for(let mo of str.matchAll(uni_re)){s+=str.substring(start,mo.index)
+if(mo[1]=='\\U'){if(mo[2].length < 8){throw decode_error(obj,enc,mo.index,mo.index+mo[0].length-1,'truncated \\UXXXXXXXX escape')}
+let cp=parseInt(mo[2],16)
+if(cp > 0x10ffff){throw decode_error(obj,enc,mo.index,mo.index+mo[0].length-1,'\\Uxxxxxxxx out of range')}
+s+=String.fromCodePoint(cp)
+start=mo.index+mo[0].length}else{
+if(mo[4].length < 4){throw decode_error(obj,enc,mo.index,mo.index+mo[0].length-1,'truncated \\uXXXX escape')}
+let cp=parseInt(mo[4],16)
+s+=String.fromCodePoint(cp)
+start=mo.index+mo[0].length}}
+s+=str.substr(start)
+return s
 case "ascii":
 for(let i=0,len=b.length;i < len;i++){let cp=b[i]
 if(cp <=127){s+=String.fromCharCode(cp)}else{
 if(errors=="ignore"){}else if(errors=="backslashreplace"){s+='\\x'+cp.toString(16)}else{
-let msg="'ascii' codec can't decode byte 0x"+
-cp.toString(16)+" in position "+i+
-": ordinal not in range(128)"
-$B.RAISE(_b_.UnicodeDecodeError,msg)}}}
+throw decode_error(obj,enc,i,i+1,'ordinal not in range(128)')}}}
 break
 default:
 try{
@@ -15325,7 +15314,11 @@ if(cls.tp_members){for(var descr of cls.tp_members){var[name,type,attr,flags]=de
 $B.set_to_dict(cls,name,{ob_type:$B.member_descriptor,d_member:{name,type,attr,flags},d_name:name,d_type:cls}
 )}}
 if(cls.classmethods){for(var descr of cls.classmethods){$B.set_to_dict(cls,descr,{ob_type:$B.classmethod_descriptor,d_name:descr,d_type:cls,d_method:cls.tp_funcs[descr]})}}
-if(cls.staticmethods){for(var descr of cls.staticmethods){$B.set_to_dict(cls,descr,_b_.staticmethod.$factory(cls.tp_funcs[descr]))}}
+if(cls.staticmethods){for(var descr of cls.staticmethods){let func=cls.tp_funcs[descr]
+$B.set_type(func,$B.builtin_function_or_method)
+func.ml={ml_name:descr}
+func.m_self=cls
+$B.set_to_dict(cls,descr,_b_.staticmethod.$factory(func))}}
 for(var slot in $B.wrapper_methods){if(cls[slot]){$B.wrapper_methods[slot](cls,slot)}else if(['tp_descr_get','tp_descr_set','tp_iter','tp_call','tp_new','tp_init','tp_setattro'].includes(slot)){cls[slot]=$B.NULL
 if(cls.tp_mro){for(var kls of cls.tp_mro.slice(1)){if(Object.hasOwn(cls,slot)){cls[slot]=kls[slot]
 break}}}}}
