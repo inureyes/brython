@@ -2701,7 +2701,8 @@ $B.ast.FunctionDef.prototype.to_js = function(scopes) {
 
     scopes.pop()
 
-    var qualname = lexical_qualname(this.name, scopes)
+    var qualname = lexical_qualname(this.$is_lambda ? '<lambda>' : this.name,
+        scopes)
 
     // Flags
     var flags = $B.COMPILER_FLAGS.OPTIMIZED | $B.COMPILER_FLAGS.NEWLOCALS
@@ -2788,7 +2789,7 @@ $B.ast.FunctionDef.prototype.to_js = function(scopes) {
     js += prefix + `${name2}.$function_infos = [` +
         `'${gname}', ` +
         `'${this.$is_lambda ? '<lambda>': this.name}', ` +
-        `'${this.$is_lambda ? '<lambda>': qualname}', ` +
+        `'${qualname}', ` +
         `__file__, ` +
         `${defaults}, ` +
         `${kw_defaults}, ` +
