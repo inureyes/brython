@@ -1829,7 +1829,10 @@ $B.ast.ClassDef.prototype.to_js = function(scopes) {
     js += prefix + `$B.set_lineno(frame, ${this.lineno}, 'ClassDef')\n`
     var qualname = lexical_qualname(this.name, scopes)
 
-    var bases = this.bases.map(x => $B.js_from_ast(x, scopes))
+    var bases = this.bases.map(x =>
+        x instanceof $B.ast.Starred ?
+            `...$B.make_js_iterator(${$B.js_from_ast(x.value, scopes)})` :
+            $B.js_from_ast(x, scopes))
     var has_type_params = this.type_params.length > 0
     if (has_type_params) {
         check_type_params(this)
