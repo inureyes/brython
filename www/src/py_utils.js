@@ -364,6 +364,37 @@ $B.parse_kwargs = function(kw_args, fname) {
     return kwa
 }
 
+$B.parse_tuple = function(args, start, types) {
+    // check the part of the array 'args' starting at position 'start'
+    // check that this part has the same length as 'types', then that
+    // each item has the expected type
+    if (args.length - start !== types.length) {
+        $B.RAISE(_b_.TypeError,
+            `function takes exactly ${types.length} arguments ` +
+            `(${args.length - start} given)`
+        )
+    }
+    for (let i = 0, len = types.length; i < len; i++) {
+        let type = types[i]
+        let arg = args[start + i]
+        switch(type) {
+            case 'O': // any type
+                break
+            case 'U': // str-like
+                if (! $B.is_str(arg)) {
+                    $B.RAISE(_b_.TypeError,
+                        `argument ${i + 1} must be str, ` +
+                        `not ${$B.class_name(arg)}`
+                    )
+                }
+                break
+            case 'n': // int-like
+                $B.PyNumber_Index(arg) // raise exception if not ok
+                break
+        }
+    }
+}
+
 $B.check_nb_args = function(name, expected, args) {
     // Check the number of arguments
     var len = args.length,
@@ -692,7 +723,7 @@ $B.unpacker = function(obj, nb_targets, has_starred) {
     var t = Array.from(it),
         right_length = t.length,
         left_length = nb_targets + (has_starred ? nb_after_starred - 1 : 0)
-    
+
     if((! has_starred && (right_length < nb_targets)) ||
             (has_starred && (right_length < nb_targets - 1))){
         $B.set_inum(inum)

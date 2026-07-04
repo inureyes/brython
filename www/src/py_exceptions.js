@@ -899,6 +899,177 @@ var IndexError_funcs = _b_.IndexError.tp_funcs = {}
 
 /* IndexError end */
 
+const unicode_error_members = [
+    ["encoding", $B.TYPES.OBJECT, "encoding", 0],
+    ["object", $B.TYPES.OBJECT, "object", 0],
+    ["start", $B.TYPES.OBJECT, "start", 0],
+    ["end", $B.TYPES.OBJECT, "end", 0],
+    ["reason", $B.TYPES.OBJECT, "reason", 0]
+]
+
+/* UnicodeDecodeError start */
+_b_.UnicodeDecodeError.tp_str = function(self) {
+    let len = _b_.bytes.mp_length(self.object);
+    let start = self.start
+    let end = self.end
+    let result
+
+    if ((start >= 0 && start < len) &&
+            (end >= 0 && end <= len) &&
+            end == start + 1) {
+        let badbyte = _b_.bytes.mp_subscript(self.object, start) & 0xff
+        let b = badbyte.toString(16)
+        b = '0'.repeat(2 - b.length) + b
+        result = `'${self.encoding}' codec can't decode byte 0x${b}` +
+            ` in position ${start}: ${self.reason}`
+    } else {
+        result = `'${self.encoding}' codec can't decode bytes ` +
+        `in position ${start}-${end}: ${self.reason}`
+    }
+    return result
+}
+
+_b_.UnicodeDecodeError.tp_init = function(self) {
+    let [args, kw] = $B.parse_args_kw('UnicodeDecodeError', arguments)
+    if (_b_.dict.mp_length(kw) > 0) {
+        $B.RAISE(_b_.TypeError,
+            'UnicodeDecodeError() takes no keyword arguments'
+        )
+    }
+    $B.parse_tuple(args, 1, 'UOnnU')
+    let [_, encoding, object, start, end, reason] = args
+    self.encoding = encoding
+    if (! $B.is_bytes(object)) {
+        let buf = $B.$call($B.$getattr(object, '__buffer__', $B.NULL))
+        object = buf.obj
+    }
+    self.object = object
+    self.start = start
+    self.end = end
+    self.reason = reason
+}
+
+_b_.UnicodeDecodeError.tp_new = function(cls, args, kw) {
+    let obj = {
+        ob_type: cls
+    }
+    $B.init_dict(obj)
+    return obj
+}
+
+_b_.UnicodeDecodeError.tp_members = unicode_error_members
+
+/* UnicodeDecodeError end */
+
+/* UnicodeEncodeError start */
+_b_.UnicodeEncodeError.tp_str = function(self) {
+    let obj = self.object
+    let char
+    let pos
+    if (self.end - self.start == 1) {
+        let c = _b_.str.mp_subscript(obj, self.start)
+        let cp = _b_.ord(c)
+        let s = cp.toString(16)
+        if (cp < 0xff) {
+            s = '0'.repeat(2 - s.length) + s
+        } else if (cp < 0xffff) {
+            s = '0'.repeat(4 - s.length) + s
+        } else {
+            s = '0'.repeat(8 - s.length) + s
+        }
+        char = `character '\\x${s}'`
+        pos = self.start
+    } else {
+        char = `characters`
+        pos = `${self.start}-${self.end - 1}`
+    }
+    return `'${self.encoding}' codec can't encode ` +
+           `${char} in position ${pos}: ${self.reason}`
+}
+
+_b_.UnicodeEncodeError.tp_init = function(self) {
+    let [args, kw] = $B.parse_args_kw('UnicodeEncodeError', arguments)
+    if (_b_.dict.mp_length(kw) > 0) {
+        $B.RAISE(_b_.TypeError,
+            'UnicodeEncodeError() takes no keyword arguments'
+        )
+    }
+    $B.parse_tuple(args, 1, 'UUnnU')
+    let [_, encoding, object, start, end, reason] = args
+    self.encoding = encoding
+    self.object = object
+    self.start = start
+    self.end = end
+    self.reason = reason
+}
+
+_b_.UnicodeEncodeError.tp_new = function(cls, args, kw) {
+    let obj = {
+        ob_type: cls
+    }
+    $B.init_dict(obj)
+    return obj
+}
+
+_b_.UnicodeEncodeError.tp_members = unicode_error_members
+
+/* UnicodeEncodeError end */
+
+/* UnicodeTranslateError start */
+_b_.UnicodeTranslateError.tp_str = function(self) {
+    let obj = self.object
+    let char
+    let pos
+    if (self.end - self.start == 1) {
+        let c = _b_.str.mp_subscript(obj, self.start)
+        let cp = _b_.ord(c)
+        let s = cp.toString(16)
+        if (cp < 0xff) {
+            s = '0'.repeat(2 - s.length) + s
+        } else if (cp < 0xffff) {
+            s = '0'.repeat(4 - s.length) + s
+        } else {
+            s = '0'.repeat(8 - s.length) + s
+        }
+        char = `character '\\x${s}'`
+        pos = self.start
+    } else {
+        char = `characters`
+        pos = `${self.start}-${self.end - 1}`
+    }
+    return `'${self.encoding}' codec can't translate ` +
+           `${char} in position ${pos}: ${self.reason}`
+}
+
+_b_.UnicodeTranslateError.tp_init = function(self) {
+    let [args, kw] = $B.parse_args_kw('UnicodeTranslateError', arguments)
+    if (_b_.dict.mp_length(kw) > 0) {
+        $B.RAISE(_b_.TypeError,
+            'UnicodeTranslateError() takes no keyword arguments'
+        )
+    }
+    $B.parse_tuple(args, 1, "UnnU")
+
+    let [_, encoding, object, start, end, reason] = args
+    self.encoding = encoding
+    self.object = object
+    self.start = start
+    self.end = end
+    self.reason = reason
+}
+
+_b_.UnicodeTranslateError.tp_new = function(cls, args, kw) {
+    let obj = {
+        ob_type: cls
+    }
+    $B.init_dict(obj)
+    return obj
+}
+
+_b_.UnicodeTranslateError.tp_members = unicode_error_members
+
+/* UnicodeTranslateError end */
+
 // Shortcut to create a NameError
 $B.name_error = function(name) {
     var exc = $B.$call(_b_.NameError, `name '${name}' is not defined`)
@@ -1783,6 +1954,8 @@ $B.handle_error = function(err) {
     // Throw the error to stop execution
     throw err
 }
+
+console.log('UnicodeEncodeError', _b_.UnicodeEncodeError.tp_members)
 
 })(__BRYTHON__);
 

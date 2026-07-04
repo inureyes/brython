@@ -724,8 +724,8 @@ $B.unicode_titles={"\u01c5":"\u01c5","\u01c6":"\u01c5","\u01c4":"\u01c5","\u01c8
 "use strict";
 __BRYTHON__.implementation=[3,14,3,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-07-03 08:11:59.425300"
-__BRYTHON__.timestamp=1783059119425
+__BRYTHON__.compiled_date="2026-07-04 09:25:31.414279"
+__BRYTHON__.timestamp=1783149931414
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","unicodedata","xml_helpers","xml_parser"];
 ;
 
@@ -1669,6 +1669,22 @@ if(! getitem){try{
 getitem=$B.$getattr(cls,'__getitem__')}catch(err){$B.RAISE(_b_.TypeError,`'${$B.class_name(kw_arg)}' object is not subscriptable`)}}
 kwa[k]=getitem(kw_arg,k)}}}
 return kwa}
+$B.parse_tuple=function(args,start,types){
+if(args.length-start !==types.length){$B.RAISE(_b_.TypeError,`function takes exactly ${types.length} arguments `+
+`(${args.length - start} given)`
+)}
+for(let i=0,len=types.length;i < len;i++){let type=types[i]
+let arg=args[start+i]
+switch(type){case 'O':
+break
+case 'U':
+if(! $B.is_str(arg)){$B.RAISE(_b_.TypeError,`argument ${i + 1} must be str, `+
+`not ${$B.class_name(arg)}`
+)}
+break
+case 'n':
+$B.PyNumber_Index(arg)
+break}}}
 $B.check_nb_args=function(name,expected,args){
 var len=args.length,last=args[len-1]
 if(last && last.$kw){var kw=last.$kw
@@ -6295,6 +6311,94 @@ _b_.UnboundLocalError.tp_repr=function(self){return self.args[0]}
 $B.set_func_names(_b_.UnboundLocalError,'builtins')
 _b_.IndexError.tp_new=function(cls,args,kw){return _b_.BaseException.tp_new(cls,args,kw)}
 var IndexError_funcs=_b_.IndexError.tp_funcs={}
+const unicode_error_members=[["encoding",$B.TYPES.OBJECT,"encoding",0],["object",$B.TYPES.OBJECT,"object",0],["start",$B.TYPES.OBJECT,"start",0],["end",$B.TYPES.OBJECT,"end",0],["reason",$B.TYPES.OBJECT,"reason",0]
+]
+_b_.UnicodeDecodeError.tp_str=function(self){let len=_b_.bytes.mp_length(self.object);
+let start=self.start
+let end=self.end
+let result
+if((start >=0 && start < len)&&
+(end >=0 && end <=len)&&
+end==start+1){let badbyte=_b_.bytes.mp_subscript(self.object,start)& 0xff
+let b=badbyte.toString(16)
+b='0'.repeat(2-b.length)+b
+result=`'${self.encoding}' codec can't decode byte 0x${b}`+
+` in position ${start}: ${self.reason}`}else{
+result=`'${self.encoding}' codec can't decode bytes `+
+`in position ${start}-${end}: ${self.reason}`}
+return result}
+_b_.UnicodeDecodeError.tp_init=function(self){let[args,kw]=$B.parse_args_kw('UnicodeDecodeError',arguments)
+if(_b_.dict.mp_length(kw)> 0){$B.RAISE(_b_.TypeError,'UnicodeDecodeError() takes no keyword arguments'
+)}
+$B.parse_tuple(args,1,'UOnnU')
+let[_,encoding,object,start,end,reason]=args
+self.encoding=encoding
+if(! $B.is_bytes(object)){let buf=$B.$call($B.$getattr(object,'__buffer__',$B.NULL))
+object=buf.obj}
+self.object=object
+self.start=start
+self.end=end
+self.reason=reason}
+_b_.UnicodeDecodeError.tp_new=function(cls,args,kw){let obj={ob_type:cls}
+$B.init_dict(obj)
+return obj}
+_b_.UnicodeDecodeError.tp_members=unicode_error_members
+_b_.UnicodeEncodeError.tp_str=function(self){let obj=self.object
+let char
+let pos
+if(self.end-self.start==1){let c=_b_.str.mp_subscript(obj,self.start)
+let cp=_b_.ord(c)
+let s=cp.toString(16)
+if(cp < 0xff){s='0'.repeat(2-s.length)+s}else if(cp < 0xffff){s='0'.repeat(4-s.length)+s}else{
+s='0'.repeat(8-s.length)+s}
+char=`character '\\x${s}'`
+pos=self.start}else{
+char=`characters`
+pos=`${self.start}-${self.end - 1}`}
+return `'${self.encoding}' codec can't encode `+
+`${char} in position ${pos}: ${self.reason}`}
+_b_.UnicodeEncodeError.tp_init=function(self){let[args,kw]=$B.parse_args_kw('UnicodeEncodeError',arguments)
+if(_b_.dict.mp_length(kw)> 0){$B.RAISE(_b_.TypeError,'UnicodeEncodeError() takes no keyword arguments'
+)}
+$B.parse_tuple(args,1,'UUnnU')
+let[_,encoding,object,start,end,reason]=args
+self.encoding=encoding
+self.object=object
+self.start=start
+self.end=end
+self.reason=reason}
+_b_.UnicodeEncodeError.tp_new=function(cls,args,kw){let obj={ob_type:cls}
+$B.init_dict(obj)
+return obj}
+_b_.UnicodeEncodeError.tp_members=unicode_error_members
+_b_.UnicodeTranslateError.tp_str=function(self){let obj=self.object
+let char
+let pos
+if(self.end-self.start==1){let c=_b_.str.mp_subscript(obj,self.start)
+let cp=_b_.ord(c)
+let s=cp.toString(16)
+if(cp < 0xff){s='0'.repeat(2-s.length)+s}else if(cp < 0xffff){s='0'.repeat(4-s.length)+s}else{
+s='0'.repeat(8-s.length)+s}
+char=`character '\\x${s}'`
+pos=self.start}else{
+char=`characters`
+pos=`${self.start}-${self.end - 1}`}
+return `'${self.encoding}' codec can't translate `+
+`${char} in position ${pos}: ${self.reason}`}
+_b_.UnicodeTranslateError.tp_init=function(self){let[args,kw]=$B.parse_args_kw('UnicodeTranslateError',arguments)
+if(_b_.dict.mp_length(kw)> 0){$B.RAISE(_b_.TypeError,'UnicodeTranslateError() takes no keyword arguments'
+)}
+$B.parse_tuple(args,1,"UnnU")
+let[_,encoding,object,start,end,reason]=args
+self.encoding=encoding
+self.object=object
+self.start=start
+self.end=end
+self.reason=reason}
+_b_.UnicodeTranslateError.tp_new=function(cls,args,kw){let obj={ob_type:cls}
+$B.init_dict(obj)
+return obj}
+_b_.UnicodeTranslateError.tp_members=unicode_error_members
 $B.name_error=function(name){var exc=$B.$call(_b_.NameError,`name '${name}' is not defined`)
 exc.name=name
 return exc}
@@ -6658,7 +6762,8 @@ console.log('handle error',$B.frame_obj)
 if(err.$handled){return}
 err.$handled=true
 $B.show_error(err)
-throw err}})(__BRYTHON__);
+throw err}
+console.log('UnicodeEncodeError',_b_.UnicodeEncodeError.tp_members)})(__BRYTHON__);
 ;
 "use strict";
 (function($B){var _b_=$B.builtins,None=_b_.None,range=_b_.range
