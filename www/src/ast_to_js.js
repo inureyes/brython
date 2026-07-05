@@ -1857,7 +1857,7 @@ $B.ast.ClassDef.prototype.to_js = function(scopes) {
             js += prefix + `$B.$import('typing')\n` +
                   prefix + 'var typing = $B.imported.typing\n' +
                   prefix + `var Unpack = $B.module_getattr(typing, 'Unpack')\n` +
-                  prefix + `var unpack = $B.$call(Unpack, '__getitem__'))\n`
+                  prefix + `var unpack = x => $B.$getitem(Unpack, x)\n`
         }
         var name_map = new Map()
         for (let item of this.type_params) {
