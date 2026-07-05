@@ -485,7 +485,7 @@ _b_.object.tp_new = function(cls, args, kw) {
         $B.RAISE(_b_.TypeError,
             `Can't instantiate abstract class ${$B.get_name(cls)} ` +
             `without an implementation for abstract method${plural} ` +
-            ` '${am.join(', ')}'`
+            am.map(m => `'${m}'`).join(', ')
         )
     }
     var res = {
