@@ -90,9 +90,10 @@ function compiler_error(ast_obj, message, end) {
     prefix = ''
     var exc = $B.EXC(_b_.SyntaxError, message)
     exc.filename = state.filename
-    if (exc.filename != '<string>') {
-        var src = $B.file_cache[exc.filename],
-            lines = src.split('\n'),
+    var src = exc.filename == '<string>' ?
+        undefined : $B.file_cache[exc.filename]
+    if (src !== undefined) {
+        var lines = src.split('\n'),
             line = lines[ast_obj.lineno - 1]
         exc.text = line
     } else {
