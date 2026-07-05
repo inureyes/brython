@@ -2765,6 +2765,13 @@ _b_.bytes.bf_getbuffer = function(self, flags) {
 
 var bytes_funcs = _b_.bytes.tp_funcs = {}
 
+bytes_funcs.__sizeof__ = function(self) {
+    // CPython: 33 (the PyBytesObject header) + one byte per item.
+    // 33 is the 64-bit build value (Brython emulates a 64-bit CPython;
+    // a 32-bit build, e.g. Pyodide, says 17 + len)
+    return 33 + (self.source ? self.source.length : 0)
+}
+
 bytes_funcs.__bytes__ = function(self) {
     if ($B.exact_type(self, _b_.bytes)) {
         return self
@@ -2981,6 +2988,7 @@ bytes_funcs.zfill = function() {
 }
 
 _b_.bytes.tp_methods = [
+    "__sizeof__",
     "__getnewargs__", "__bytes__", "capitalize", "center", "count", "decode",
     "endswith", "expandtabs", "find", "hex", "index", "isalnum", "isalpha",
     "isascii", "isdigit", "islower", "isspace", "istitle", "isupper", "join",
