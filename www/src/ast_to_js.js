@@ -1531,12 +1531,14 @@ $B.ast.AsyncWith.prototype.to_js = function(scopes) {
         dedent()
         s += prefix + `} catch (err_${id}) {\n`
         indent()
-        s += prefix + `frame.$lineno = ${lineno}\n` +
-             prefix + `exc_${id} = false\n` +
+        s += prefix + `exc_${id} = false\n` +
              prefix + `err_${id} = $B.exception(err_${id}, frame)\n` +
+             prefix + `var lineno_${id} = frame.$lineno\n` +
+             prefix + `frame.$lineno = ${lineno}\n` +
              prefix + `var $b = await $B.promise(aexit_${id}(mgr_${id}, $B.get_class(err_${id}), \n` +
              prefix + tab.repeat(4) + `err_${id}, $B.$getattr(err_${id}, '__traceback__')))\n` +
              prefix + `if (! $B.$bool($b)) {\n` +
+             prefix + tab + `frame.$lineno = lineno_${id}\n` +
              prefix + tab + `throw err_${id}\n` +
              prefix + `}\n`
         dedent()
@@ -1544,8 +1546,8 @@ $B.ast.AsyncWith.prototype.to_js = function(scopes) {
         dedent()
         s += prefix + `}finally{\n`
         indent()
-        s += prefix + `frame.$lineno = ${lineno}\n` +
-             prefix + `if (exc_${id}) {\n` +
+        s += prefix + `if (exc_${id}) {\n` +
+             prefix + tab + `frame.$lineno = ${lineno}\n` +
              prefix + tab + `await $B.promise(aexit_${id}(mgr_${id}, _b_.None, _b_.None, _b_.None))\n` +
              prefix + `}\n`
         dedent()
@@ -2702,7 +2704,8 @@ $B.ast.FunctionDef.prototype.to_js = function(scopes) {
 
     scopes.pop()
 
-    var qualname = lexical_qualname(this.name, scopes)
+    var qualname = lexical_qualname(this.$is_lambda ? '<lambda>' : this.name,
+        scopes)
 
     // Flags
     var flags = $B.COMPILER_FLAGS.OPTIMIZED | $B.COMPILER_FLAGS.NEWLOCALS
@@ -2789,7 +2792,7 @@ $B.ast.FunctionDef.prototype.to_js = function(scopes) {
     js += prefix + `${name2}.$function_infos = [` +
         `'${gname}', ` +
         `'${this.$is_lambda ? '<lambda>': this.name}', ` +
-        `'${this.$is_lambda ? '<lambda>': qualname}', ` +
+        `'${qualname}', ` +
         `__file__, ` +
         `${defaults}, ` +
         `${kw_defaults}, ` +
@@ -4212,13 +4215,15 @@ $B.ast.With.prototype.to_js = function(scopes) {
         dedent()
         s += prefix + `} catch (err_${id}) {\n`
         indent()
-        s += prefix + `frame.$lineno = ${lineno}\n` +
-             prefix + `exc_${id} = false\n` +
+        s += prefix + `exc_${id} = false\n` +
              prefix + `err_${id} = $B.exception(err_${id}, frame)\n` +
+             prefix + `var lineno_${id} = frame.$lineno\n` +
+             prefix + `frame.$lineno = ${lineno}\n` +
              prefix + `var $b = $B.$call(exit_${id}, $B.get_class(err_${id}), ` +
                   `err_${id}, \n` +
              prefix + tab.repeat(4) + `$B.$getattr(err_${id}, '__traceback__'))\n` +
              prefix + `if (! $B.$bool($b)) {\n` +
+             prefix + tab + `frame.$lineno = lineno_${id}\n` +
              prefix + tab + `throw err_${id}\n` +
              prefix + `}\n`
         dedent()
@@ -4226,9 +4231,9 @@ $B.ast.With.prototype.to_js = function(scopes) {
         dedent()
         s += prefix + `}finally{\n`
         indent()
-        s += prefix + `frame.$lineno = ${lineno}\n` +
-             (in_generator ? prefix + `locals.$context_managers.pop()\n` : '') +
-             prefix + `if (exc_${id}) {\n`
+        s += (in_generator ? prefix + `locals.$context_managers.pop()\n` : '') +
+             prefix + `if (exc_${id}) {\n` +
+             prefix + tab + `frame.$lineno = ${lineno}\n`
         indent()
         s += prefix + `try {\n` +
              prefix + tab + `$B.$call(exit_${id}, _b_.None, _b_.None, _b_.None)\n` +
