@@ -724,8 +724,8 @@ $B.unicode_titles={"\u01c5":"\u01c5","\u01c6":"\u01c5","\u01c4":"\u01c5","\u01c8
 "use strict";
 __BRYTHON__.implementation=[3,14,3,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-07-05 08:05:16.673900"
-__BRYTHON__.timestamp=1783231516673
+__BRYTHON__.compiled_date="2026-07-11 07:12:11.274955"
+__BRYTHON__.timestamp=1783746731269
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","unicodedata","xml_helpers","xml_parser"];
 ;
 
@@ -4941,7 +4941,7 @@ return func
 default:
 break}}}
 try{
-var in_klass_dict=$B.get_dict(klass)[attr]
+var in_klass_dict=$B.search_in_mro(klass,attr,$B.NULL)
 var own_dict=$B.get_dict(obj)
 var in_own_dict=own_dict
 ? own_dict.hasOwnProperty(attr)
@@ -13697,7 +13697,7 @@ DOMNode_funcs.width_get=function(self){return dimension_get(self,'width')}
 DOMNode_funcs.width_set=function(self,value){return dimension_set(self,'width',value)}
 DOMNode.tp_getset=["abs_left","abs_top","class_name","closest","html","scrolled_left","scrolled_top","style","text","height","left","top","width","parent"
 ]
-DOMNode.tp_methods=["__dir__","bind","bindings","children","child_nodes","clear","clone","events","get","index","inside","reset","select","select_one","setSelectionRange","trigger","unbind"
+DOMNode.tp_methods=["__dir__","attach","bind","bindings","children","child_nodes","clear","clone","events","get","index","inside","reset","select","select_one","setSelectionRange","trigger","unbind"
 ]
 $B.set_func_names(DOMNode,"builtins")
 var Query=$B.make_builtin_class("query")
