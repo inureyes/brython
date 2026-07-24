@@ -724,8 +724,8 @@ $B.unicode_titles={"\u01c5":"\u01c5","\u01c6":"\u01c5","\u01c4":"\u01c5","\u01c8
 "use strict";
 __BRYTHON__.implementation=[3,14,3,'dev',0]
 __BRYTHON__.version_info=[3,14,0,'final',0]
-__BRYTHON__.compiled_date="2026-07-11 07:12:11.274955"
-__BRYTHON__.timestamp=1783746731269
+__BRYTHON__.compiled_date="2026-07-24 07:49:14.003802"
+__BRYTHON__.timestamp=1784872154003
 __BRYTHON__.builtin_module_names=["_ajax","_ast","_base64","_binascii","_io_classes","_json","_jsre","_locale","_multiprocessing","_posixsubprocess","_profile","_random","_sre","_sre_utils","_string","_svg","_symtable","_tokenize","_webcomponent","_webworker","_zlib_utils","array","builtins","dis","encoding_cp932","encoding_cp932_v2","hashlib","html_parser","marshal","math","modulefinder","posix","pyexpat","python_re","unicodedata","xml_helpers","xml_parser"];
 ;
 
@@ -14512,9 +14512,7 @@ if($B.get_option('debug')==10){console.log("$import "+mod_name)
 console.log("use VFS ? "+$B.use_VFS)
 console.log("use static stdlib paths ? "+
 $B.get_option('static_stdlib_import'))}
-var current_frame=$B.frame_obj.frame,_globals=current_frame[3],__import__=_globals["__import__"],globals=$B.obj_dict(_globals)
-if(__import__===undefined){
-__import__=$B.$__import__}
+var current_frame=$B.frame_obj.frame,_globals=current_frame[3],__import__=_b_.__import__,globals=$B.obj_dict(_globals)
 var importer=typeof __import__=="function" ?
 __import__ :
 $B.$getattr(__import__,"__call__")
